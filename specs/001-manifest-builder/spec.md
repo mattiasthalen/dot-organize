@@ -32,8 +32,8 @@ As a data engineer, I want to validate an existing HOOK manifest file so that I 
 **Acceptance Scenarios**:
 
 1. **Given** a valid manifest file, **When** I run `hook validate manifest.yaml`, **Then** the tool exits with code 0 and prints "Manifest is valid."
-2. **Given** a manifest with a hook missing its key set, **When** I run `hook validate manifest.yaml`, **Then** the tool exits with code 1 and prints an ERROR referencing rule ID `HOOK-001` with the path to the invalid hook.
-3. **Given** a manifest with duplicate key set values, **When** I run `hook validate manifest.yaml`, **Then** the tool exits with code 1 and prints an ERROR referencing rule ID `KEYSET-002`.
+2. **Given** a manifest with a hook missing required fields (name, role, concept, source, or expr_sql), **When** I run `hook validate manifest.yaml`, **Then** the tool exits with code 1 and prints an ERROR referencing rule ID `HOOK-001` with the path to the invalid hook.
+3. **Given** a manifest with duplicate key set values (same CONCEPT@SOURCE derived from multiple hooks), **When** I run `hook validate manifest.yaml`, **Then** the tool exits with code 1 and prints an ERROR referencing rule ID `KEYSET-001`.
 4. **Given** a manifest with a warning-level issue (e.g., >100 business concepts), **When** I run `hook validate manifest.yaml`, **Then** the tool exits with code 0 but prints a WARN message.
 5. **Given** any manifest, **When** I run `hook validate manifest.yaml --json`, **Then** the tool outputs machine-readable JSON diagnostics.
 
@@ -338,12 +338,12 @@ The tool automatically derives from frames:
 ### Human-Readable (default)
 
 ```
-ERROR [HOOK-001] Hook 'HK_CUSTOMER' is missing key set reference
-  at: hooks[0].key_set_id
-  fix: Add a valid key_set_id that references an existing key set
+ERROR [HOOK-001] Hook '_hk__customer' is missing required field 'expr_sql'
+  at: frames[0].hooks[0].expr_sql
+  fix: Add expr_sql with a valid SQL expression for the business key
 
 WARN [CONCEPT-W01] 142 business concepts defined; consider consolidating (target: ≤100)
-  at: business_concepts
+  at: concepts
   fix: Review concepts for potential consolidation using key sets for sub-types
 ```
 

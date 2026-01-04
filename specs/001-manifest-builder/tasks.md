@@ -87,12 +87,13 @@
 - [ ] T038 [US1] Add entry point `hook = "hook.cli.main:app"` in pyproject.toml [project.scripts]
 - [ ] T039 [US1] Implement `hook validate <path>` command with exit codes (0=valid, 1=error, 2=usage) in src/hook/cli/validate.py
 - [ ] T040 [US1] Implement human-readable diagnostic output (severity, rule_id, path, message, fix) in src/hook/cli/validate.py
+- [ ] T040a [US1] Implement --no-color flag to disable ANSI escape codes (NFR-011) in src/hook/cli/validate.py
 - [ ] T041 [US1] Implement --json flag for machine-readable JSON diagnostics in src/hook/cli/validate.py
 
 ### Tests & Fixtures
 
-- [ ] T042 [P] [US1] Create invalid fixture: missing_hook.yaml (HOOK-001 violation) in tests/fixtures/invalid/
-- [ ] T043 [P] [US1] Create invalid fixture: duplicate_keyset.yaml (KEYSET-001 violation) in tests/fixtures/invalid/
+- [ ] T042 [P] [US1] Create invalid fixture: missing_fields.yaml (HOOK-001 violation: hook missing required fields) in tests/fixtures/invalid/
+- [ ] T043 [P] [US1] Create invalid fixture: duplicate_keyset.yaml (KEYSET-001 violation: duplicate derived key sets) in tests/fixtures/invalid/
 - [ ] T044 [P] [US1] Create invalid fixture: bad_expression.yaml (HOOK-006/007 violation) in tests/fixtures/invalid/
 - [ ] T045 [P] [US1] Create invalid fixture: missing_primary.yaml (FRAME-003 violation) in tests/fixtures/invalid/
 - [ ] T046 [P] [US1] Create invalid fixture: bad_naming.yaml (HOOK-002/004/005 violations) in tests/fixtures/invalid/
@@ -138,6 +139,7 @@
 - [ ] T062 [US2] Implement wizard skeleton with typer prompts in src/hook/cli/init.py
 - [ ] T063 [US2] Implement frame-first workflow: frames → hooks → key sets → concepts in src/hook/cli/init.py
 - [ ] T064 [US2] Implement real-time input validation (reject invalid names, prompt again) in src/hook/cli/init.py
+- [ ] T064a [US2] Implement auto-suggest valid names based on naming conventions (FR-026) in src/hook/cli/init.py
 - [ ] T065 [US2] Implement YAML preview before writing in src/hook/cli/init.py
 - [ ] T066 [US2] Implement overwrite confirmation (prompt if file exists) in src/hook/cli/init.py
 - [ ] T067 [US2] Implement --output flag with format detection (.json → JSON, else YAML) in src/hook/cli/init.py
@@ -197,6 +199,7 @@
 - [ ] T090 [P] Add pre-commit hooks configuration (.pre-commit-config.yaml)
 - [ ] T091 Type check all modules with mypy strict mode
 - [ ] T092 Ensure test coverage: 100% for src/hook/core/, ≥80% for src/hook/cli/
+- [ ] T092a Add performance benchmark: validate 1000-line manifest in <1s (NFR-001) in tests/benchmark/
 - [ ] T093 Write docstrings for all public functions
 - [ ] T094 Test PyPI release: verify `pip install hook` works
 
@@ -282,12 +285,12 @@ T052-T054: All three examples
 |-------|-------|-----------|-------------|
 | 1. Setup | T001-T009 (9) | 0.5 | No |
 | 2. Foundation | T010-T020 (11) | 1.5 | No |
-| 3. US1 Validate | T021-T051 (31) | 4 | ✅ Yes |
+| 3. US1 Validate | T021-T051 + T040a (32) | 4 | ✅ Yes |
 | 4. US4 Examples | T052-T061 (10) | 1 | ✅ Yes |
-| 5. US2 Wizard | T062-T070 (9) | 1.5 | ✅ Yes |
+| 5. US2 Wizard | T062-T070 + T064a (10) | 1.5 | ✅ Yes |
 | 6. US3 Non-Interactive | T071-T077 (7) | 1 | ✅ Yes |
 | 7. marimo UI | T078-T086 (9) | 1.5 | Optional |
-| 8. Release | T087-T094 (8) | 1 | ✅ Yes |
-| **Total** | **94 tasks** | **~12 days** | |
+| 8. Release | T087-T094 + T092a (9) | 1 | ✅ Yes |
+| **Total** | **97 tasks** | **~12 days** | |
 
 **MVP (Phases 1-4)**: 61 tasks, ~7 days → shippable `hook validate` + `hook examples`
