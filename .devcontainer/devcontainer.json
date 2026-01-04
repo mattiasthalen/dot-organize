@@ -1,0 +1,28 @@
+{
+  "name": "python-uv-speckit",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",
+  "remoteUser": "vscode",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "ms-python.mypy-type-checker",
+        "github.copilot",
+        "github.copilot-chat"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.testing.pytestEnabled": true
+      }
+    }
+  },
+
+  "mounts": [
+    "source=uv-cache,target=/home/vscode/.cache/uv,type=volume"
+  ],
+
+  "postCreateCommand": "set -e; curl -LsSf https://astral.sh/uv/install.sh | sh; export PATH=\"$HOME/.local/bin:$PATH\"; uv --version; uv tool install specify-cli --from git+https://github.com/github/spec-kit.git; specify --help || true; if [ -f pyproject.toml ]; then uv sync --dev || uv sync; fi"
+}
