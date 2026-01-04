@@ -299,6 +299,27 @@ Generators produce output (SQL, USS SQL, Qlik scripts, etc.) from the manifest.
 - MINOR: new features, backward-compatible.
 - PATCH: bug fixes, documentation, refactoring.
 
+### Commit Message Standards
+
+Commit messages MUST use the following prefixes to indicate the type of change:
+
+| Prefix | Usage |
+|--------|-------|
+| `spec:` | Specification changes (specs/, clarifications, requirements) |
+| `impl:` | Implementation changes (source code, tests) |
+| `docs:` | Documentation only (README, user guides, API docs) |
+| `fix:` | Bug fixes |
+| `refactor:` | Code restructuring without behavior change |
+| `chore:` | Tooling, CI, dependencies |
+
+**Format**: `<prefix> <short description>` (lowercase prefix, imperative mood)
+
+**Examples**:
+- `spec: add manifest builder feature specification`
+- `impl: add YAML validation for manifest schema`
+- `fix: handle null business keys correctly`
+- `docs: update README with installation instructions`
+
 ### Open Source
 
 - All code MUST be licensed under an OSI-approved license.
