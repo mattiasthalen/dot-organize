@@ -139,7 +139,7 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - **FR-031**: Manifest MUST include `schema_version` field indicating manifest schema version.
 - **FR-032**: Manifest MUST include `frames` array as the primary content.
 - **FR-033**: Each frame MUST include `name`, `source`, and at least one hook.
-- **FR-034**: Each hook MUST include `name`, `role`, `concept`, `source`, and `expression`.
+- **FR-034**: Each hook MUST include `name`, `role`, `concept`, `source`, and `expr_sql`.
 - **FR-035**: Hook `role` MUST be `primary` (defines frame grain) or `foreign` (references other concept).
 - **FR-036**: Key sets MUST be auto-derived from hook fields as `<CONCEPT>[~<QUALIFIER>]@<SOURCE>[~<TENANT>]`.
 - **FR-037**: Manifest MAY include optional `concepts` array for definitions/examples (enrichment only).
@@ -224,7 +224,7 @@ frames:
         qualifier: string          # Optional qualifier suffix (e.g., "manager")
         source: string             # Source system (e.g., "CRM") — key set uses @SOURCE
         tenant: string             # Optional tenant (e.g., "AU") — appended as @SOURCE~TENANT
-        expression: string         # Column name or SQL expression (e.g., "customer_id", "order_id || '-' || line_no")
+        expr_sql: string           # SQL expression for business key (e.g., "customer_id", "order_id || '-' || line_no")
         treatment: string          # Optional transformation (e.g., "TRIM|UPPER|LPAD:6:0")
 
 concepts:                          # Optional: definitions for auto-derived concepts
@@ -265,7 +265,7 @@ The tool automatically derives from frames:
 | HOOK-003 | Hook role must be "primary" or "foreign" | Principle VI |
 | HOOK-004 | Hook concept must be lower_snake_case | Principle III |
 | HOOK-005 | Hook source must be UPPER_SNAKE_CASE | Principle IV |
-| HOOK-006 | Hook expression must not be empty | Principle II |
+| HOOK-006 | Hook expr_sql must not be empty | Principle II |
 | HOOK-007 | Treatment must use valid syntax and known operations | Principle II |
 | KEYSET-001 | Auto-derived key sets must be globally unique | Principle IV |
 | CONCEPT-001 | Concept in `concepts` section must match a concept used in frames | Principle III |
@@ -368,7 +368,7 @@ frames:
         role: "primary"
         concept: "customer"
         source: "CRM"
-        expression: "customer_id"
+        expr_sql: "customer_id"
 
 concepts:  # Optional enrichment
   - name: "customer"
@@ -423,6 +423,7 @@ Customer, Order, Product from multiple sources with region traversal capability.
 - Q: How should weak hooks be prefixed? → A: User explicitly names hook with `_wk__` prefix. Validator warns if mismatch with `is_weak` flag in concepts section.
 - Q: Key set recipe order — concept-first or source-first? → A: Concept-first with `@` separator: `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]`. Groups by meaning, unambiguous parsing.
 - Q: Should validation block on error or report all errors? → A: Report mode. Collect all errors, print summary, exit 1 if errors but don't lose user work. User shouldn't lose extensive input over one typo.
+- Q: Should the expression field be named for extensibility? → A: Yes. Rename to `expr_sql` because future versions will add other expression types like `expr_qlik`.
 
 ---
 
