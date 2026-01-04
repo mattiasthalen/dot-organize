@@ -299,7 +299,7 @@ examples/
 
 **Done when**:
 - All 16 ERROR rules from spec are implemented
-- All 5 WARN rules from spec are implemented
+- All 7 WARN rules from spec are implemented
 - expr_sql rejects SELECT, JOIN, subqueries, non-deterministic functions
 - Auto-derived key sets follow `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]`
 
@@ -316,7 +316,7 @@ examples/
 | M2-02 | Implement HOOK rules | HOOK-001 to HOOK-007 | M1-07, M1-08, M2-10 | [spec.md §7.1](spec.md#71-error-severity) |
 | M2-03 | Implement KEYSET rules | KEYSET-001 (uniqueness) | M2-07 | [spec.md §7.1](spec.md#71-error-severity) |
 | M2-04 | Implement CONCEPT rules | CONCEPT-001, CONCEPT-002 | M1-07, M2-08 | [spec.md §7.1](spec.md#71-error-severity) |
-| M2-06 | Implement WARN rules | CONCEPT-W01, HOOK-W01, FRAME-W01, FRAME-W02, TARGET-W01 | M2-01 to M2-05 | [spec.md §7.2](spec.md#72-warn-severity) |
+| M2-06 | Implement WARN rules | CONCEPT-W01, HOOK-W01, FRAME-W01 to W03, TARGET-W01, MANIFEST-W01 | M2-01 to M2-05 | [spec.md §7.2](spec.md#72-warn-severity) |
 | M2-11 | Create invalid fixtures | One per rule for negative testing | M2-01 to M2-06 | [data-model.md §Implementation Cookbook](data-model.md#fixture-templates) |
 | M2-12 | Unit tests for all rules | Each rule has positive + negative test | M2-11 | [data-model.md §Implementation Cookbook](data-model.md#test-patterns) |
 
@@ -385,6 +385,7 @@ examples/
 | M4-10 | Implement examples show | Display example content, --output flag | M4-09 | [spec.md §6.1](spec.md#61-cli-commands) |
 | M4-11 | Add entry point | `hook` command in pyproject.toml | M4-01 | [quickstart.md](quickstart.md#pyprojecttoml-template) |
 | M4-12 | CLI integration tests | Test all commands via subprocess | M4-02 to M4-10 | [data-model.md §Implementation Cookbook](data-model.md#test-patterns) |
+| M4-13 | Implement draft save on cancel | Save `.hook-draft.yaml` on Ctrl+C if ≥1 frame entered | M4-05 | [spec.md FR-084](spec.md#functional-requirements) |
 
 ---
 

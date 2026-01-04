@@ -424,11 +424,84 @@ def validate_expr_sql(expr: str) -> list[Diagnostic]:
 
 | Rule ID | Validation Function | Spec Line |
 |---------|---------------------|-----------|
-| CONCEPT-W01 | `warn_concept_count(manifest)` | Advisory Rules table |
-| HOOK-W01 | `warn_weak_hook_prefix(hook, concepts)` | Advisory Rules table |
-| FRAME-W01 | `warn_no_unique_hooks(frame)` | Advisory Rules table |
-| FRAME-W02 | `warn_duplicate_source(manifest)` | Advisory Rules table |
-| TARGET-W01 | `warn_reserved_targets(manifest)` | Advisory Rules table |
+| CONCEPT-W01 | `warn_concept_count(manifest)` | Advisory Rules table (>100 concepts) |
+| HOOK-W01 | `warn_weak_hook_mismatch(hook, concepts)` | Advisory Rules table (prefix vs is_weak) |
+| FRAME-W01 | `warn_no_primary_only_foreign(frame)` | Advisory Rules table (no primary hook) |
+| FRAME-W02 | `warn_duplicate_source(manifest)` | Advisory Rules table (same source) |
+| FRAME-W03 | `warn_too_many_hooks(frame)` | Advisory Rules table (>20 hooks) |
+| TARGET-W01 | `warn_reserved_targets(manifest)` | Advisory Rules table (non-empty targets) |
+| MANIFEST-W01 | `warn_too_many_frames(manifest)` | Advisory Rules table (>50 frames) |
+
+---
+
+## Treatment Parsing
+
+**File**: `src/hook/core/normalization.py`
+
+### Parse Function
+
+```python
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Treatment:
+    operation: str           # LPAD, RPAD, UPPER, LOWER, TRIM
+    args: tuple[str, ...]    # Arguments (may be empty)
+
+VALID_OPERATIONS = {"LPAD", "RPAD", "UPPER", "LOWER", "TRIM"}
+
+def parse_treatment(treatment: str) -> list[Treatment] | list[Diagnostic]:
+    """
+    Parse treatment string into list of Treatment objects.
+    
+    Returns list of Treatment on success, list of Diagnostic on failure.
+    
+    Examples:
+        "TRIM|UPPER" → [Treatment("TRIM", ()), Treatment("UPPER", ())]
+        "LPAD:6:0" → [Treatment("LPAD", ("6", "0"))]
+        "UNKNOWN" → [Diagnostic(rule_id="HOOK-007", ...)]
+    """
+    if not treatment:
+        return []
+    
+    treatments: list[Treatment] = []
+    for part in treatment.split("|"):
+        tokens = part.split(":")
+        operation = tokens[0].upper()
+        args = tuple(tokens[1:])
+        
+        if operation not in VALID_OPERATIONS:
+            return [Diagnostic(
+                rule_id="HOOK-007",
+                severity=Severity.ERROR,
+                message=f"Unknown treatment operation: '{operation}'",
+                path="treatment",
+                fix=f"Use one of: {', '.join(sorted(VALID_OPERATIONS))}"
+            )]
+        
+        # Validate args for operations that require them
+        if operation in ("LPAD", "RPAD"):
+            if len(args) != 2:
+                return [Diagnostic(
+                    rule_id="HOOK-007",
+                    severity=Severity.ERROR,
+                    message=f"{operation} requires 2 arguments: width and char",
+                    path="treatment",
+                    fix=f"Example: {operation}:6:0"
+                )]
+            if not args[0].isdigit():
+                return [Diagnostic(
+                    rule_id="HOOK-007",
+                    severity=Severity.ERROR,
+                    message=f"{operation} width must be a positive integer",
+                    path="treatment",
+                    fix=f"Example: {operation}:6:0"
+                )]
+        
+        treatments.append(Treatment(operation, args))
+    
+    return treatments
+```
 
 ---
 

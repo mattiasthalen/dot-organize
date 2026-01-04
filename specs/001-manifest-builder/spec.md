@@ -54,6 +54,7 @@ As a new HOOK user, I want an interactive wizard that guides me through creating
 3. **Given** I complete the wizard, **When** I confirm the summary preview, **Then** the wizard writes a valid YAML manifest to the specified location.
 4. **Given** the output file already exists, **When** the wizard attempts to write, **Then** it prompts for confirmation before overwriting (or offers a new filename).
 5. **Given** I run `hook init --output manifest.json`, **When** I complete the wizard, **Then** the output is valid JSON instead of YAML.
+6. **Given** I cancel the wizard mid-flow with Ctrl+C, **When** I have entered at least one complete frame, **Then** the wizard saves a `.hook-draft.yaml` file in the current directory with progress so far.
 
 ---
 
@@ -94,9 +95,27 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - What happens when the manifest file path doesn't exist? → ERROR with clear message: "File not found: {path}"
 - What happens when the manifest is empty? → ERROR: "Manifest is empty or invalid YAML/JSON"
 - What happens when YAML is malformed? → ERROR with line/column: "Parse error at line X, column Y: {details}"
-- What happens when a user cancels the wizard mid-flow? → Graceful exit, no partial files written
+- What happens when a user cancels the wizard mid-flow? → Graceful exit, saves `.hook-draft.yaml` if at least one frame completed (FR-084)
 - What happens when stdin is not a TTY but interactive mode is requested? → ERROR: "Interactive mode requires a terminal. Use --from-config for non-interactive mode."
 - What happens when a reserved extension key (targets.hook_sql) contains data in v1? → WARN: "Extension 'hook_sql' is reserved for future use; contents will be ignored in v1."
+- What happens when manifest has zero frames? → ERROR [FRAME-001]: "Manifest must have at least one frame"
+- What happens when YAML parse fails mid-file? → Fail fast with line/column error; no partial manifest recovery in v1 (v2 consideration: attempt to recover valid portions)
+- What happens when a frame has multiple primary hooks? → ERROR [FRAME-003]: "Frame '{name}' has {count} primary hooks; exactly one required"
+- What happens when concept in concepts section is never used in hooks? → ERROR [CONCEPT-001]: "Concept '{name}' defined but not used in any hook"
+- What happens with duplicate concept names in concepts section? → ERROR: "Duplicate concept name: '{name}'"
+- What happens when file save fails (permission denied)? → ERROR: "Cannot write to '{path}': {os_error}". Manifest not saved, user prompted to try different path.
+- What happens with Unicode in concept names? → Allowed in descriptions/examples only. Concept names, hook names, sources MUST be ASCII (a-z, A-Z, 0-9, underscore).
+- What happens with circular hook references? → Not validated in v1 (deferred to graph traversal feature). Circular references are semantically valid for M:M relationships.
+
+---
+
+### Limits and Constraints
+
+- **Maximum frames per manifest**: No hard limit, but WARN if >50 frames (performance advisory)
+- **Maximum hooks per frame**: No hard limit, but WARN if >20 hooks per frame
+- **Maximum concepts**: WARN if >100 concepts (Dunbar guidance, CONCEPT-W01)
+- **Maximum manifest file size**: 1MB (larger files may cause slow validation)
+- **Concurrent wizard sessions**: Not supported. Wizard uses stdin/stdout; multiple terminals may conflict.
 
 ---
 
@@ -193,6 +212,33 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - **Frame**: A wrapper combining a source table with one or more hooks.
 - **Diagnostic**: A validation result with severity, rule ID, message, and path.
 
+### Non-Functional Requirements
+
+#### Performance
+
+- **NFR-001**: Validation MUST complete in <1 second for manifests up to 1000 lines on standard hardware (4-core CPU, 8GB RAM).
+- **NFR-002**: Validation MUST complete in <5 seconds for manifests up to 10,000 lines.
+- **NFR-003**: Memory usage MUST stay under 100MB for manifests up to 1MB file size.
+
+#### Accessibility
+
+- **NFR-010**: CLI error output MUST be compatible with screen readers (no ANSI escape codes in error messages by default).
+- **NFR-011**: CLI MUST support `--no-color` flag to disable colored output.
+- **NFR-012**: Error messages MUST be self-contained (no reliance on color alone for meaning).
+
+#### Internationalization
+
+- **NFR-020**: All CLI output MUST be UTF-8 encoded (FR-085).
+- **NFR-021**: Error messages are English-only in v1 (i18n deferred to future version).
+- **NFR-022**: Manifest content (descriptions, examples) MAY contain any valid UTF-8 text.
+- **NFR-023**: Identifiers (concept names, hook names, sources) MUST be ASCII-only (a-z, A-Z, 0-9, underscore).
+
+#### Compatibility
+
+- **NFR-030**: Schema version changes MUST follow semver: patch = backwards compatible fixes, minor = backwards compatible additions, major = breaking changes.
+- **NFR-031**: Manifests with schema_version 1.x.x MUST remain valid with all 1.x.x validators.
+- **NFR-032**: Unknown fields in manifest SHOULD be ignored with WARN (forward compatibility).
+
 ---
 
 ## Manifest Schema (v1)
@@ -257,31 +303,33 @@ The tool automatically derives from frames:
 | Rule ID | Description | Constitution Reference |
 |---------|-------------|------------------------|
 | FRAME-001 | Frame must have at least one hook | Principle V |
-| FRAME-002 | Frame name must match naming convention (lower_snake_case) | Principle V |
+| FRAME-002 | Frame name must match naming convention (lower_snake_case with dot separator) | Principle V |
 | FRAME-003 | Frame must have exactly one hook with role=primary | Principle VI |
 | FRAME-004 | Frame source must not be empty | Principle V |
-| HOOK-001 | Hook must have name, role, concept, source, expression | Principle II |
+| HOOK-001 | Hook must have name, role, concept, source, expr_sql | Principle II |
 | HOOK-002 | Hook name must match naming convention (prefix + concept + optional qualifier) | HOOK Semantic Definitions |
 | HOOK-003 | Hook role must be "primary" or "foreign" | Principle VI |
 | HOOK-004 | Hook concept must be lower_snake_case | Principle III |
 | HOOK-005 | Hook source must be UPPER_SNAKE_CASE | Principle IV |
 | HOOK-006 | Hook expr_sql must not be empty | Principle II |
-| HOOK-007 | Treatment must use valid syntax and known operations | Principle II |
-| KEYSET-001 | Auto-derived key sets must be globally unique | Principle IV |
-| CONCEPT-001 | Concept in `concepts` section must match a concept used in frames | Principle III |
-| CONCEPT-002 | Concept description should be 1-2 sentences | Principle III |
-| MANIFEST-001 | manifest_version must be valid semver | Principle VIII |
-| MANIFEST-002 | schema_version must be valid semver | Principle VIII |
+| HOOK-007 | Treatment must use valid syntax and known operations (LPAD, RPAD, UPPER, LOWER, TRIM) | Principle II |
+| KEYSET-001 | Auto-derived key sets must be globally unique across all hooks | Principle IV |
+| CONCEPT-001 | Concept in `concepts` section must match a concept used in at least one hook | Principle III |
+| CONCEPT-002 | Concept description must be 10-200 characters (1-2 sentences) | Principle III |
+| MANIFEST-001 | manifest_version must be valid semver (MAJOR.MINOR.PATCH, no pre-release) | Principle VIII |
+| MANIFEST-002 | schema_version must be valid semver (MAJOR.MINOR.PATCH, no pre-release) | Principle VIII |
 
 ### Advisory Rules (WARN severity)
 
 | Rule ID | Description | Constitution Reference |
 |---------|-------------|------------------------|
 | CONCEPT-W01 | More than 100 business concepts defined | Principle III (Dunbar guidance) |
-| HOOK-W01 | Hook references weak concept without WK_ prefix | HOOK Semantic Definitions |
-| FRAME-W01 | Frame has no unique hooks (potential M:M risk) | Principle VI |
-| FRAME-W02 | Multiple frames share same source_table | Principle V |
+| HOOK-W01 | Hook uses `_wk__` prefix but concept.is_weak is False (or vice versa) | HOOK Semantic Definitions |
+| FRAME-W01 | Frame has only foreign hooks (no primary = undefined grain) | Principle VI |
+| FRAME-W02 | Multiple frames share same source field value | Principle V |
+| FRAME-W03 | Frame has more than 20 hooks (complexity advisory) | Principle X |
 | TARGET-W01 | Reserved extension contains data (ignored in v1) | Principle VIII |
+| MANIFEST-W01 | Manifest has more than 50 frames (performance advisory) | Principle X |
 
 ---
 
@@ -453,12 +501,12 @@ Customer, Order, Product from multiple sources with region traversal capability.
 | Principle | How This Feature Complies |
 |-----------|---------------------------|
 | I. Organising Discipline | Manifest declares organization, not transformation logic |
-| II. Hooks as Identity | Validation enforces hooks reference key sets, not derived values |
+| II. Hooks as Identity | Validation enforces hooks use expr_sql (source expression), not derived values |
 | III. Business Concepts | Schema requires definition + examples; wizard guides creation |
-| IV. Key Sets Required | HOOK-001 rule ensures every hook has a key set |
-| V. Frames as Wrappers | Frame schema references source_table without transformation |
-| VI. Join Safety | grain_hooks + is_unique enable cardinality reasoning |
-| VII. Implied Relationships | Relationships derived from shared business_concept_id |
+| IV. Key Sets Required | Key sets auto-derived from hook fields (CONCEPT@SOURCE pattern) |
+| V. Frames as Wrappers | Frame schema references source without transformation |
+| VI. Join Safety | Hook role (primary/foreign) enables grain and cardinality reasoning |
+| VII. Implied Relationships | Relationships derived from shared concept names across hooks |
 | VIII. Manifest as SSOT | Versioned schema with extension points |
 | IX. Generators | targets.* reserved but not implemented in v1 |
 | X. Simplicity | Minimal viable schema; no speculative features |
