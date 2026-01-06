@@ -291,9 +291,9 @@ examples/
 | M1-04 | Implement Hook model | Hook with name, role, concept, qualifier, source, tenant, expression | M1-01 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
 | M1-03 | Implement Frame model | Frame with name, source, description, hooks list | M1-04 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
 | M1-02 | Implement Manifest model | Root model with metadata, settings, frames, concepts | M1-03, M1-05, M1-06 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
-| M1-08 | Implement naming validators | lower_snake_case, UPPER_SNAKE_CASE, hook naming pattern | M1-01 | [data-model.md §10](data-model.md#10-naming-convention-patterns) |
+| M1-08 | Implement naming validators | lower_snake_case, UPPER_SNAKE_CASE, hook naming pattern | M1-01 | [data-model.md §Naming Conventions](data-model.md#naming-conventions) |
 | M1-09 | Implement schema validation | Required field checks, type validation | M1-02, M1-07, M1-08 | [research/json-schema-validation-research.md](research/json-schema-validation-research.md) |
-| M1-10 | Create minimal.yaml fixture | Single concept, single hook, single frame | M1-02 | [spec.md §5](spec.md#5-manifest-schema-v1) |
+| M1-10 | Create minimal.yaml fixture | Single concept, single hook, single frame | M1-02 | [spec.md §Manifest Schema](spec.md#manifest-schema-v1) |
 | M1-11 | Unit tests for models | Serialization, validation, defaults | M1-02, M1-09 | [research/hypothesis-testing-research.md](research/hypothesis-testing-research.md) |
 
 ---
@@ -317,15 +317,16 @@ examples/
 
 | ID | Task | Description | Depends On | Ref |
 |----|------|-------------|------------|-----|
-| M2-07 | Implement key set derivation | `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]` | M1-02 | [data-model.md §9](data-model.md#9-auto-derived-registries) |
-| M2-08 | Implement concept registry | Unique concepts from all hooks | M1-02 | [data-model.md §9](data-model.md#9-auto-derived-registries) |
-| M2-09 | Implement hook registry | All hooks indexed by name | M1-02 | [data-model.md §9](data-model.md#9-auto-derived-registries) |
-| M2-05 | Implement MANIFEST rules | MANIFEST-001, MANIFEST-002 (semver) | M1-07, M1-08 | [spec.md §7.1](spec.md#71-error-severity) |
-| M2-01 | Implement FRAME rules | FRAME-001 to FRAME-004 | M1-07, M1-08 | [spec.md §7.1](spec.md#71-error-severity) |
-| M2-02 | Implement HOOK rules | HOOK-001 to HOOK-006 | M1-07, M1-08 | [spec.md §7.1](spec.md#71-error-severity) |
-| M2-03 | Implement KEYSET rules | KEYSET-001 (uniqueness) | M2-07 | [spec.md §7.1](spec.md#71-error-severity) |
-| M2-04 | Implement CONCEPT rules | CONCEPT-001, CONCEPT-002 | M1-07, M2-08 | [spec.md §7.1](spec.md#71-error-severity) |
-| M2-06 | Implement WARN rules | CONCEPT-W01, HOOK-W01, FRAME-W01 to W03, MANIFEST-W01 | M2-01 to M2-05 | [spec.md §7.2](spec.md#72-warn-severity) |
+| M2-07 | Implement key set derivation | `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]` | M1-02 | [data-model.md §Auto-Derived Registries](data-model.md#auto-derived-registries) |
+| M2-08 | Implement concept registry | Unique concepts from all hooks | M1-02 | [data-model.md §Auto-Derived Registries](data-model.md#auto-derived-registries) |
+| M2-09 | Implement hook registry | All hooks indexed by name | M1-02 | [data-model.md §Auto-Derived Registries](data-model.md#auto-derived-registries) |
+| M2-10 | Implement expr validation | Forbidden patterns (SELECT, FROM, JOIN, etc.) | M1-07 | [data-model.md §Expression Validation](data-model.md#expression-validation) |
+| M2-05 | Implement MANIFEST rules | MANIFEST-001, MANIFEST-002 (semver) | M1-07, M1-08 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
+| M2-01 | Implement FRAME rules | FRAME-001 to FRAME-006 | M1-07, M1-08 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
+| M2-02 | Implement HOOK rules | HOOK-001 to HOOK-006 | M1-07, M1-08, M2-10 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
+| M2-03 | Implement KEYSET rules | KEYSET-001 (uniqueness) | M2-07 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
+| M2-04 | Implement CONCEPT rules | CONCEPT-001, CONCEPT-002 | M1-07, M2-08 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
+| M2-06 | Implement WARN rules | CONCEPT-W01, HOOK-W01, FRAME-W01 to W03, MANIFEST-W01 | M2-01 to M2-05 | [spec.md §Advisory Rules](spec.md#advisory-rules-warn-severity) |
 | M2-11 | Create invalid fixtures | One per rule for negative testing | M2-01 to M2-06 | [data-model.md §Implementation Cookbook](data-model.md#fixture-templates) |
 | M2-12 | Unit tests for all rules | Each rule has positive + negative test | M2-11 | [research/hypothesis-testing-research.md](research/hypothesis-testing-research.md) |
 
@@ -384,14 +385,14 @@ examples/
 |----|------|-------------|------------|-----|
 | M4-01 | Create typer app | Main entry point with --version, --help | M1-01 | [research/typer-cli-research.md](research/typer-cli-research.md) |
 | M4-02 | Implement validate command | Path argument, --json flag, exit codes | M4-01, M2-12, M3-01 | [research/typer-cli-research.md](research/typer-cli-research.md) |
-| M4-03 | Implement human-readable output | Diagnostic formatting per spec | M4-02 | [spec.md §6.3](spec.md#63-diagnostic-format-cli) |
-| M4-04 | Implement JSON output | --json flag for machine-readable diagnostics | M4-02 | [spec.md §6.3](spec.md#63-diagnostic-format-cli) |
+| M4-03 | Implement human-readable output | Diagnostic formatting per spec | M4-02 | [spec.md §Diagnostic Format](spec.md#diagnostic-format) |
+| M4-04 | Implement JSON output | --json flag for machine-readable diagnostics | M4-02 | [spec.md §Diagnostic Format](spec.md#diagnostic-format) |
 | M4-05 | Implement init wizard | Frame-first workflow with prompts | M4-01, M1-02 | [research/interactive-wizard-research.md](research/interactive-wizard-research.md) |
 | M4-06 | Implement wizard validation | Validate each input, prevent invalid states | M4-05, M2-12 | [research/interactive-wizard-research.md](research/interactive-wizard-research.md) |
 | M4-07 | Implement wizard preview | Show YAML preview before writing | M4-05, M3-02 | [research/interactive-wizard-research.md](research/interactive-wizard-research.md) |
 | M4-08 | Implement wizard save | Write to path, prompt on overwrite | M4-07 | [research/interactive-wizard-research.md](research/interactive-wizard-research.md) |
-| M4-09 | Implement examples list | List bundled examples | M4-01 | [spec.md §6.1](spec.md#61-cli-commands) |
-| M4-10 | Implement examples show | Display example content, --output flag | M4-09 | [spec.md §6.1](spec.md#61-cli-commands) |
+| M4-09 | Implement examples list | List bundled examples | M4-01 | [spec.md §CLI Commands](spec.md#cli-commands) |
+| M4-10 | Implement examples show | Display example content, --output flag | M4-09 | [spec.md §CLI Commands](spec.md#cli-commands) |
 | M4-11 | Add entry point | `dot` command in pyproject.toml `[project.scripts]` | M4-01 | [research/uv-package-manager-research.md](research/uv-package-manager-research.md) |
 | M4-12 | CLI integration tests | Test all commands via subprocess | M4-02 to M4-10 | [data-model.md §Implementation Cookbook](data-model.md#test-patterns) |
 | M4-13 | Implement draft save on cancel | Save `.dot-draft.yaml` on Ctrl+C if ≥1 frame entered | M4-05 | [research/interactive-wizard-research.md](research/interactive-wizard-research.md) |
@@ -418,13 +419,13 @@ examples/
 
 | ID | Task | Description | Depends On | Ref |
 |----|------|-------------|------------|-----|
-| M5-01 | Create minimal.yaml | Single concept, single hook, single frame (relation source) | M2-12 | [spec.md §5](spec.md#5-manifest-schema-v1) |
-| M5-02 | Create file_based.yaml | Single concept, file/path source (QVD example) | M2-12 | [spec.md §5](spec.md#5-manifest-schema-v1) |
-| M5-03 | Create typical.yaml | Order header + line items (1:M pattern) | M2-12 | [data-model.md §4-5](data-model.md#4-frame) |
-| M5-04 | Create complex.yaml | Multi-source, qualifiers, tenant, weak hooks | M2-12 | [data-model.md §5](data-model.md#5-hook) |
-| M5-05 | Golden tests | pytest: each example → validate → exit 0 | M5-01, M5-02, M5-03, M5-04, M4-02 | [quickstart.md](quickstart.md#milestone-checklist) |
+| M5-01 | Create minimal.yaml | Single concept, single hook, single frame (relation source) | M2-12 | [spec.md §Manifest Schema](spec.md#manifest-schema-v1) |
+| M5-02 | Create file_based.yaml | Single concept, file/path source (QVD example) | M2-12 | [spec.md §Manifest Schema](spec.md#manifest-schema-v1) |
+| M5-03 | Create typical.yaml | Order header + line items (1:M pattern) | M2-12 | [data-model.md §Frame](data-model.md#4-frame) |
+| M5-04 | Create complex.yaml | Multi-source, qualifiers, tenant, weak hooks | M2-12 | [data-model.md §Hook](data-model.md#5-hook) |
+| M5-05 | Golden tests | pytest: each example → validate → exit 0 | M5-01, M5-02, M5-03, M5-04, M4-02 | [data-model.md §Test Patterns](data-model.md#test-patterns) |
 | M5-06 | Negative fixture tests | Each invalid fixture → expected diagnostics | M2-11, M4-02 | [data-model.md §Implementation Cookbook](data-model.md#fixture-templates) |
-| M5-07 | Bundle examples | Include in package data | M5-01, M5-02, M5-03, M5-04 | [quickstart.md](quickstart.md#pyprojecttoml-template) |
+| M5-07 | Bundle examples | Include in package data | M5-01, M5-02, M5-03, M5-04 | [research/uv-package-manager-research.md](research/uv-package-manager-research.md) |
 
 ---
 
@@ -450,8 +451,8 @@ examples/
 
 | ID | Task | Description | Depends On | Ref |
 |----|------|-------------|------------|-----|
-| M6-01 | Write README | Installation, quickstart, CLI reference | M5-07 | [quickstart.md](quickstart.md) |
-| M6-02 | Complete pyproject.toml | Classifiers, URLs, license | M1-01 | [quickstart.md](quickstart.md#pyprojecttoml-template) |
+| M6-01 | Write README | Installation, quickstart, CLI reference | M5-07 | [spec.md §User Scenarios](spec.md#user-scenarios--testing-mandatory) |
+| M6-02 | Complete pyproject.toml | Classifiers, URLs, license | M1-01 | [research/uv-package-manager-research.md](research/uv-package-manager-research.md) |
 | M6-03 | Add GitHub Actions CI | uv sync, pytest, mypy --strict, ruff check/format on push | M5-05 | [research/uv-package-manager-research.md](research/uv-package-manager-research.md) |
 | M6-04 | Type check all modules | mypy --strict (per NFR-041) | M4-12, M5-06 | [spec.md NFR-041](spec.md#implementation-standards) |
 | M6-05 | Ensure test coverage | 100% for core/, ≥80% for cli/ | M5-06 | [data-model.md §Implementation Cookbook](data-model.md#test-patterns) |
