@@ -11,13 +11,13 @@
 ## Requirement Completeness
 
 - [x] CHK001 - Are all 8 Pydantic models fully specified with field types, defaults, and validation rules? [Completeness, Spec §5] [M1-02 to M1-07]
-- [x] CHK002 - Are all 16 ERROR validation rules documented with rule ID, description, and constitution reference? [Completeness, Spec §7.1] [M2-01 to M2-05]
-- [x] CHK003 - Are all 7 WARN validation rules documented with rule ID, description, and constitution reference? [Completeness, Spec §7.2] [M2-06] *(Updated from 5 to 7)*
+- [x] CHK002 - Are all 17 ERROR validation rules documented with rule ID, description, and constitution reference? [Completeness, Spec §7.1] [M2-01 to M2-05]
+- [x] CHK003 - Are all 6 WARN validation rules documented with rule ID, description, and constitution reference? [Completeness, Spec §7.2] [M2-06]
 - [x] CHK004 - Are CLI exit codes defined for all commands (validate, init, examples)? [Completeness, Spec §6.4] [M4-02]
 - [x] CHK005 - Are all edge cases documented with expected behavior? [Completeness, Spec Edge Cases] [M4-12] *(Added 7 new edge cases)*
-- [x] CHK006 - Are treatment operations (LPAD, RPAD, UPPER, LOWER, TRIM) fully specified with syntax and examples? [Completeness, Spec FR-070 to FR-073] [M1-04]
-- [x] CHK007 - Is the expr_sql validation allowlist complete (all allowed tokens documented)? [Completeness, data-model.md §12] [M2-10]
-- [x] CHK008 - Is the expr_sql validation forbidden list complete (all rejected patterns documented)? [Completeness, data-model.md §12] [M2-10]
+- [x] CHK006 - Are all hook fields (name, role, concept, qualifier, source, tenant, expr) fully specified? [Completeness, Spec FR-034] [M1-04]
+- [x] CHK007 - Is the expression validation allowlist complete (all allowed tokens documented)? [Completeness, data-model.md §12] [M2-10]
+- [x] CHK008 - Is the expression validation forbidden list complete (all rejected patterns documented)? [Completeness, data-model.md §12] [M2-10]
 - [x] CHK009 - Are auto-derived registries (key sets, concepts, hooks) fully specified? [Completeness, data-model.md §9] [M2-07 to M2-09]
 - [x] CHK010 - Are all functional requirements (FR-001 to FR-085) traceable to acceptance scenarios? [Completeness, Spec §Requirements] [M1-11, M2-12, M4-12] *(Fixed: FR-084 now has acceptance scenario 6 in User Story 2)*
 
@@ -28,7 +28,7 @@
 - [x] CHK011 - Is the key set recipe `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]` unambiguous with parsing rules? [Clarity, Spec FR-054, FR-055] [M2-07]
 - [x] CHK012 - Is the hook naming pattern `<prefix><concept>[__<qualifier>]` quantified with regex? [Clarity, data-model.md §10] [M1-08]
 - [x] CHK013 - Is "1-2 sentence description" for concepts measurable (word count? character limit?)? [Clarity, Spec CONCEPT-002] [M2-04] *(Fixed: now 10-200 characters)*
-- [x] CHK014 - Is "under 1 second" validation performance quantified with test conditions (file size, hardware)? [Clarity, Spec NFR-001] [M7-06] *(Added: 1000 lines, 4-core, 8GB)*
+- [x] CHK014 - Is "under 1 second" validation performance quantified with test conditions (file size, hardware)? [Clarity, Spec NFR-001] [M6-06] *(Added: 1000 lines, 4-core, 8GB)*
 - [x] CHK015 - Is "under 5 minutes" wizard completion quantified with test conditions (concept count, user expertise)? [Clarity, Spec SC-002] [M4-05] *(5 concepts)*
 - [x] CHK016 - Are all naming convention patterns defined with explicit regex? [Clarity, data-model.md §10] [M1-08]
 - [x] CHK017 - Is the wizard "frame-first workflow" defined with explicit step sequence? [Clarity, Spec FR-020] [M4-05]
@@ -46,7 +46,6 @@
 - [x] CHK024 - Do validation rule IDs match between spec.md §7 and data-model.md §13? [Consistency] [M2-01 to M2-06] *(Updated both)*
 - [x] CHK025 - Are exit codes consistent between spec.md CLI Behavior table and implementation plan? [Consistency] [M4-02]
 - [x] CHK026 - Do example manifests in spec.md use the same field names as schema definitions? [Consistency] [M5-01 to M5-03]
-- [x] CHK027 - Is the treatment syntax (pipe separator) consistent with delimiter field (also pipe default)? [No Conflict] [M1-04] *(Different contexts: treatment is internal, delimiter is output)*
 
 ---
 
@@ -54,8 +53,8 @@
 
 - [x] CHK028 - Can each acceptance scenario be independently tested without implementation? [Measurability, Spec User Stories] [M4-12]
 - [x] CHK029 - Does each user story have at least one negative test scenario? [Coverage, Spec User Stories] [M2-11]
-- [x] CHK030 - Are all success criteria (SC-001 to SC-007) objectively measurable? [Measurability, Spec Success Criteria] [M7-06]
-- [x] CHK031 - Is the "100% prohibited patterns detected" criteria (SC-003) defined with pattern list? [Clarity, Spec SC-003] [M2-12] *(16 ERROR rules enumerate all)*
+- [x] CHK030 - Are all success criteria (SC-001 to SC-007) objectively measurable? [Measurability, Spec Success Criteria] [M6-06]
+- [x] CHK031 - Is the "100% prohibited patterns detected" criteria (SC-003) defined with pattern list? [Clarity, Spec SC-003] [M2-12] *(17 ERROR rules enumerate all)*
 - [x] CHK032 - Are golden test expectations defined (what "pass validation" means)? [Measurability, Spec SC-004] [M5-04] *(Exit code 0, no ERROR diagnostics)*
 
 ---
@@ -66,7 +65,7 @@
 - [x] CHK034 - Are requirements defined for frame with zero hooks? [Edge Case, FRAME-001] [M2-01]
 - [x] CHK035 - Are requirements defined for frame with multiple primary hooks? [Edge Case, FRAME-003] [M2-01] *(Added to Edge Cases)*
 - [x] CHK036 - Are requirements defined for circular hook references (concept A references concept B references A)? [Edge Case, Documented] [M2-02] *(Added: Not validated in v1, deferred)*
-- [x] CHK037 - Are requirements defined for maximum manifest size (number of frames, hooks, concepts)? [Non-Functional, Spec Limits] [M7-06] *(Added Limits section)*
+- [x] CHK037 - Are requirements defined for maximum manifest size (number of frames, hooks, concepts)? [Non-Functional, Spec Limits] [M6-06] *(Added Limits section)*
 - [x] CHK038 - Are requirements defined for Unicode in concept names, descriptions, examples? [Edge Case, NFR-022, NFR-023] [M1-08] *(Added: ASCII for identifiers, UTF-8 for content)*
 - [x] CHK039 - Are requirements defined for duplicate concept names in concepts section? [Edge Case, Added] [M2-04] *(Added to Edge Cases)*
 - [x] CHK040 - Are requirements defined for concept defined but never used in hooks? [Edge Case, CONCEPT-001] [M2-04] *(Added to Edge Cases)*
@@ -77,8 +76,8 @@
 
 ## Non-Functional Requirements
 
-- [x] CHK043 - Are performance requirements specified for validation (SC-001)? [NFR, Spec NFR-001 to NFR-003] [M7-06] *(Added NFR section)*
-- [x] CHK044 - Are memory requirements specified for large manifests? [NFR, Spec NFR-003] [M7-06] *(Added: <100MB for 1MB file)*
+- [x] CHK043 - Are performance requirements specified for validation (SC-001)? [NFR, Spec NFR-001 to NFR-003] [M6-06] *(Added NFR section)*
+- [x] CHK044 - Are memory requirements specified for large manifests? [NFR, Spec NFR-003] [M6-06] *(Added: <100MB for 1MB file)*
 - [x] CHK045 - Are accessibility requirements defined for CLI output (screen reader compatibility)? [NFR, Spec NFR-010 to NFR-012] [M4-03] *(Added NFR section)*
 - [x] CHK046 - Are internationalization requirements defined (UTF-8 only, or multi-locale)? [NFR, Spec NFR-020 to NFR-023] [M4-03] *(Added NFR section)*
 - [x] CHK047 - Are error message localization requirements defined? [NFR, Spec NFR-021] [M4-03] *(English-only in v1)*
@@ -100,7 +99,6 @@
 
 - [x] CHK054 - Is the relationship between strong/weak hooks and key sets fully specified? [Resolved] [M2-02] *(Same key set derivation, only prefix differs)*
 - [x] CHK055 - Are requirements for hook name prefix validation (must match is_weak flag) specified? [Resolved, HOOK-W01] [M2-06] *(Updated to warn on mismatch)*
-- [x] CHK056 - Is fallback behavior specified when treatment parsing fails? [Resolved, data-model.md] [M2-02] *(Added parse_treatment with error handling)*
 - [x] CHK057 - Are requirements for partial manifest recovery after parse error specified? [Documented v1 Limitation] [M3-05] *(v1: fail fast, no partial recovery; documented as future consideration)*
 - [x] CHK058 - Is the "grain_hooks" field mentioned in spec Constitution Compliance Matrix but not in schema? [Resolved] [M1-03] *(Fixed: removed from matrix, replaced with "Hook role")*
 - [x] CHK059 - Is "is_unique" mentioned in spec Constitution Compliance Matrix but not defined in models? [Resolved] [M1-03] *(Fixed: removed from matrix)*
@@ -110,7 +108,7 @@
 
 ## Cross-Reference Traceability
 
-- [x] CHK061 - Does every plan task (M1-01 to M7-08) have a reference to spec or data-model section? [Traceability] [plan.md]
+- [x] CHK061 - Does every plan task (M1-01 to M6-08) have a reference to spec or data-model section? [Traceability] [plan.md]
 - [x] CHK062 - Does every validation rule have a function name mapping in data-model.md §13? [Traceability] [M2-01 to M2-06]
 - [x] CHK063 - Does every model field have a corresponding JSON Schema definition? [Traceability] [contracts/manifest-schema.json]
 - [x] CHK064 - Are all FR-xxx requirements traceable to plan tasks? [Traceability] [plan.md] *(Fixed: FR-084 now mapped to M4-13)*
@@ -128,13 +126,13 @@
 | Scenario Coverage | 10 | 10 | 0 |
 | Non-Functional | 6 | 6 | 0 |
 | Dependencies | 5 | 5 | 0 |
-| Ambiguities | 7 | 7 | 0 |
+| Ambiguities | 6 | 6 | 0 |
 | Traceability | 4 | 4 | 0 |
-| **Total** | **64** | **64** | **0** |
+| **Total** | **63** | **63** | **0** |
 
 ### Remaining Items
 
-✅ **All 64 items complete.** No remaining gaps.
+✅ **All 63 items complete.** No remaining gaps.
 
 ### Items Resolved During Review
 
@@ -145,4 +143,3 @@
 - CHK037: Added "Limits and Constraints" section with frame/hook/concept limits
 - CHK038: Added NFR-022/NFR-023 for Unicode/ASCII rules
 - CHK043-CHK048: Added complete NFR section (performance, accessibility, i18n, compatibility)
-- CHK056: Added treatment parse_treatment function with error handling

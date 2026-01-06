@@ -3,7 +3,7 @@
 **Feature Branch**: `001-manifest-builder`  
 **Created**: 2026-01-04  
 **Status**: Draft  
-**Input**: Build HOOK Manifest Builder Python package and CLI for guided manifest creation, validation, and output
+**Input**: Build HOOK Manifest Builder Python package (`dot-organize`) and CLI (`dot`) for guided manifest creation, validation, and output
 
 ---
 
@@ -27,15 +27,15 @@ As a data engineer, I want to validate an existing HOOK manifest file so that I 
 
 **Why this priority**: Validation is the foundation—users need confidence their manifest is correct before any other operation. This also enables CI integration from day one.
 
-**Independent Test**: Can be fully tested by running `hook validate path/to/manifest.yaml` against valid and invalid manifests and verifying correct exit codes and error messages.
+**Independent Test**: Can be fully tested by running `dot validate path/to/manifest.yaml` against valid and invalid manifests and verifying correct exit codes and error messages.
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid manifest file, **When** I run `hook validate manifest.yaml`, **Then** the tool exits with code 0 and prints "Manifest is valid."
-2. **Given** a manifest with a hook missing required fields (name, role, concept, source, or expr_sql), **When** I run `hook validate manifest.yaml`, **Then** the tool exits with code 1 and prints an ERROR referencing rule ID `HOOK-001` with the path to the invalid hook.
-3. **Given** a manifest with duplicate key set values (same CONCEPT@SOURCE derived from multiple hooks), **When** I run `hook validate manifest.yaml`, **Then** the tool exits with code 1 and prints an ERROR referencing rule ID `KEYSET-001`.
-4. **Given** a manifest with a warning-level issue (e.g., >100 business concepts), **When** I run `hook validate manifest.yaml`, **Then** the tool exits with code 0 but prints a WARN message.
-5. **Given** any manifest, **When** I run `hook validate manifest.yaml --json`, **Then** the tool outputs machine-readable JSON diagnostics.
+1. **Given** a valid manifest file, **When** I run `dot validate manifest.yaml`, **Then** the tool exits with code 0 and prints "Manifest is valid."
+2. **Given** a manifest with a hook missing required fields (name, role, concept, source, or expr), **When** I run `dot validate manifest.yaml`, **Then** the tool exits with code 1 and prints an ERROR referencing rule ID `HOOK-001` with the path to the invalid hook.
+3. **Given** a manifest with duplicate key set values (same CONCEPT@SOURCE derived from multiple hooks), **When** I run `dot validate manifest.yaml`, **Then** the tool exits with code 1 and prints an ERROR referencing rule ID `KEYSET-001`.
+4. **Given** a manifest with a warning-level issue (e.g., >100 business concepts), **When** I run `dot validate manifest.yaml`, **Then** the tool exits with code 0 but prints a WARN message.
+5. **Given** any manifest, **When** I run `dot validate manifest.yaml --json`, **Then** the tool outputs machine-readable JSON diagnostics.
 
 ---
 
@@ -45,16 +45,16 @@ As a new HOOK user, I want an interactive wizard that guides me through creating
 
 **Why this priority**: After validation, guided creation is the primary user journey for new adopters. It lowers the barrier to entry significantly.
 
-**Independent Test**: Can be fully tested by running `hook init` in interactive mode, providing inputs, and verifying the output file passes validation.
+**Independent Test**: Can be fully tested by running `dot init` in interactive mode, providing inputs, and verifying the output file passes validation.
 
 **Acceptance Scenarios**:
 
-1. **Given** I run `hook init`, **When** the wizard prompts for business concepts, **Then** I can enter concept names, definitions, and examples with validation feedback.
+1. **Given** I run `dot init`, **When** the wizard prompts for business concepts, **Then** I can enter concept names, definitions, and examples with validation feedback.
 2. **Given** I enter an invalid business concept name (e.g., containing spaces), **When** I submit, **Then** the wizard rejects it with an actionable error and re-prompts.
 3. **Given** I complete the wizard, **When** I confirm the summary preview, **Then** the wizard writes a valid YAML manifest to the specified location.
 4. **Given** the output file already exists, **When** the wizard attempts to write, **Then** it prompts for confirmation before overwriting (or offers a new filename).
-5. **Given** I run `hook init --output manifest.json`, **When** I complete the wizard, **Then** the output is valid JSON instead of YAML.
-6. **Given** I cancel the wizard mid-flow with Ctrl+C, **When** I have entered at least one complete frame, **Then** the wizard saves a `.hook-draft.yaml` file in the current directory with progress so far.
+5. **Given** I run `dot init --output manifest.json`, **When** I complete the wizard, **Then** the output is valid JSON instead of YAML.
+6. **Given** I cancel the wizard mid-flow with Ctrl+C, **When** I have entered at least one complete frame, **Then** the wizard saves a `.dot-draft.yaml` file in the current directory with progress so far.
 
 ---
 
@@ -64,13 +64,13 @@ As a CI/CD pipeline, I want to generate a manifest from a config file or command
 
 **Why this priority**: Automation is essential for production workflows, but interactive mode serves the initial learning curve first.
 
-**Independent Test**: Can be fully tested by running `hook init --from-config seed.yaml --output manifest.yaml` and verifying the output matches expected structure.
+**Independent Test**: Can be fully tested by running `dot init --from-config seed.yaml --output manifest.yaml` and verifying the output matches expected structure.
 
 **Acceptance Scenarios**:
 
-1. **Given** a seed config file with minimal inputs, **When** I run `hook init --from-config seed.yaml`, **Then** the tool produces a complete, valid manifest.
-2. **Given** a seed config with invalid data, **When** I run `hook init --from-config seed.yaml`, **Then** the tool exits with code 1 and prints actionable errors.
-3. **Given** command flags for a single business concept, **When** I run `hook init --concept "customer" --source "CRM"`, **Then** the tool produces a minimal valid manifest with auto-derived key set `CUSTOMER@CRM`.
+1. **Given** a seed config file with minimal inputs, **When** I run `dot init --from-config seed.yaml`, **Then** the tool produces a complete, valid manifest.
+2. **Given** a seed config with invalid data, **When** I run `dot init --from-config seed.yaml`, **Then** the tool exits with code 1 and prints actionable errors.
+3. **Given** command flags for a single business concept, **When** I run `dot init --concept "customer" --source "CRM"`, **Then** the tool produces a minimal valid manifest with auto-derived key set `CUSTOMER@CRM`.
 
 ---
 
@@ -80,13 +80,13 @@ As a learner, I want to view bundled example manifests so that I can understand 
 
 **Why this priority**: Examples accelerate learning but are not blocking for core functionality.
 
-**Independent Test**: Can be fully tested by running `hook examples list` and `hook examples show minimal`.
+**Independent Test**: Can be fully tested by running `dot examples list` and `dot examples show minimal`.
 
 **Acceptance Scenarios**:
 
-1. **Given** I run `hook examples list`, **Then** the tool lists available examples (minimal, typical, complex).
-2. **Given** I run `hook examples show typical`, **Then** the tool prints the typical example manifest to stdout.
-3. **Given** I run `hook examples show typical --output ./my-manifest.yaml`, **Then** the tool writes the example to the specified path.
+1. **Given** I run `dot examples list`, **Then** the tool lists available examples (minimal, typical, complex).
+2. **Given** I run `dot examples show typical`, **Then** the tool prints the typical example manifest to stdout.
+3. **Given** I run `dot examples show typical --output ./my-manifest.yaml`, **Then** the tool writes the example to the specified path.
 
 ---
 
@@ -95,9 +95,8 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - What happens when the manifest file path doesn't exist? → ERROR with clear message: "File not found: {path}"
 - What happens when the manifest is empty? → ERROR: "Manifest is empty or invalid YAML/JSON"
 - What happens when YAML is malformed? → ERROR with line/column: "Parse error at line X, column Y: {details}"
-- What happens when a user cancels the wizard mid-flow? → Graceful exit, saves `.hook-draft.yaml` if at least one frame completed (FR-084)
+- What happens when a user cancels the wizard mid-flow? → Graceful exit, saves `.dot-draft.yaml` if at least one frame completed (FR-084)
 - What happens when stdin is not a TTY but interactive mode is requested? → ERROR: "Interactive mode requires a terminal. Use --from-config for non-interactive mode."
-- What happens when a reserved extension key (targets.hook_sql) contains data in v1? → WARN: "Extension 'hook_sql' is reserved for future use; contents will be ignored in v1."
 - What happens when manifest has zero frames? → ERROR [FRAME-001]: "Manifest must have at least one frame"
 - What happens when YAML parse fails mid-file? → Fail fast with line/column error; no partial manifest recovery in v1 (v2 consideration: attempt to recover valid portions)
 - What happens when a frame has multiple primary hooks? → ERROR [FRAME-003]: "Frame '{name}' has {count} primary hooks; exactly one required"
@@ -125,11 +124,11 @@ As a learner, I want to view bundled example manifests so that I can understand 
 
 #### CLI Commands
 
-- **FR-001**: CLI MUST provide `hook validate <path>` command to validate a manifest file.
-- **FR-002**: CLI MUST provide `hook init` command to start the interactive wizard.
-- **FR-003**: CLI MUST provide `hook init --from-config <path>` for non-interactive manifest generation.
-- **FR-004**: CLI MUST provide `hook examples list` to list bundled examples.
-- **FR-005**: CLI MUST provide `hook examples show <name>` to display a specific example.
+- **FR-001**: CLI MUST provide `dot validate <path>` command to validate a manifest file.
+- **FR-002**: CLI MUST provide `dot init` command to start the interactive wizard.
+- **FR-003**: CLI MUST provide `dot init --from-config <path>` for non-interactive manifest generation.
+- **FR-004**: CLI MUST provide `dot examples list` to list bundled examples.
+- **FR-005**: CLI MUST provide `dot examples show <name>` to display a specific example.
 
 #### Validation
 
@@ -157,14 +156,16 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - **FR-030**: Manifest MUST include `manifest_version` field (semver string).
 - **FR-031**: Manifest MUST include `schema_version` field indicating manifest schema version.
 - **FR-032**: Manifest MUST include `frames` array as the primary content.
-- **FR-033**: Each frame MUST include `name`, `source`, and at least one hook.
-- **FR-034**: Each hook MUST include `name`, `role`, `concept`, `source`, and `expr_sql`.
+- **FR-033**: Each frame MUST include `name`, `source` (object), and at least one hook.
+- **FR-033a**: Frame `source` object MUST contain exactly one of: `relation` (string for relational sources like `db.schema.table`) or `path` (string for file sources like QVD paths).
+- **FR-033b**: Frame `source.relation` and `source.path` MUST NOT both be present.
+- **FR-033c**: Both `relation` and `path` values MUST be non-empty strings when present.
+- **FR-034**: Each hook MUST include `name`, `role`, `concept`, `source`, and `expr`.
+- **FR-034a**: Hook `expr` is a SQL expression (Manifest SQL subset) for Feature 001. Qlik expression support may be introduced in a later feature.
 - **FR-035**: Hook `role` MUST be `primary` (defines frame grain) or `foreign` (references other concept).
 - **FR-036**: Key sets MUST be auto-derived from hook fields as `<CONCEPT>[~<QUALIFIER>]@<SOURCE>[~<TENANT>]`.
 - **FR-037**: Manifest MAY include optional `concepts` array for definitions/examples (enrichment only).
 - **FR-038**: Manifest MUST include `settings` object with hook_prefix, weak_hook_prefix, and delimiter.
-- **FR-039**: Manifest MUST include `targets` object with optional `hook_sql`, `uss_sql`, `qlik` sub-objects.
-- **FR-040**: Extension sub-objects (`targets.*`) MUST be allowed but MAY be empty in v1.
 
 #### Naming Conventions
 
@@ -178,21 +179,9 @@ As a learner, I want to view bundled example manifests so that I can understand 
 
 #### Examples
 
-- **FR-060**: Tool MUST ship with at least 3 example manifests: minimal, typical, complex.
-- **FR-061**: All bundled examples MUST pass `hook validate` (golden tests).
-- **FR-062**: Examples MUST demonstrate different patterns: single concept, header/line, multi-source.
-
-#### Treatment Syntax
-
-- **FR-070**: Treatments MUST follow the syntax `<OPERATION>[:<arg1>[:<arg2>]]`.
-- **FR-071**: v1 MUST support the following treatments:
-  - `LPAD:<width>:<char>` — Left-pad to width with char (e.g., `LPAD:6:0` → `001234`)
-  - `RPAD:<width>:<char>` — Right-pad to width with char
-  - `UPPER` — Convert to uppercase
-  - `LOWER` — Convert to lowercase
-  - `TRIM` — Remove leading/trailing whitespace
-- **FR-072**: Multiple treatments MAY be chained with `|` (e.g., `TRIM|UPPER|LPAD:6:0`).
-- **FR-073**: Validator MUST reject unknown treatment operations.
+- **FR-060**: Tool MUST ship with at least 4 example manifests: minimal (relation), file-based (path), typical, complex.
+- **FR-061**: All bundled examples MUST pass `dot validate` (golden tests).
+- **FR-062**: Examples MUST demonstrate different patterns: single concept, file vs relation source, header/line, multi-source.
 
 #### Output Behavior
 
@@ -239,6 +228,13 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - **NFR-031**: Manifests with schema_version 1.x.x MUST remain valid with all 1.x.x validators.
 - **NFR-032**: Unknown fields in manifest SHOULD be ignored with WARN (forward compatibility).
 
+#### Implementation Standards
+
+- **NFR-040**: All code MUST pass `ruff check` and `ruff format` (linting and formatting).
+- **NFR-041**: All code MUST pass `mypy --strict` (static type checking).
+- **NFR-042**: Pre-commit hooks MUST enforce ruff and mypy before commits.
+- **NFR-043**: Tests SHOULD be written before or alongside implementation (test-driven development encouraged, per constitution).
+
 ---
 
 ## Manifest Schema (v1)
@@ -261,7 +257,9 @@ settings:                          # Manifest-wide settings
 
 frames:
   - name: string                   # Frame name (e.g., "frame.customer")
-    source: string                 # Source table reference (e.g., "psa.customer")
+    source:                        # Source specification (exactly one of relation or path)
+      relation: string             # Relational source (e.g., "db.schema.table") - exclusive with path
+      path: string                 # File source (e.g., QVD path) - exclusive with relation
     description: string            # Optional description
     hooks:                         # Hooks defined inline within this frame
       - name: string               # Hook column name (e.g., "_hk__customer")
@@ -270,8 +268,7 @@ frames:
         qualifier: string          # Optional qualifier suffix (e.g., "manager")
         source: string             # Source system (e.g., "CRM") — key set uses @SOURCE
         tenant: string             # Optional tenant (e.g., "AU") — appended as @SOURCE~TENANT
-        expr_sql: string           # SQL expression for business key (e.g., "customer_id", "order_id || '-' || line_no")
-        treatment: string          # Optional transformation (e.g., "TRIM|UPPER|LPAD:6:0")
+        expr: string               # SQL expression for business key (Manifest SQL subset)
 
 concepts:                          # Optional: definitions for auto-derived concepts
   - name: string                   # Concept name (must match a concept used in frames)
@@ -279,11 +276,6 @@ concepts:                          # Optional: definitions for auto-derived conc
     examples:                      # Real-world examples
       - string
     is_weak: boolean               # True for reference/time/system concepts (default: false)
-
-targets:                           # Extension points for generators (v1: allowed but empty)
-  hook_sql: {}                     # Reserved for HOOK SQL generator
-  uss_sql: {}                      # Reserved for USS SQL generator  
-  qlik: {}                         # Reserved for Qlik generator
 ```
 
 ### Auto-Derived Registries
@@ -305,14 +297,15 @@ The tool automatically derives from frames:
 | FRAME-001 | Frame must have at least one hook | Principle V |
 | FRAME-002 | Frame name must match naming convention (lower_snake_case with dot separator) | Principle V |
 | FRAME-003 | Frame must have exactly one hook with role=primary | Principle VI |
-| FRAME-004 | Frame source must not be empty | Principle V |
-| HOOK-001 | Hook must have name, role, concept, source, expr_sql | Principle II |
+| FRAME-004 | Frame source object must be present | Principle V |
+| FRAME-005 | Frame source must have exactly one of `relation` or `path` (exclusivity) | Principle V |
+| FRAME-006 | Frame source.relation or source.path must be non-empty string | Principle V |
+| HOOK-001 | Hook must have name, role, concept, source, expr | Principle II |
 | HOOK-002 | Hook name must match naming convention (prefix + concept + optional qualifier) | HOOK Semantic Definitions |
 | HOOK-003 | Hook role must be "primary" or "foreign" | Principle VI |
 | HOOK-004 | Hook concept must be lower_snake_case | Principle III |
 | HOOK-005 | Hook source must be UPPER_SNAKE_CASE | Principle IV |
-| HOOK-006 | Hook expr_sql must not be empty | Principle II |
-| HOOK-007 | Treatment must use valid syntax and known operations (LPAD, RPAD, UPPER, LOWER, TRIM) | Principle II |
+| HOOK-006 | Hook expr must be non-empty and valid SQL expression (Manifest SQL subset) | Principle II |
 | KEYSET-001 | Auto-derived key sets must be globally unique across all hooks | Principle IV |
 | CONCEPT-001 | Concept in `concepts` section must match a concept used in at least one hook | Principle III |
 | CONCEPT-002 | Concept description must be 10-200 characters (1-2 sentences) | Principle III |
@@ -328,7 +321,6 @@ The tool automatically derives from frames:
 | FRAME-W01 | Frame has only foreign hooks (no primary = undefined grain) | Principle VI |
 | FRAME-W02 | Multiple frames share same source field value | Principle V |
 | FRAME-W03 | Frame has more than 20 hooks (complexity advisory) | Principle X |
-| TARGET-W01 | Reserved extension contains data (ignored in v1) | Principle VIII |
 | MANIFEST-W01 | Manifest has more than 50 frames (performance advisory) | Principle X |
 
 ---
@@ -338,9 +330,11 @@ The tool automatically derives from frames:
 ### Human-Readable (default)
 
 ```
-ERROR [HOOK-001] Hook '_hk__customer' is missing required field 'expr_sql'
-  at: frames[0].hooks[0].expr_sql
-  fix: Add expr_sql with a valid SQL expression for the business key
+ERROR [HOOK-001] Hook '_hk__customer' is missing required field 'expression'
+  at: frames[0].hooks[0].expression
+ERROR [HOOK-001] Hook '_hk__customer' is missing required field 'expr'
+  at: frames[0].hooks[0].expr
+  fix: Add expr with a valid SQL expression for the business key
 
 WARN [CONCEPT-W01] 142 business concepts defined; consider consolidating (target: ≤100)
   at: concepts
@@ -356,9 +350,9 @@ WARN [CONCEPT-W01] 142 business concepts defined; consider consolidating (target
     {
       "rule_id": "HOOK-001",
       "severity": "ERROR",
-      "message": "Hook 'HK_CUSTOMER' is missing key set reference",
-      "path": "hooks[0].key_set_id",
-      "fix": "Add a valid key_set_id that references an existing key set"
+      "message": "Hook '_hk__customer' is missing required field 'expr'",
+      "path": "frames[0].hooks[0].expr",
+      "fix": "Add expr with a valid SQL expression for the business key"
     }
   ],
   "warnings": [
@@ -366,7 +360,7 @@ WARN [CONCEPT-W01] 142 business concepts defined; consider consolidating (target
       "rule_id": "CONCEPT-W01",
       "severity": "WARN",
       "message": "142 business concepts defined; consider consolidating (target: ≤100)",
-      "path": "business_concepts",
+      "path": "concepts",
       "fix": "Review concepts for potential consolidation using key sets for sub-types"
     }
   ]
@@ -409,37 +403,53 @@ settings:
 
 frames:
   - name: "frame.customer"
-    source: "psa.customer"
+    source:
+      relation: "psa.customer"     # Relational source
     description: "Customer master data"
     hooks:
       - name: "_hk__customer"
         role: "primary"
         concept: "customer"
         source: "CRM"
-        expr_sql: "customer_id"
+        expr: "customer_id"
 
 concepts:  # Optional enrichment
   - name: "customer"
     description: "A person or organization that purchases goods or services."
     examples: ["John Smith", "Acme Corporation"]
-
-targets:
-  hook_sql: {}
-  uss_sql: {}
-  qlik: {}
 ```
 
 **Auto-derived key set**: `CUSTOMER@CRM`
 
-### Example B: Typical (Header/Line)
+### Example B: File-Based Source (QVD)
+
+Demonstrates a frame with a file-based source (path) instead of relational source.
+
+```yaml
+frames:
+  - name: "frame.product"
+    source:
+      path: "//server/qvd/product_master.qvd"  # File source (QVD)
+    description: "Product master from QVD extract"
+    hooks:
+      - name: "_hk__product"
+        role: "primary"
+        concept: "product"
+        source: "ERP"
+        expr: "product_code"
+```
+
+**Auto-derived key set**: `PRODUCT@ERP`
+
+### Example C: Typical (Header/Line)
 
 Invoice header and line items with shared hooks. Demonstrates 1:M relationship pattern.
 
-### Example C: Complex (Multi-Source Traversal)
+### Example D: Complex (Multi-Source Traversal)
 
 Customer, Order, Product from multiple sources with region traversal capability. Demonstrates M:M acknowledgement and weak reference hooks.
 
-*(Full YAML for Examples B and C to be included in the shipped examples directory)*
+*(Full YAML for Examples C and D to be included in the shipped examples directory)*
 
 ---
 
@@ -450,7 +460,7 @@ Customer, Order, Product from multiple sources with region traversal capability.
 - **SC-001**: Users can validate a manifest in under 1 second for files up to 1000 lines.
 - **SC-002**: Users can complete the interactive wizard for a 5-concept manifest in under 5 minutes.
 - **SC-003**: 100% of constitutional prohibited patterns are detected by validation.
-- **SC-004**: All 3 bundled examples pass validation (golden tests).
+- **SC-004**: All 4 bundled examples pass validation (golden tests).
 - **SC-005**: Error messages include rule ID, path, and actionable fix in 100% of cases.
 - **SC-006**: CLI provides correct exit codes for CI integration (0 = success, 1 = validation errors, 2 = usage errors).
 - **SC-007**: Wizard-generated manifests pass validation 100% of the time (by construction).
@@ -465,13 +475,12 @@ Customer, Order, Product from multiple sources with region traversal capability.
 - Q: Is there a recipe for key set values? → A: Yes. Key set values follow the pattern `SOURCE.CONCEPT[.QUALIFIER][~TENANT]`. Examples: `CHNK.ALB`, `SAP.FIN.ACC.NO`, `CRM.CUST~AU`. The wizard should auto-generate key set values based on this recipe.
 - Q: Should hooks be global or frame-local? → A: Hooks are defined inline within frames. Each hook has a `role` field: `primary` (defines the frame's grain, e.g., `_hk__order` in order_headers) or `foreign` (references another concept, e.g., `_hk__order` in order_lines). The tool auto-derives a global hook registry for cross-frame relationship detection.
 - Q: What is the default hook prefix? → A: Default prefix is `_hk__` (lowercase with trailing double underscore). Weak hooks use `_wk__`. Prefix is configurable in manifest settings.
-- Q: What is the treatment syntax? → A: Treatments normalize business key values across systems. v1 supports: `LPAD:<width>:<char>`, `RPAD:<width>:<char>`, `UPPER`, `LOWER`, `TRIM`. Example: `LPAD:6:0` pads `1234` to `001234`.
 - Q: How to simplify hook definitions to avoid ID cross-references? → A: Hooks declare `name`, `role`, `concept`, `qualifier`, `source`, `tenant`, `expression`. Key set is auto-derived as `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]`. Business concepts and key sets registries are auto-derived by scanning all hooks. Optional `concepts` section for definitions/examples.
 - Q: How to handle composite business keys (multiple columns)? → A: `expression` accepts SQL expression syntax (e.g., `order_id || '-' || line_number`). Dialect-specific syntax deferred to generators.
 - Q: How should weak hooks be prefixed? → A: User explicitly names hook with `_wk__` prefix. Validator warns if mismatch with `is_weak` flag in concepts section.
 - Q: Key set recipe order — concept-first or source-first? → A: Concept-first with `@` separator: `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]`. Groups by meaning, unambiguous parsing.
 - Q: Should validation block on error or report all errors? → A: Report mode. Collect all errors, print summary, exit 1 if errors but don't lose user work. User shouldn't lose extensive input over one typo.
-- Q: Should the expression field be named for extensibility? → A: Yes. Rename to `expr_sql` because future versions will add other expression types like `expr_qlik`.
+- Q: Should the expression field be named for extensibility? → A: Yes. Rename to `expression` because future versions will add other expression types like `expr_qlik`.
 
 ---
 
@@ -489,8 +498,9 @@ Customer, Order, Product from multiple sources with region traversal capability.
 
 - SQL generation (HOOK SQL, USS SQL)
 - Qlik script generation
+- Qlik expression support in `expr` field (Feature 001 is SQL-only)
 - Graph traversal logic (networkx)
-- GUI interface
+- GUI interface (including marimo UI)
 - Database introspection / reverse engineering
 - Manifest diff / merge tooling
 
@@ -501,12 +511,11 @@ Customer, Order, Product from multiple sources with region traversal capability.
 | Principle | How This Feature Complies |
 |-----------|---------------------------|
 | I. Organising Discipline | Manifest declares organization, not transformation logic |
-| II. Hooks as Identity | Validation enforces hooks use expr_sql (source expression), not derived values |
+| II. Hooks as Identity | Validation enforces hooks use expr (source expression), not derived values |
 | III. Business Concepts | Schema requires definition + examples; wizard guides creation |
 | IV. Key Sets Required | Key sets auto-derived from hook fields (CONCEPT@SOURCE pattern) |
 | V. Frames as Wrappers | Frame schema references source without transformation |
 | VI. Join Safety | Hook role (primary/foreign) enables grain and cardinality reasoning |
 | VII. Implied Relationships | Relationships derived from shared concept names across hooks |
 | VIII. Manifest as SSOT | Versioned schema with extension points |
-| IX. Generators | targets.* reserved but not implemented in v1 |
 | X. Simplicity | Minimal viable schema; no speculative features |

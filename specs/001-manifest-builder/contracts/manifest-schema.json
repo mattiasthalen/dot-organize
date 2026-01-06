@@ -1,10 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/mattiasthalen/hook/manifest-schema-v1.json",
+  "$id": "https://github.com/mattiasthalen/dot-organize/manifest-schema-v1.json",
   "title": "HOOK Manifest Schema v1",
   "description": "Schema for HOOK manifest files that declare business concepts, hooks, key sets, and frames.",
   "type": "object",
-  "required": ["manifest_version", "schema_version", "metadata", "settings", "frames", "targets"],
+  "required": ["manifest_version", "schema_version", "metadata", "settings", "frames"],
   "additionalProperties": false,
   "properties": {
     "manifest_version": {
@@ -40,9 +40,6 @@
       },
       "default": [],
       "description": "Optional enrichment definitions for auto-derived concepts"
-    },
-    "targets": {
-      "$ref": "#/$defs/Targets"
     }
   },
   "$defs": {
@@ -97,6 +94,48 @@
         }
       }
     },
+    "Source": {
+      "type": "object",
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": ["relation"],
+          "properties": {
+            "relation": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Relational source (e.g., db.schema.table)",
+              "examples": ["psa.customer", "staging.orders", "dw.sales.fact_order"]
+            },
+            "path": false
+          }
+        },
+        {
+          "required": ["path"],
+          "properties": {
+            "relation": false,
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "description": "File source path (e.g., QVD path)",
+              "examples": ["//server/qvd/customer.qvd", "data/products.parquet"]
+            }
+          }
+        }
+      ],
+      "properties": {
+        "relation": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Relational source (e.g., db.schema.table)"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "File source path (e.g., QVD path)"
+        }
+      }
+    },
     "Frame": {
       "type": "object",
       "required": ["name", "source", "hooks"],
@@ -109,10 +148,8 @@
           "examples": ["frame.customer", "psa.order_header"]
         },
         "source": {
-          "type": "string",
-          "minLength": 1,
-          "description": "Source table reference",
-          "examples": ["psa.customer", "staging.orders"]
+          "$ref": "#/$defs/Source",
+          "description": "Source specification (exactly one of relation or path)"
         },
         "description": {
           "type": ["string", "null"],
@@ -130,7 +167,7 @@
     },
     "Hook": {
       "type": "object",
-      "required": ["name", "role", "concept", "source", "expr_sql"],
+      "required": ["name", "role", "concept", "source", "expr"],
       "additionalProperties": false,
       "properties": {
         "name": {
@@ -168,17 +205,11 @@
           "description": "Optional tenant in UPPER_SNAKE_CASE",
           "examples": ["AU", "US", "EU_WEST"]
         },
-        "expr_sql": {
+        "expr": {
           "type": "string",
           "minLength": 1,
-          "description": "SQL expression for business key (pure expression, no SELECT/JOIN)",
+          "description": "SQL expression for business key (Manifest SQL subset: pure expression, no SELECT/JOIN)",
           "examples": ["customer_id", "order_id || '-' || line_number", "UPPER(TRIM(code))"]
-        },
-        "treatment": {
-          "type": ["string", "null"],
-          "pattern": "^[A-Z]+(:[^|]+)?(\\|[A-Z]+(:[^|]+)?)*$",
-          "description": "Optional transformation chain (e.g., 'TRIM|UPPER|LPAD:6:0')",
-          "examples": ["TRIM", "UPPER", "LPAD:6:0", "TRIM|UPPER|LPAD:6:0"]
         }
       }
     },
@@ -210,24 +241,6 @@
           "type": "boolean",
           "default": false,
           "description": "True for reference/time/system concepts"
-        }
-      }
-    },
-    "Targets": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "hook_sql": {
-          "type": "object",
-          "description": "Reserved for HOOK SQL generator (v1: allowed but ignored)"
-        },
-        "uss_sql": {
-          "type": "object",
-          "description": "Reserved for USS SQL generator (v1: allowed but ignored)"
-        },
-        "qlik": {
-          "type": "object",
-          "description": "Reserved for Qlik generator (v1: allowed but ignored)"
         }
       }
     }

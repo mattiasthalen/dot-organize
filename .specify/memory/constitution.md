@@ -20,9 +20,9 @@
   Follow-up TODOs: None
 -->
 
-# HOOK Python Library Constitution
+# dot-organize Constitution
 
-This constitution governs the development of an open-source Python CLI and library that implements the HOOK methodology for data warehouse organisation. HOOK is an **organising discipline**, not a data modelling technique.
+This constitution governs the development of `dot-organize`, an open-source Python CLI and library that implements the HOOK methodology for data warehouse organisation. HOOK is an **organising discipline**, not a data modelling technique.
 
 ---
 
@@ -239,7 +239,7 @@ The manifest is a declarative file (YAML, JSON, or equivalent) that defines:
 
 - **Business concepts**: name, definition, examples.
 - **Key sets**: value, owning business concept.
-- **Hooks**: name, business concept, key set, source column(s), treatment rules.
+- **Hooks**: name, business concept, key set, source column(s).
 - **Frames**: name, source table, hooks, grain indicators.
 
 ### Manifest Evolution
@@ -288,6 +288,7 @@ Generators produce output (SQL, USS SQL, Qlik scripts, etc.) from the manifest.
 
 ### Testing
 
+- Tests SHOULD be written before or alongside implementation (test-driven development is encouraged).
 - Every principle in this constitution MUST have corresponding tests.
 - Prohibited patterns MUST have negative tests (tests that verify rejection).
 - Integration tests MUST validate end-to-end flows: manifest → validation → generation.

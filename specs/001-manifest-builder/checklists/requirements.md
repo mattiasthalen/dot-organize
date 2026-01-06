@@ -33,5 +33,5 @@
 
 - Spec includes detailed manifest schema (v1) which defines the data contract
 - Validation rules map directly to constitution principles
-- Examples A, B, C are described; full YAML will be created during implementation
+- 4 bundled examples are described: minimal (relation source), file_based (path source), typical, complex
 - Engineering constraints from user request (functional style, thin I/O boundary) are documented in Assumptions

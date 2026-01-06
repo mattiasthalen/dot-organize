@@ -26,8 +26,7 @@ Manifest (root)
 ├── settings: Settings
 ├── frames: list[Frame]
 │   └── hooks: list[Hook]
-├── concepts: list[Concept]  (optional)
-└── targets: Targets
+└── concepts: list[Concept]  (optional)
 ```
 
 ---
@@ -36,7 +35,7 @@ Manifest (root)
 
 ### 1. Manifest (Root)
 
-**File**: `src/hook/models/manifest.py`  
+**File**: `src/dot/models/manifest.py`  
 **Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1)
 
 ```python
@@ -47,7 +46,6 @@ class Manifest(BaseModel, frozen=True):
     settings: Settings             # Required. Hook prefixes, delimiter
     frames: list[Frame]            # Required. At least one frame
     concepts: list[Concept] = []   # Optional. Enrichment definitions
-    targets: Targets               # Required. Extension points (empty in v1)
 ```
 
 | Field | Type | Required | Default | Validation | Spec Reference |
@@ -58,13 +56,12 @@ class Manifest(BaseModel, frozen=True):
 | `settings` | `Settings` | ✅ | — | — | FR-038 |
 | `frames` | `list[Frame]` | ✅ | — | len >= 1 | FR-032 |
 | `concepts` | `list[Concept]` | ❌ | `[]` | — | FR-037 |
-| `targets` | `Targets` | ✅ | — | — | FR-039 |
 
 ---
 
 ### 2. Metadata
 
-**File**: `src/hook/models/manifest.py`  
+**File**: `src/dot/models/manifest.py`  
 **Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1)
 
 ```python
@@ -86,7 +83,7 @@ class Metadata(BaseModel, frozen=True):
 
 ### 3. Settings
 
-**File**: `src/hook/models/settings.py`  
+**File**: `src/dot/models/settings.py`  
 **Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1), FR-038
 
 ```python
@@ -106,13 +103,25 @@ class Settings(BaseModel, frozen=True):
 
 ### 4. Frame
 
-**File**: `src/hook/models/frame.py`  
+**File**: `src/dot/models/frame.py`  
 **Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1), FR-032, FR-033
 
 ```python
+class Source(BaseModel, frozen=True):
+    """Frame source specification. Exactly one of relation or path must be set."""
+    relation: str | None = None    # Relational source (e.g., "db.schema.table")
+    path: str | None = None        # File source (e.g., QVD path)
+    
+    @model_validator(mode="after")
+    def validate_exclusivity(self) -> "Source":
+        """Ensure exactly one of relation or path is set."""
+        if (self.relation is None) == (self.path is None):
+            raise ValueError("Exactly one of 'relation' or 'path' must be set")
+        return self
+
 class Frame(BaseModel, frozen=True):
     name: str                      # Required. Frame name (e.g., "frame.customer")
-    source: str                    # Required. Source table reference (e.g., "psa.customer")
+    source: Source                 # Required. Source specification (relation OR path)
     description: str | None = None # Optional. Description
     hooks: list[Hook]              # Required. At least one hook
 ```
@@ -120,9 +129,16 @@ class Frame(BaseModel, frozen=True):
 | Field | Type | Required | Default | Validation | Rule ID |
 |-------|------|----------|---------|------------|---------|
 | `name` | `str` | ✅ | — | `lower_snake_case`, pattern: `<schema>.<table>` | FRAME-002 |
-| `source` | `str` | ✅ | — | Non-empty | FRAME-004 |
+| `source` | `Source` | ✅ | — | Must have exactly one of relation/path | FRAME-004, FRAME-005, FRAME-006 |
 | `description` | `str \| None` | ❌ | `None` | — | — |
 | `hooks` | `list[Hook]` | ✅ | — | len >= 1, exactly one `role="primary"` | FRAME-001, FRAME-003 |
+
+**Source Model**:
+
+| Field | Type | Required | Default | Validation | Rule ID |
+|-------|------|----------|---------|------------|---------|
+| `relation` | `str \| None` | ❌ | `None` | Non-empty if set; exclusive with path | FRAME-005, FRAME-006 |
+| `path` | `str \| None` | ❌ | `None` | Non-empty if set; exclusive with relation | FRAME-005, FRAME-006 |
 
 **Naming Pattern**: `<schema>.<table>` in lower_snake_case  
 **Examples**: `frame.customer`, `psa.order_header`, `staging.invoice_line`
@@ -131,7 +147,7 @@ class Frame(BaseModel, frozen=True):
 
 ### 5. Hook
 
-**File**: `src/hook/models/frame.py`  
+**File**: `src/dot/models/frame.py`  
 **Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1), FR-034, FR-035
 
 ```python
@@ -146,8 +162,7 @@ class Hook(BaseModel, frozen=True):
     qualifier: str | None = None   # Optional. Qualifier suffix (e.g., "manager")
     source: str                    # Required. Source system (e.g., "CRM")
     tenant: str | None = None      # Optional. Tenant (e.g., "AU")
-    expr_sql: str                  # Required. SQL expression for business key
-    treatment: str | None = None   # Optional. Transformation (e.g., "TRIM|UPPER")
+    expr: str                      # Required. SQL expression (Manifest SQL subset)
 ```
 
 | Field | Type | Required | Default | Validation | Rule ID |
@@ -158,8 +173,9 @@ class Hook(BaseModel, frozen=True):
 | `qualifier` | `str \| None` | ❌ | `None` | `lower_snake_case` if present | HOOK-004 |
 | `source` | `str` | ✅ | — | `UPPER_SNAKE_CASE` | HOOK-005 |
 | `tenant` | `str \| None` | ❌ | `None` | `UPPER_SNAKE_CASE` if present | HOOK-005 |
-| `expr_sql` | `str` | ✅ | — | Pure SQL expression, no SELECT/JOIN | HOOK-006, HOOK-007 |
-| `treatment` | `str \| None` | ❌ | `None` | Valid treatment syntax | HOOK-007 |
+| `expr` | `str` | ✅ | — | Non-empty SQL expression (Manifest SQL subset) | HOOK-006 |
+
+**Note**: For Feature 001, `expr` supports SQL expressions only (Manifest SQL subset). Qlik expression support may be added in a future feature.
 
 **Hook Name Pattern**: `<prefix><concept>[__<qualifier>]`
 - Strong: `_hk__customer`, `_hk__employee__manager`
@@ -172,7 +188,7 @@ class Hook(BaseModel, frozen=True):
 
 ### 6. Concept
 
-**File**: `src/hook/models/concept.py`  
+**File**: `src/dot/models/concept.py`  
 **Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1), FR-037
 
 ```python
@@ -192,29 +208,9 @@ class Concept(BaseModel, frozen=True):
 
 ---
 
-### 7. Targets (Extension Points)
+### 7. Diagnostic
 
-**File**: `src/hook/models/manifest.py`  
-**Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1), FR-039, FR-040
-
-```python
-class Targets(BaseModel, frozen=True):
-    hook_sql: dict[str, Any] = {}  # Reserved for HOOK SQL generator
-    uss_sql: dict[str, Any] = {}   # Reserved for USS SQL generator
-    qlik: dict[str, Any] = {}      # Reserved for Qlik generator
-```
-
-| Field | Type | Required | Default | Validation | Rule ID |
-|-------|------|----------|---------|------------|---------|
-| `hook_sql` | `dict` | ❌ | `{}` | Allowed but ignored in v1 | TARGET-W01 |
-| `uss_sql` | `dict` | ❌ | `{}` | Allowed but ignored in v1 | TARGET-W01 |
-| `qlik` | `dict` | ❌ | `{}` | Allowed but ignored in v1 | TARGET-W01 |
-
----
-
-### 8. Diagnostic
-
-**File**: `src/hook/models/diagnostic.py`  
+**File**: `src/dot/models/diagnostic.py`  
 **Spec Reference**: [spec.md#diagnostic-format](spec.md#diagnostic-format), FR-016
 
 ```python
@@ -244,7 +240,7 @@ class Diagnostic(BaseModel, frozen=True):
 
 These are computed from the manifest, not stored:
 
-**File**: `src/hook/core/registry.py`
+**File**: `src/dot/core/registry.py`
 
 ### Key Set Registry
 
@@ -292,7 +288,7 @@ def derive_hook_registry(manifest: Manifest) -> dict[str, list[tuple[str, Hook]]
 
 ## Naming Conventions
 
-**File**: `src/hook/core/normalization.py`
+**File**: `src/dot/core/normalization.py`
 
 ### Patterns
 
@@ -316,43 +312,10 @@ def is_valid_semver(s: str) -> bool: ...
 
 ---
 
-## Treatment Syntax
+## Expression Validation
 
-**File**: `src/hook/core/normalization.py`  
-**Spec Reference**: [spec.md](spec.md) FR-070 to FR-073
-
-### Supported Operations
-
-| Operation | Syntax | Arguments | Example | Result |
-|-----------|--------|-----------|---------|--------|
-| `LPAD` | `LPAD:<width>:<char>` | width (int), char (single) | `LPAD:6:0` on `"123"` | `"000123"` |
-| `RPAD` | `RPAD:<width>:<char>` | width (int), char (single) | `RPAD:6:X` on `"AB"` | `"ABXXXX"` |
-| `UPPER` | `UPPER` | — | `UPPER` on `"abc"` | `"ABC"` |
-| `LOWER` | `LOWER` | — | `LOWER` on `"ABC"` | `"abc"` |
-| `TRIM` | `TRIM` | — | `TRIM` on `" x "` | `"x"` |
-
-### Chaining
-
-Multiple treatments separated by `|`:
-```
-TRIM|UPPER|LPAD:6:0
-```
-
-Applied left-to-right: `" abc "` → `"abc"` → `"ABC"` → `"000ABC"`
-
-### Validation
-
-```python
-def parse_treatment(treatment: str) -> list[Treatment]: ...
-def validate_treatment(treatment: str) -> list[Diagnostic]: ...
-```
-
----
-
-## expr_sql Validation
-
-**File**: `src/hook/core/expression.py`  
-**Spec Reference**: [plan.md#expr_sql-validation-rules](plan.md#expr_sql-validation-rules)
+**File**: `src/dot/core/expression.py`  
+**Spec Reference**: FR-034, HOOK-006
 
 ### Allowed Tokens
 
@@ -384,9 +347,9 @@ def validate_treatment(treatment: str) -> list[Diagnostic]: ...
 ### Validation Function
 
 ```python
-def validate_expr_sql(expr: str) -> list[Diagnostic]:
+def validate_expr(expr: str) -> list[Diagnostic]:
     """
-    Validate that expr_sql is a pure SQL expression.
+    Validate that expr is a pure SQL expression (Manifest SQL subset).
     
     Returns empty list if valid, list of diagnostics if invalid.
     """
@@ -396,7 +359,7 @@ def validate_expr_sql(expr: str) -> list[Diagnostic]:
 
 ## Validation Rules Reference
 
-**File**: `src/hook/core/rules.py`  
+**File**: `src/dot/core/rules.py`  
 **Spec Reference**: [spec.md#validation-rules](spec.md#validation-rules)
 
 ### ERROR Rules (exit code 1)
@@ -406,14 +369,15 @@ def validate_expr_sql(expr: str) -> list[Diagnostic]:
 | FRAME-001 | `validate_frame_has_hooks(frame)` | Validation Rules table |
 | FRAME-002 | `validate_frame_name(frame.name)` | FR-052 |
 | FRAME-003 | `validate_frame_has_primary_hook(frame)` | FR-035 |
-| FRAME-004 | `validate_frame_source(frame.source)` | Validation Rules table |
+| FRAME-004 | `validate_frame_source_present(frame.source)` | Validation Rules table |
+| FRAME-005 | `validate_frame_source_exclusivity(frame.source)` | FR-033a, FR-033b |
+| FRAME-006 | `validate_frame_source_nonempty(frame.source)` | FR-033c |
 | HOOK-001 | `validate_hook_required_fields(hook)` | FR-034 |
 | HOOK-002 | `validate_hook_name(hook.name, settings)` | FR-051 |
 | HOOK-003 | `validate_hook_role(hook.role)` | FR-035 |
 | HOOK-004 | `validate_hook_concept(hook.concept)` | FR-050 |
 | HOOK-005 | `validate_hook_source(hook.source)` | FR-053 |
-| HOOK-006 | `validate_hook_expr_sql(hook.expr_sql)` | FR-034 |
-| HOOK-007 | `validate_hook_treatment(hook.treatment)` | FR-070-073 |
+| HOOK-006 | `validate_hook_expr(hook.expr)` | FR-034, FR-034a |
 | KEYSET-001 | `validate_keyset_uniqueness(manifest)` | FR-036 |
 | CONCEPT-001 | `validate_concept_in_frames(concept, manifest)` | Validation Rules table |
 | CONCEPT-002 | `validate_concept_description(concept)` | Validation Rules table |
@@ -429,79 +393,7 @@ def validate_expr_sql(expr: str) -> list[Diagnostic]:
 | FRAME-W01 | `warn_no_primary_only_foreign(frame)` | Advisory Rules table (no primary hook) |
 | FRAME-W02 | `warn_duplicate_source(manifest)` | Advisory Rules table (same source) |
 | FRAME-W03 | `warn_too_many_hooks(frame)` | Advisory Rules table (>20 hooks) |
-| TARGET-W01 | `warn_reserved_targets(manifest)` | Advisory Rules table (non-empty targets) |
 | MANIFEST-W01 | `warn_too_many_frames(manifest)` | Advisory Rules table (>50 frames) |
-
----
-
-## Treatment Parsing
-
-**File**: `src/hook/core/normalization.py`
-
-### Parse Function
-
-```python
-from dataclasses import dataclass
-
-@dataclass(frozen=True)
-class Treatment:
-    operation: str           # LPAD, RPAD, UPPER, LOWER, TRIM
-    args: tuple[str, ...]    # Arguments (may be empty)
-
-VALID_OPERATIONS = {"LPAD", "RPAD", "UPPER", "LOWER", "TRIM"}
-
-def parse_treatment(treatment: str) -> list[Treatment] | list[Diagnostic]:
-    """
-    Parse treatment string into list of Treatment objects.
-    
-    Returns list of Treatment on success, list of Diagnostic on failure.
-    
-    Examples:
-        "TRIM|UPPER" → [Treatment("TRIM", ()), Treatment("UPPER", ())]
-        "LPAD:6:0" → [Treatment("LPAD", ("6", "0"))]
-        "UNKNOWN" → [Diagnostic(rule_id="HOOK-007", ...)]
-    """
-    if not treatment:
-        return []
-    
-    treatments: list[Treatment] = []
-    for part in treatment.split("|"):
-        tokens = part.split(":")
-        operation = tokens[0].upper()
-        args = tuple(tokens[1:])
-        
-        if operation not in VALID_OPERATIONS:
-            return [Diagnostic(
-                rule_id="HOOK-007",
-                severity=Severity.ERROR,
-                message=f"Unknown treatment operation: '{operation}'",
-                path="treatment",
-                fix=f"Use one of: {', '.join(sorted(VALID_OPERATIONS))}"
-            )]
-        
-        # Validate args for operations that require them
-        if operation in ("LPAD", "RPAD"):
-            if len(args) != 2:
-                return [Diagnostic(
-                    rule_id="HOOK-007",
-                    severity=Severity.ERROR,
-                    message=f"{operation} requires 2 arguments: width and char",
-                    path="treatment",
-                    fix=f"Example: {operation}:6:0"
-                )]
-            if not args[0].isdigit():
-                return [Diagnostic(
-                    rule_id="HOOK-007",
-                    severity=Severity.ERROR,
-                    message=f"{operation} width must be a positive integer",
-                    path="treatment",
-                    fix=f"Example: {operation}:6:0"
-                )]
-        
-        treatments.append(Treatment(operation, args))
-    
-    return treatments
-```
 
 ---
 
@@ -525,7 +417,8 @@ settings:
   delimiter: ...
 frames:
   - name: ...
-    source: ...
+    source:
+      relation: ...       # OR path: ...
     description: ...
     hooks:
       - name: ...
@@ -534,17 +427,12 @@ frames:
         qualifier: ...
         source: ...
         tenant: ...
-        expr_sql: ...
-        treatment: ...
+        expr: ...
 concepts:
   - name: ...
     description: ...
     examples: ...
     is_weak: ...
-targets:
-  hook_sql: ...
-  uss_sql: ...
-  qlik: ...
 ```
 
 ### Parse Error Format
@@ -566,20 +454,21 @@ class ParseError(BaseModel, frozen=True):
 | `Metadata` | M1-02 | Manifest Schema (v1) |
 | `Settings` | M1-06 | Manifest Schema (v1), FR-038 |
 | `Frame` | M1-03 | Manifest Schema (v1), FR-032, FR-033 |
+| `Source` | M1-03 | Manifest Schema (v1), FR-033a, FR-033b, FR-033c |
 | `Hook` | M1-04 | Manifest Schema (v1), FR-034, FR-035 |
 | `Concept` | M1-05 | Manifest Schema (v1), FR-037 |
-| `Targets` | M1-02 | Manifest Schema (v1), FR-039, FR-040 |
 | `Diagnostic` | M1-07 | Diagnostic Format, FR-016 |
 | Naming validators | M1-08 | FR-050 to FR-056 |
 | Schema validation | M1-09 | FR-010 to FR-016 |
 | FRAME rules | M2-01 | Validation Rules table |
+| Source exclusivity | M2-01 | FRAME-005, FRAME-006, FR-033a-c |
 | HOOK rules | M2-02 | Validation Rules table |
 | KEYSET rules | M2-03 | Validation Rules table |
 | CONCEPT rules | M2-04 | Validation Rules table |
 | MANIFEST rules | M2-05 | Validation Rules table |
 | WARN rules | M2-06 | Advisory Rules table |
 | Key set derivation | M2-07 | Auto-Derived Registries, FR-036, FR-054, FR-055 |
-| expr_sql validation | M2-10 | expr_sql Validation Rules (plan.md) |
+| expr validation | M2-10 | Expression Validation (this document), FR-034a |
 | YAML I/O | M3-01, M3-02 | I/O Contracts (this document) |
 
 ---
@@ -593,17 +482,17 @@ This section provides step-by-step guidance for implementing each milestone.
 Create files in this sequence to respect dependencies:
 
 ```text
-1. src/hook/__init__.py              # Package root
-2. src/hook/py.typed                  # PEP 561 marker (empty file)
-3. src/hook/models/__init__.py        # Models package
-4. src/hook/models/diagnostic.py      # Diagnostic first (no deps)
-5. src/hook/models/settings.py        # Settings (no deps)
-6. src/hook/models/concept.py         # Concept (no deps)
-7. src/hook/models/frame.py           # Frame + Hook (HookRole enum)
-8. src/hook/models/manifest.py        # Manifest (imports all above)
-9. src/hook/core/__init__.py          # Core package
-10. src/hook/core/normalization.py    # Naming validators (no deps)
-11. src/hook/core/validation.py       # Schema validation (imports models)
+1. src/dot/__init__.py              # Package root
+2. src/dot/py.typed                  # PEP 561 marker (empty file)
+3. src/dot/models/__init__.py        # Models package
+4. src/dot/models/diagnostic.py      # Diagnostic first (no deps)
+5. src/dot/models/settings.py        # Settings (no deps)
+6. src/dot/models/concept.py         # Concept (no deps)
+7. src/dot/models/frame.py           # Source, Frame, Hook (HookRole enum)
+8. src/dot/models/manifest.py        # Manifest (imports all above)
+9. src/dot/core/__init__.py          # Core package
+10. src/dot/core/normalization.py    # Naming validators (no deps)
+11. src/dot/core/validation.py       # Schema validation (imports models)
 ```
 
 ### Function Patterns
@@ -613,7 +502,7 @@ Create files in this sequence to respect dependencies:
 All validation functions follow this signature:
 
 ```python
-from hook.models.diagnostic import Diagnostic, Severity
+from dot.models.diagnostic import Diagnostic, Severity
 
 def validate_<entity>_<aspect>(entity: EntityType, context: Context | None = None) -> list[Diagnostic]:
     """
@@ -672,7 +561,7 @@ def is_valid_semver(s: str) -> bool:
 #### Pattern C: Registry Derivation (Pure Functions)
 
 ```python
-from hook.models.manifest import Manifest
+from dot.models.manifest import Manifest
 
 def derive_key_sets(manifest: Manifest) -> set[str]:
     """Derive unique key sets from all hooks."""
@@ -723,7 +612,6 @@ def validate_manifest(manifest: Manifest) -> list[Diagnostic]:
     diagnostics.extend(validate_keyset_uniqueness(manifest))
     diagnostics.extend(warn_concept_count(manifest))
     diagnostics.extend(warn_duplicate_source(manifest))
-    diagnostics.extend(warn_reserved_targets(manifest))
     
     return diagnostics
 ```
@@ -736,9 +624,9 @@ def validate_manifest(manifest: Manifest) -> list[Diagnostic]:
 # tests/unit/test_models.py
 from datetime import datetime, timezone
 import pytest
-from hook.models.manifest import Manifest, Metadata
-from hook.models.settings import Settings
-from hook.models.frame import Frame, Hook, HookRole
+from dot.models.manifest import Manifest, Metadata
+from dot.models.settings import Settings
+from dot.models.frame import Frame, Hook, HookRole
 
 def test_settings_defaults():
     """Settings use correct defaults."""
@@ -754,7 +642,7 @@ def test_settings_frozen():
         settings.hook_prefix = "changed"
 
 def test_hook_required_fields():
-    """Hook requires name, role, concept, source, expr_sql."""
+    """Hook requires name, role, concept, source, expression."""
     with pytest.raises(Exception):
         Hook(name="_hk__test")  # Missing required fields
 ```
@@ -764,7 +652,7 @@ def test_hook_required_fields():
 ```python
 # tests/unit/test_normalization.py
 import pytest
-from hook.core.normalization import (
+from dot.core.normalization import (
     is_lower_snake_case,
     is_upper_snake_case,
     is_valid_hook_name,
@@ -797,8 +685,8 @@ def test_upper_snake_case(value: str, expected: bool):
 
 ```python
 # tests/unit/test_validation.py
-from hook.core.rules import validate_frame_has_hooks
-from hook.models.frame import Frame
+from dot.core.rules import validate_frame_has_hooks
+from dot.models.frame import Frame
 
 def test_frame_001_missing_hooks():
     """FRAME-001: Frame must have at least one hook."""
@@ -816,8 +704,8 @@ def test_frame_001_missing_hooks():
 ```python
 # tests/unit/test_registry.py
 from hypothesis import given, strategies as st
-from hook.core.registry import _build_key_set
-from hook.models.frame import Hook, HookRole
+from dot.core.registry import _build_key_set
+from dot.models.frame import Hook, HookRole
 
 @given(
     concept=st.from_regex(r"[a-z][a-z0-9_]{0,20}", fullmatch=True),
@@ -830,7 +718,7 @@ def test_key_set_format(concept: str, source: str):
         role=HookRole.PRIMARY,
         concept=concept,
         source=source,
-        expr_sql="id",
+        expression="id",
     )
     key_set = _build_key_set(hook)
     
@@ -860,20 +748,16 @@ settings:
 
 frames:
   - name: "frame.customer"
-    source: "psa.customer"
+    source:
+      relation: "psa.customer"
     hooks:
       - name: "_hk__customer"
         role: "primary"
         concept: "customer"
         source: "CRM"
-        expr_sql: "customer_id"
+        expr: "customer_id"
 
 concepts: []
-
-targets:
-  hook_sql: {}
-  uss_sql: {}
-  qlik: {}
 ```
 
 #### Invalid Fixture: missing_primary_hook.yaml
@@ -893,28 +777,27 @@ settings: {}
 
 frames:
   - name: "frame.order_line"
-    source: "psa.order_line"
+    source:
+      relation: "psa.order_line"
     hooks:
       - name: "_hk__order"
         role: "foreign"  # No primary!
         concept: "order"
         source: "ERP"
-        expr_sql: "order_id"
-
-targets: {}
+        expr: "order_id"
 ```
 
 ### Module Exports
 
-#### src/hook/__init__.py
+#### src/dot/__init__.py
 
 ```python
-"""HOOK Manifest Builder - validate and create HOOK manifests."""
-from hook.models.manifest import Manifest, Metadata
-from hook.models.settings import Settings
-from hook.models.frame import Frame, Hook, HookRole
-from hook.models.concept import Concept
-from hook.models.diagnostic import Diagnostic, Severity
+"""dot-organize - validate and create HOOK manifests."""
+from dot.models.manifest import Manifest, Metadata
+from dot.models.settings import Settings
+from dot.models.frame import Frame, Hook, HookRole
+from dot.models.concept import Concept
+from dot.models.diagnostic import Diagnostic, Severity
 
 __all__ = [
     "Manifest",
@@ -930,15 +813,15 @@ __all__ = [
 __version__ = "0.1.0"
 ```
 
-#### src/hook/models/__init__.py
+#### src/dot/models/__init__.py
 
 ```python
 """Immutable Pydantic models for HOOK manifests."""
-from hook.models.manifest import Manifest, Metadata
-from hook.models.settings import Settings
-from hook.models.frame import Frame, Hook, HookRole
-from hook.models.concept import Concept
-from hook.models.diagnostic import Diagnostic, Severity
+from dot.models.manifest import Manifest, Metadata
+from dot.models.settings import Settings
+from dot.models.frame import Frame, Hook, HookRole
+from dot.models.concept import Concept
+from dot.models.diagnostic import Diagnostic, Severity
 
 __all__ = [
     "Manifest",
@@ -953,19 +836,19 @@ __all__ = [
 ]
 ```
 
-#### src/hook/core/__init__.py
+#### src/dot/core/__init__.py
 
 ```python
 """Pure validation functions for HOOK manifests."""
-from hook.core.validation import validate_manifest
-from hook.core.normalization import (
+from dot.core.validation import validate_manifest
+from dot.core.normalization import (
     is_lower_snake_case,
     is_upper_snake_case,
     is_valid_hook_name,
     is_valid_frame_name,
     is_valid_semver,
 )
-from hook.core.registry import (
+from dot.core.registry import (
     derive_key_sets,
     derive_concepts,
     derive_hook_registry,
