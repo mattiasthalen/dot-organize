@@ -104,19 +104,37 @@ Phase 6: Release (M6)
 ## Technical Context
 
 **Language/Version**: Python 3.10+  
+**Package Manager**: `uv` — fast Python package and project manager  
 **Primary Dependencies**:
 - `pydantic` (v2) — schema validation, immutable models
 - `typer` — CLI framework (thin I/O layer)
 - `ruamel.yaml` — YAML parsing with ordering
-- `pytest` — testing
+- `questionary` — interactive wizard prompts
+
+**Dev Dependencies**:
+- `pytest` + `hypothesis` — testing (property-based)
+- `ruff` — linting and formatting
+- `mypy` — static type checking
 
 **Storage**: File-based (YAML manifests)  
 **Testing**: pytest with hypothesis for property-based tests  
 **Target Platform**: Linux, macOS, Windows (CLI)  
-**Project Type**: Single Python package with CLI entry point  
+**Project Type**: Single Python package with CLI entry point (managed by uv)  
 **Performance Goals**: Validate 1000-line manifest in <1 second  
 **Constraints**: No external services, no database, pure functions for core logic  
 **Scale/Scope**: Manifests with ≤100-150 business concepts (Dunbar guidance)
+
+### Key uv Commands
+
+```bash
+uv init --package dot-organize      # Initialize project
+uv add pydantic typer ruamel.yaml questionary  # Runtime deps
+uv add --group dev ruff mypy        # Dev deps
+uv add --group test pytest hypothesis pytest-cov  # Test deps
+uv sync                             # Install all deps
+uv run dot validate manifest.yaml   # Run CLI
+uv run pytest                       # Run tests
+```
 
 ---
 
@@ -153,11 +171,24 @@ specs/001-manifest-builder/
 ├── spec.md              # Feature specification
 ├── plan.md              # This file
 ├── data-model.md        # ✅ Data model with field specs
-├── quickstart.md        # ✅ Developer setup guide
 ├── contracts/           # ✅ API contracts
 │   └── manifest-schema.json  # JSON Schema v2020-12
-└── checklists/
-    └── requirements.md  # Acceptance checklist
+├── checklists/          # ✅ Quality checklists
+│   ├── requirements.md  # Acceptance checklist
+│   └── full-review.md   # Comprehensive requirements review
+└── research/            # ✅ Implementation research (see [research/README.md](research/README.md))
+    ├── README.md                          # Research index and quick reference
+    ├── typer-cli-research.md              # CLI framework patterns
+    ├── typer-cli-skeleton.py              # Working CLI skeleton
+    ├── interactive-wizard-research.md     # questionary wizard patterns
+    ├── interactive-wizard-example.py      # Working wizard example
+    ├── uv-package-manager-research.md     # uv setup and commands
+    ├── pydantic-v2-frozen-models-research.md  # Immutable models
+    ├── ruamel-yaml-research.md            # YAML I/O with ordering
+    ├── hypothesis-testing-research.md     # Property-based testing
+    ├── json-schema-validation-research.md # Schema validation
+    ├── json-schema-validation-test.py     # Schema validation example
+    └── json-schema-integration-test.py    # Full integration example
 ```
 
 ### Source Code (repository root)
@@ -252,18 +283,18 @@ examples/
 
 | ID | Task | Description | Depends On | Ref |
 |----|------|-------------|------------|-----|
-| M1-01 | Create pyproject.toml | Package metadata, dependencies, entry points | — | [quickstart.md](quickstart.md#pyprojecttoml-template) |
+| M1-01 | Initialize project with uv | `uv init --package`, pyproject.toml, dependencies, entry points | — | [research/uv-package-manager-research.md](research/uv-package-manager-research.md) |
 | M1-12 | Add pre-commit hooks | ruff check, ruff format, mypy --strict (per NFR-042) | M1-01 | [spec.md NFR-040-042](spec.md#implementation-standards) |
-| M1-07 | Implement Diagnostic model | Severity enum, rule_id, message, path, fix | M1-01 | [data-model.md §8](data-model.md#8-diagnostic) |
-| M1-06 | Implement Settings model | hook_prefix, weak_hook_prefix, delimiter with defaults | M1-01 | [data-model.md §3](data-model.md#3-settings) |
-| M1-05 | Implement Concept model | Optional concept with name, description, examples, is_weak | M1-01 | [data-model.md §6](data-model.md#6-concept-optional) |
-| M1-04 | Implement Hook model | Hook with name, role, concept, qualifier, source, tenant, expression | M1-01 | [data-model.md §5](data-model.md#5-hook) |
-| M1-03 | Implement Frame model | Frame with name, source, description, hooks list | M1-04 | [data-model.md §4](data-model.md#4-frame) |
-| M1-02 | Implement Manifest model | Root model with metadata, settings, frames, concepts | M1-03, M1-05, M1-06 | [data-model.md §1](data-model.md#1-manifest-root) |
+| M1-07 | Implement Diagnostic model | Severity enum, rule_id, message, path, fix | M1-01 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
+| M1-06 | Implement Settings model | hook_prefix, weak_hook_prefix, delimiter with defaults | M1-01 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
+| M1-05 | Implement Concept model | Optional concept with name, description, examples, is_weak | M1-01 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
+| M1-04 | Implement Hook model | Hook with name, role, concept, qualifier, source, tenant, expression | M1-01 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
+| M1-03 | Implement Frame model | Frame with name, source, description, hooks list | M1-04 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
+| M1-02 | Implement Manifest model | Root model with metadata, settings, frames, concepts | M1-03, M1-05, M1-06 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
 | M1-08 | Implement naming validators | lower_snake_case, UPPER_SNAKE_CASE, hook naming pattern | M1-01 | [data-model.md §10](data-model.md#10-naming-convention-patterns) |
-| M1-09 | Implement schema validation | Required field checks, type validation | M1-02, M1-07, M1-08 | [manifest-schema.json](contracts/manifest-schema.json) |
+| M1-09 | Implement schema validation | Required field checks, type validation | M1-02, M1-07, M1-08 | [research/json-schema-validation-research.md](research/json-schema-validation-research.md) |
 | M1-10 | Create minimal.yaml fixture | Single concept, single hook, single frame | M1-02 | [spec.md §5](spec.md#5-manifest-schema-v1) |
-| M1-11 | Unit tests for models | Serialization, validation, defaults | M1-02, M1-09 | [data-model.md §Implementation Cookbook](data-model.md#test-patterns) |
+| M1-11 | Unit tests for models | Serialization, validation, defaults | M1-02, M1-09 | [research/hypothesis-testing-research.md](research/hypothesis-testing-research.md) |
 
 ---
 
@@ -296,7 +327,7 @@ examples/
 | M2-04 | Implement CONCEPT rules | CONCEPT-001, CONCEPT-002 | M1-07, M2-08 | [spec.md §7.1](spec.md#71-error-severity) |
 | M2-06 | Implement WARN rules | CONCEPT-W01, HOOK-W01, FRAME-W01 to W03, MANIFEST-W01 | M2-01 to M2-05 | [spec.md §7.2](spec.md#72-warn-severity) |
 | M2-11 | Create invalid fixtures | One per rule for negative testing | M2-01 to M2-06 | [data-model.md §Implementation Cookbook](data-model.md#fixture-templates) |
-| M2-12 | Unit tests for all rules | Each rule has positive + negative test | M2-11 | [data-model.md §Implementation Cookbook](data-model.md#test-patterns) |
+| M2-12 | Unit tests for all rules | Each rule has positive + negative test | M2-11 | [research/hypothesis-testing-research.md](research/hypothesis-testing-research.md) |
 
 ---
 
@@ -319,12 +350,12 @@ examples/
 
 | ID | Task | Description | Depends On | Ref |
 |----|------|-------------|------------|-----|
-| M3-01 | Implement YAML reader | Parse with ruamel.yaml, return Manifest or errors | M1-02, M1-07 | [data-model.md §14](data-model.md#14-yaml-key-ordering) |
-| M3-05 | Handle parse errors | Line/column in error messages | M3-01 | [data-model.md §8](data-model.md#8-diagnostic) |
-| M3-02 | Implement YAML writer | Serialize Manifest to YAML with ordered keys | M1-02 | [data-model.md §14](data-model.md#14-yaml-key-ordering) |
+| M3-01 | Implement YAML reader | Parse with ruamel.yaml, return Manifest or errors | M1-02, M1-07 | [research/ruamel-yaml-research.md](research/ruamel-yaml-research.md) |
+| M3-05 | Handle parse errors | Line/column in error messages | M3-01 | [research/ruamel-yaml-research.md](research/ruamel-yaml-research.md) |
+| M3-02 | Implement YAML writer | Serialize Manifest to YAML with ordered keys | M1-02 | [research/ruamel-yaml-research.md](research/ruamel-yaml-research.md) |
 | M3-03 | Implement JSON reader | Parse JSON manifest | M1-02 | [manifest-schema.json](contracts/manifest-schema.json) |
 | M3-04 | Implement JSON writer | Serialize to JSON | M1-02 | [manifest-schema.json](contracts/manifest-schema.json) |
-| M3-06 | Round-trip tests | Verify idempotent serialization | M3-01, M3-02 | [data-model.md §Implementation Cookbook](data-model.md#test-patterns) |
+| M3-06 | Round-trip tests | Verify idempotent serialization | M3-01, M3-02 | [research/hypothesis-testing-research.md](research/hypothesis-testing-research.md) |
 
 ---
 
@@ -351,19 +382,19 @@ examples/
 
 | ID | Task | Description | Depends On | Ref |
 |----|------|-------------|------------|-----|
-| M4-01 | Create typer app | Main entry point with --version, --help | M1-01 | [spec.md §6.1](spec.md#61-cli-commands) |
-| M4-02 | Implement validate command | Path argument, --json flag, exit codes | M4-01, M2-12, M3-01 | [spec.md §6.1](spec.md#61-cli-commands) |
+| M4-01 | Create typer app | Main entry point with --version, --help | M1-01 | [research/typer-cli-research.md](research/typer-cli-research.md) |
+| M4-02 | Implement validate command | Path argument, --json flag, exit codes | M4-01, M2-12, M3-01 | [research/typer-cli-research.md](research/typer-cli-research.md) |
 | M4-03 | Implement human-readable output | Diagnostic formatting per spec | M4-02 | [spec.md §6.3](spec.md#63-diagnostic-format-cli) |
 | M4-04 | Implement JSON output | --json flag for machine-readable diagnostics | M4-02 | [spec.md §6.3](spec.md#63-diagnostic-format-cli) |
-| M4-05 | Implement init wizard | Frame-first workflow with prompts | M4-01, M1-02 | [spec.md §6.2](spec.md#62-wizard-flow-hook-init) |
-| M4-06 | Implement wizard validation | Validate each input, prevent invalid states | M4-05, M2-12 | [spec.md §6.2](spec.md#62-wizard-flow-hook-init) |
-| M4-07 | Implement wizard preview | Show YAML preview before writing | M4-05, M3-02 | [spec.md §6.2](spec.md#62-wizard-flow-hook-init) |
-| M4-08 | Implement wizard save | Write to path, prompt on overwrite | M4-07 | [spec.md §6.2](spec.md#62-wizard-flow-hook-init) |
+| M4-05 | Implement init wizard | Frame-first workflow with prompts | M4-01, M1-02 | [research/interactive-wizard-research.md](research/interactive-wizard-research.md) |
+| M4-06 | Implement wizard validation | Validate each input, prevent invalid states | M4-05, M2-12 | [research/interactive-wizard-research.md](research/interactive-wizard-research.md) |
+| M4-07 | Implement wizard preview | Show YAML preview before writing | M4-05, M3-02 | [research/interactive-wizard-research.md](research/interactive-wizard-research.md) |
+| M4-08 | Implement wizard save | Write to path, prompt on overwrite | M4-07 | [research/interactive-wizard-research.md](research/interactive-wizard-research.md) |
 | M4-09 | Implement examples list | List bundled examples | M4-01 | [spec.md §6.1](spec.md#61-cli-commands) |
 | M4-10 | Implement examples show | Display example content, --output flag | M4-09 | [spec.md §6.1](spec.md#61-cli-commands) |
-| M4-11 | Add entry point | `dot` command in pyproject.toml | M4-01 | [quickstart.md](quickstart.md#pyprojecttoml-template) |
+| M4-11 | Add entry point | `dot` command in pyproject.toml `[project.scripts]` | M4-01 | [research/uv-package-manager-research.md](research/uv-package-manager-research.md) |
 | M4-12 | CLI integration tests | Test all commands via subprocess | M4-02 to M4-10 | [data-model.md §Implementation Cookbook](data-model.md#test-patterns) |
-| M4-13 | Implement draft save on cancel | Save `.dot-draft.yaml` on Ctrl+C if ≥1 frame entered | M4-05 | [spec.md FR-084](spec.md#functional-requirements) |
+| M4-13 | Implement draft save on cancel | Save `.dot-draft.yaml` on Ctrl+C if ≥1 frame entered | M4-05 | [research/interactive-wizard-research.md](research/interactive-wizard-research.md) |
 
 ---
 
@@ -410,8 +441,8 @@ examples/
 - [ ] 100% test coverage for core module
 
 **Done when**:
-- `pip install dot-organize` works from PyPI (or test PyPI)
-- CI passes on push
+- `uv pip install dot-organize` works from PyPI (or test PyPI)
+- CI passes on push (using uv for dependency management)
 - README shows install + basic usage
 - All public functions typed and documented
 
@@ -421,11 +452,11 @@ examples/
 |----|------|-------------|------------|-----|
 | M6-01 | Write README | Installation, quickstart, CLI reference | M5-07 | [quickstart.md](quickstart.md) |
 | M6-02 | Complete pyproject.toml | Classifiers, URLs, license | M1-01 | [quickstart.md](quickstart.md#pyprojecttoml-template) |
-| M6-03 | Add GitHub Actions CI | pytest, mypy --strict, ruff check/format on push | M5-05 | [spec.md NFR-040-042](spec.md#implementation-standards) |
+| M6-03 | Add GitHub Actions CI | uv sync, pytest, mypy --strict, ruff check/format on push | M5-05 | [research/uv-package-manager-research.md](research/uv-package-manager-research.md) |
 | M6-04 | Type check all modules | mypy --strict (per NFR-041) | M4-12, M5-06 | [spec.md NFR-041](spec.md#implementation-standards) |
 | M6-05 | Ensure test coverage | 100% for core/, ≥80% for cli/ | M5-06 | [data-model.md §Implementation Cookbook](data-model.md#test-patterns) |
 | M6-06 | Write docstrings | All public functions documented | M4-12 | constitution §Code Quality |
-| M6-07 | Test PyPI release | Verify installable package | M6-01 to M6-06 | [quickstart.md](quickstart.md#initial-setup) |
+| M6-07 | Test PyPI release | `uv build`, verify installable package | M6-01 to M6-06 | [research/uv-package-manager-research.md](research/uv-package-manager-research.md) |
 
 ---
 
