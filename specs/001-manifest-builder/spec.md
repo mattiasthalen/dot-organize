@@ -309,6 +309,7 @@ The tool automatically derives from frames:
 | KEYSET-001 | Auto-derived key sets must be globally unique across all hooks | Principle IV |
 | CONCEPT-001 | Concept in `concepts` section must match a concept used in at least one hook | Principle III |
 | CONCEPT-002 | Concept description must be 10-200 characters (1-2 sentences) | Principle III |
+| CONCEPT-003 | Duplicate concept name in `concepts` section | Principle III |
 | MANIFEST-001 | manifest_version must be valid semver (MAJOR.MINOR.PATCH, no pre-release) | Principle VIII |
 | MANIFEST-002 | schema_version must be valid semver (MAJOR.MINOR.PATCH, no pre-release) | Principle VIII |
 
@@ -322,6 +323,7 @@ The tool automatically derives from frames:
 | FRAME-W02 | Multiple frames share same source field value | Principle V |
 | FRAME-W03 | Frame has more than 20 hooks (complexity advisory) | Principle X |
 | MANIFEST-W01 | Manifest has more than 50 frames (performance advisory) | Principle X |
+| MANIFEST-W02 | Unknown fields in manifest (forward compatibility warning) | Principle VIII |
 
 ---
 
@@ -471,16 +473,16 @@ Customer, Order, Product from multiple sources with region traversal capability.
 
 ### Session 2026-01-04
 
-- Q: What is the wizard step order and can users skip elements? → A: Frame-first workflow. User starts by defining frames (inspecting source tables), then sketches hooks needed, which surfaces business concepts and key sets naturally. This is bottom-up discovery.
-- Q: Is there a recipe for key set values? → A: Yes. Key set values follow the pattern `SOURCE.CONCEPT[.QUALIFIER][~TENANT]`. Examples: `CHNK.ALB`, `SAP.FIN.ACC.NO`, `CRM.CUST~AU`. The wizard should auto-generate key set values based on this recipe.
+- Q: What is the wizard step order and can users skip elements? → A: Frame-first workflow. User starts by defining frames (inspecting source tables), then sketches hooks needed, which surfaces business concepts and key sets naturally. This is bottom-up discovery. **Wizard flow**: 1) Enter frame name → 2) Enter source (relation or path) → 3) Define hooks (name, role, concept, qualifier, source, tenant, expr) → 4) Wizard displays auto-derived key set after each hook → 5) Add more hooks or finish frame → 6) Add more frames or preview → 7) Review summary → 8) Save manifest. Wizard auto-generates `created_at` and `updated_at` timestamps.
+- Q: Is there a recipe for key set values? → A: Yes. Key set values follow the pattern `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]`. Examples: `CUSTOMER@CRM`, `ORDER@SAP~AU`, `EMPLOYEE~MANAGER@CRM`. The wizard auto-generates and displays key set values after each hook definition.
 - Q: Should hooks be global or frame-local? → A: Hooks are defined inline within frames. Each hook has a `role` field: `primary` (defines the frame's grain, e.g., `_hk__order` in order_headers) or `foreign` (references another concept, e.g., `_hk__order` in order_lines). The tool auto-derives a global hook registry for cross-frame relationship detection.
 - Q: What is the default hook prefix? → A: Default prefix is `_hk__` (lowercase with trailing double underscore). Weak hooks use `_wk__`. Prefix is configurable in manifest settings.
-- Q: How to simplify hook definitions to avoid ID cross-references? → A: Hooks declare `name`, `role`, `concept`, `qualifier`, `source`, `tenant`, `expression`. Key set is auto-derived as `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]`. Business concepts and key sets registries are auto-derived by scanning all hooks. Optional `concepts` section for definitions/examples.
-- Q: How to handle composite business keys (multiple columns)? → A: `expression` accepts SQL expression syntax (e.g., `order_id || '-' || line_number`). Dialect-specific syntax deferred to generators.
+- Q: How to simplify hook definitions to avoid ID cross-references? → A: Hooks declare `name`, `role`, `concept`, `qualifier`, `source`, `tenant`, `expr`. Key set is auto-derived as `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]`. Business concepts and key sets registries are auto-derived by scanning all hooks. Optional `concepts` section for definitions/examples.
+- Q: How to handle composite business keys (multiple columns)? → A: `expr` accepts SQL expression syntax (e.g., `order_id || '-' || line_number`). Dialect-specific syntax deferred to generators.
 - Q: How should weak hooks be prefixed? → A: User explicitly names hook with `_wk__` prefix. Validator warns if mismatch with `is_weak` flag in concepts section.
 - Q: Key set recipe order — concept-first or source-first? → A: Concept-first with `@` separator: `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]`. Groups by meaning, unambiguous parsing.
 - Q: Should validation block on error or report all errors? → A: Report mode. Collect all errors, print summary, exit 1 if errors but don't lose user work. User shouldn't lose extensive input over one typo.
-- Q: Should the expression field be named for extensibility? → A: Yes. Rename to `expression` because future versions will add other expression types like `expr_qlik`.
+- Q: Should the expression field be named `expr` or `expression`? → A: Use `expr` for v1 (concise, matches schema). Future versions may add `expr_qlik` for Qlik expressions.
 
 ---
 

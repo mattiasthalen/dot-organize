@@ -40,6 +40,8 @@ Based on plan.md structure:
 - [ ] T013 Create tests/fixtures/valid/ directory structure
 - [ ] T014 Create tests/fixtures/invalid/ directory structure
 
+**Note**: `tests/fixtures/` are minimal test fixtures for unit/integration tests. `examples/` are complete, documented examples for end users. They serve different purposes and may differ in content.
+
 **Checkpoint**: Project structure ready, `uv sync` succeeds
 
 ---
@@ -56,8 +58,8 @@ Based on plan.md structure:
 - [ ] T016 [P] Create tests/unit/test_normalization.py with tests for naming validators (lower_snake_case, UPPER_SNAKE_CASE, hook_name, frame_name, semver)
 - [ ] T017 [P] Create tests/unit/test_registry.py with tests for key set derivation, concept registry, hook registry
 - [ ] T018 [P] Create tests/unit/test_expression.py with tests for expr validation (allowed tokens, forbidden patterns)
-- [ ] T019 [P] Create tests/unit/test_rules.py with tests for all ERROR rules (FRAME-001 to 006, HOOK-001 to 006, KEYSET-001, CONCEPT-001/002, MANIFEST-001/002)
-- [ ] T020 [P] Create tests/unit/test_rules_warn.py with tests for all WARN rules (CONCEPT-W01, HOOK-W01, FRAME-W01/W02/W03, MANIFEST-W01)
+- [ ] T019 [P] Create tests/unit/test_rules.py with tests for all ERROR rules (FRAME-001 to 006, HOOK-001 to 006, KEYSET-001, CONCEPT-001/002/003, MANIFEST-001/002)
+- [ ] T020 [P] Create tests/unit/test_rules_warn.py with tests for all WARN rules (CONCEPT-W01, HOOK-W01, FRAME-W01/W02/W03, MANIFEST-W01/W02)
 
 ### Implementation for Foundational Phase
 
@@ -80,8 +82,8 @@ Based on plan.md structure:
 - [ ] T032 Implement FRAME rules in src/dot/core/rules.py (FRAME-001 to FRAME-006)
 - [ ] T033 Implement HOOK rules in src/dot/core/rules.py (HOOK-001 to HOOK-006, uses expr validation)
 - [ ] T034 Implement KEYSET rules in src/dot/core/rules.py (KEYSET-001 uniqueness)
-- [ ] T035 Implement CONCEPT rules in src/dot/core/rules.py (CONCEPT-001, CONCEPT-002)
-- [ ] T036 Implement WARN rules in src/dot/core/rules.py (all 6 warning rules)
+- [ ] T035 Implement CONCEPT rules in src/dot/core/rules.py (CONCEPT-001, CONCEPT-002, CONCEPT-003)
+- [ ] T036 Implement WARN rules in src/dot/core/rules.py (all 7 warning rules: CONCEPT-W01, HOOK-W01, FRAME-W01/W02/W03, MANIFEST-W01/W02)
 - [ ] T037 Implement composite validate_manifest function in src/dot/core/validation.py
 
 #### Fixtures
@@ -104,8 +106,10 @@ Based on plan.md structure:
 - [ ] T053 [P] Create tests/fixtures/invalid/duplicate_keyset.yaml (triggers KEYSET-001)
 - [ ] T054 [P] Create tests/fixtures/invalid/unused_concept.yaml (triggers CONCEPT-001)
 - [ ] T055 [P] Create tests/fixtures/invalid/short_concept_description.yaml (triggers CONCEPT-002)
+- [ ] T055a [P] Create tests/fixtures/invalid/duplicate_concept_name.yaml (triggers CONCEPT-003)
 - [ ] T056 [P] Create tests/fixtures/invalid/invalid_manifest_version.yaml (triggers MANIFEST-001)
 - [ ] T057 [P] Create tests/fixtures/invalid/invalid_schema_version.yaml (triggers MANIFEST-002)
+- [ ] T057a [P] Create tests/fixtures/warn/unknown_fields.yaml (triggers MANIFEST-W02)
 
 **Checkpoint**: All foundation tests pass - models, validators, rules implemented
 
@@ -148,6 +152,7 @@ Based on plan.md structure:
 - [ ] T070 [US1] Implement human-readable diagnostic output formatting in src/dot/cli/validate.py
 - [ ] T071 [US1] Implement --json flag for machine-readable output in src/dot/cli/validate.py
 - [ ] T072 [US1] Implement exit codes: 0 (valid), 1 (errors), 2 (usage/file errors) in src/dot/cli/validate.py
+- [ ] T072a [P] [US1] Implement --no-color flag to disable ANSI escape codes (NFR-011)
 
 **Checkpoint**: `dot validate manifest.yaml` works correctly with all exit codes - User Story 1 complete and independently testable
 
@@ -167,7 +172,7 @@ Based on plan.md structure:
   - Summary preview before write
   - Overwrite prompt for existing file
   - --format json → JSON output
-  - Ctrl+C with ≥1 frame → .dot-draft.yaml saved
+  - Ctrl+C with ≥1 frame → .dot-draft.yaml saved (verify file content)
   - Non-TTY stdin → error with helpful message
 
 ### Implementation for User Story 2
@@ -254,6 +259,7 @@ Based on plan.md structure:
 - [ ] T105 [P] Add docstrings to all public functions
 - [ ] T106 Test PyPI release with `uv build` and verify installable package
 - [ ] T107 Run spec.md quickstart validation scenarios end-to-end
+- [ ] T108 [P] Create tests/performance/test_validation_benchmarks.py - verify NFR-001/002/003 (validation <1s for 1000 lines, <5s for 10000 lines, <100MB memory)
 
 ---
 
@@ -370,12 +376,12 @@ Each User Story is complete when:
 | Phase | Tasks | Parallel Tasks | Key Deliverable |
 |-------|-------|----------------|-----------------|
 | Setup | T001-T014 | 10 | Project structure |
-| Foundational | T015-T057 | 38 | Models, validators, rules, fixtures |
-| US1: Validate | T058-T072 | 5 | `dot validate` command |
+| Foundational | T015-T057a | 40 | Models, validators, rules, fixtures |
+| US1: Validate | T058-T072a | 6 | `dot validate` command |
 | US2: Wizard | T073-T083 | 1 | `dot init` interactive |
 | US3: Non-Interactive | T084-T089 | 1 | `dot init --from-config` |
 | US4: Examples | T090-T098 | 5 | `dot examples` command |
-| Polish | T099-T107 | 4 | README, CI, release |
+| Polish | T099-T108 | 5 | README, CI, release, benchmarks |
 
-**Total Tasks**: 107
-**MVP Scope**: Phases 1-3 (T001-T072) = 72 tasks
+**Total Tasks**: 112 (107 base + 5 additions: T055a, T057a, T072a, T108)
+**MVP Scope**: Phases 1-3 (T001-T072a) = 76 tasks
