@@ -131,7 +131,7 @@ class Frame(BaseModel, frozen=True):
 | `name` | `str` | ✅ | — | `lower_snake_case`, pattern: `<schema>.<table>` | FRAME-002 |
 | `source` | `Source` | ✅ | — | Must have exactly one of relation/path | FRAME-004, FRAME-005, FRAME-006 |
 | `description` | `str \| None` | ❌ | `None` | — | — |
-| `hooks` | `list[Hook]` | ✅ | — | len >= 1, exactly one `role="primary"` | FRAME-001, FRAME-003 |
+| `hooks` | `list[Hook]` | ✅ | — | len >= 1, at least one `role="primary"` (multiple allowed for composite grain) | FRAME-001, FRAME-003 |
 
 **Source Model**:
 
@@ -183,6 +183,22 @@ class Hook(BaseModel, frozen=True):
 
 **Auto-Derived Key Set**: `<CONCEPT>[~<QUALIFIER>]@<SOURCE>[~<TENANT>]`
 - Examples: `CUSTOMER@CRM`, `EMPLOYEE~MANAGER@CRM`, `ORDER@SAP~AU`
+
+**Qualifier Use Cases**:
+
+1. **Role Disambiguation**: Same concept with different roles (e.g., `employee` vs `employee__manager`)
+   - `_hk__employee` → `EMPLOYEE@CRM`
+   - `_hk__employee__manager` → `EMPLOYEE~MANAGER@CRM`
+
+2. **Key Aliases**: Same concept with different source columns (e.g., order by number vs order by ID)
+   - `_hk__order__number` (expr: `order_number`) → `ORDER~NUMBER@ERP`
+   - `_hk__order__id` (expr: `order_id`) → `ORDER~ID@ERP`
+   - Both represent the same business concept via different source columns
+   - KEYSET-001 ensures these produce unique key sets (no collision)
+
+3. **Composite Grain**: Frame with multiple primary hooks defines composite grain
+   - `order_lines` frame with `_hk__order` (primary) + `_hk__product` (primary)
+   - Grain = (ORDER, PRODUCT) — order of primary hooks defines grain order
 
 ---
 

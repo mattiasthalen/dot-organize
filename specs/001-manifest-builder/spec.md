@@ -99,7 +99,7 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - What happens when stdin is not a TTY but interactive mode is requested? → ERROR: "Interactive mode requires a terminal. Use --from-config for non-interactive mode."
 - What happens when manifest has zero frames? → ERROR [FRAME-001]: "Manifest must have at least one frame"
 - What happens when YAML parse fails mid-file? → Fail fast with line/column error; no partial manifest recovery in v1 (v2 consideration: attempt to recover valid portions)
-- What happens when a frame has multiple primary hooks? → ERROR [FRAME-003]: "Frame '{name}' has {count} primary hooks; exactly one required"
+- What happens when a frame has multiple primary hooks? → Valid for composite grain (e.g., order_lines with `_hk__order` + `_hk__product`). Order of primary hooks defines grain order.
 - What happens when concept in concepts section is never used in hooks? → ERROR [CONCEPT-001]: "Concept '{name}' defined but not used in any hook"
 - What happens with duplicate concept names in concepts section? → ERROR: "Duplicate concept name: '{name}'"
 - What happens when file save fails (permission denied)? → ERROR: "Cannot write to '{path}': {os_error}". Manifest not saved, user prompted to try different path.
@@ -162,7 +162,7 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - **FR-033c**: Both `relation` and `path` values MUST be non-empty strings when present.
 - **FR-034**: Each hook MUST include `name`, `role`, `concept`, `source`, and `expr`.
 - **FR-034a**: Hook `expr` is a SQL expression (Manifest SQL subset) for Feature 001. Qlik expression support may be introduced in a later feature.
-- **FR-035**: Hook `role` MUST be `primary` (defines frame grain) or `foreign` (references other concept).
+- **FR-035**: Hook `role` MUST be `primary` (defines frame grain, one or more per frame) or `foreign` (references other concept).
 - **FR-036**: Key sets MUST be auto-derived from hook fields as `<CONCEPT>[~<QUALIFIER>]@<SOURCE>[~<TENANT>]`.
 - **FR-037**: Manifest MAY include optional `concepts` array for definitions/examples (enrichment only).
 - **FR-038**: Manifest MUST include `settings` object with hook_prefix, weak_hook_prefix, and delimiter.
@@ -296,7 +296,7 @@ The tool automatically derives from frames:
 |---------|-------------|------------------------|
 | FRAME-001 | Frame must have at least one hook | Principle V |
 | FRAME-002 | Frame name must match naming convention (lower_snake_case with dot separator) | Principle V |
-| FRAME-003 | Frame must have exactly one hook with role=primary | Principle VI |
+| FRAME-003 | Frame must have at least one hook with role=primary (multiple allowed for composite grain) | Principle VI |
 | FRAME-004 | Frame source object must be present | Principle V |
 | FRAME-005 | Frame source must have exactly one of `relation` or `path` (exclusivity) | Principle V |
 | FRAME-006 | Frame source.relation or source.path must be non-empty string | Principle V |
@@ -332,8 +332,6 @@ The tool automatically derives from frames:
 ### Human-Readable (default)
 
 ```
-ERROR [HOOK-001] Hook '_hk__customer' is missing required field 'expression'
-  at: frames[0].hooks[0].expression
 ERROR [HOOK-001] Hook '_hk__customer' is missing required field 'expr'
   at: frames[0].hooks[0].expr
   fix: Add expr with a valid SQL expression for the business key
@@ -483,6 +481,11 @@ Customer, Order, Product from multiple sources with region traversal capability.
 - Q: Key set recipe order — concept-first or source-first? → A: Concept-first with `@` separator: `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]`. Groups by meaning, unambiguous parsing.
 - Q: Should validation block on error or report all errors? → A: Report mode. Collect all errors, print summary, exit 1 if errors but don't lose user work. User shouldn't lose extensive input over one typo.
 - Q: Should the expression field be named `expr` or `expression`? → A: Use `expr` for v1 (concise, matches schema). Future versions may add `expr_qlik` for Qlik expressions.
+
+### Session 2026-01-06
+
+- Q: Can a frame have multiple primary hooks for composite grain? → A: Yes. Allow multiple hooks with role="primary" where the combination defines frame grain. Example: `order_lines` has grain = (`_hk__order`, `_hk__product`). Order of primary hooks matters for grain definition. FRAME-003 rule changed from "exactly one" to "at least one" primary hook.
+- Q: How to handle primary key aliases (same concept, different source columns)? → A: Use qualifiers to distinguish aliases. Example: `_hk__order__number` (concept=`order`, qualifier=`number`) and `_hk__order__id` (concept=`order`, qualifier=`id`) produce different key sets: `ORDER~NUMBER@SOURCE` and `ORDER~ID@SOURCE`. They represent the same business concept via different source columns. No schema change needed; qualifiers already support this pattern.
 
 ---
 

@@ -56,9 +56,9 @@ Based on plan.md structure:
 
 - [ ] T015 [P] Create tests/unit/test_models.py with tests for all models (Settings, Diagnostic, Concept, Hook, Frame, Manifest)
 - [ ] T016 [P] Create tests/unit/test_normalization.py with tests for naming validators (lower_snake_case, UPPER_SNAKE_CASE, hook_name, frame_name, semver)
-- [ ] T017 [P] Create tests/unit/test_registry.py with tests for key set derivation, concept registry, hook registry
+- [ ] T017 [P] Create tests/unit/test_registry.py with tests for key set derivation (including key aliases with qualifiers), concept registry, hook registry
 - [ ] T018 [P] Create tests/unit/test_expression.py with tests for expr validation (allowed tokens, forbidden patterns)
-- [ ] T019 [P] Create tests/unit/test_rules.py with tests for all ERROR rules (FRAME-001 to 006, HOOK-001 to 006, KEYSET-001, CONCEPT-001/002/003, MANIFEST-001/002)
+- [ ] T019 [P] Create tests/unit/test_rules.py with tests for all ERROR rules (FRAME-001 to 006 including composite grain validation, HOOK-001 to 006, KEYSET-001 including key alias uniqueness, CONCEPT-001/002/003, MANIFEST-001/002)
 - [ ] T020 [P] Create tests/unit/test_rules_warn.py with tests for all WARN rules (CONCEPT-W01, HOOK-W01, FRAME-W01/W02/W03, MANIFEST-W01/W02)
 
 ### Implementation for Foundational Phase
@@ -90,6 +90,8 @@ Based on plan.md structure:
 
 - [ ] T038 [P] Create tests/fixtures/valid/minimal.yaml (single concept, single hook, relation source)
 - [ ] T039 [P] Create tests/fixtures/valid/file_based.yaml (path source instead of relation)
+- [ ] T039a [P] Create tests/fixtures/valid/composite_grain.yaml (frame with multiple primary hooks for composite grain, e.g., order_lines with _hk__order + _hk__product)
+- [ ] T039b [P] Create tests/fixtures/valid/key_alias.yaml (same concept with different qualifiers, e.g., _hk__order__number and _hk__order__id producing ORDER~NUMBER@ERP and ORDER~ID@ERP)
 - [ ] T040 [P] Create tests/fixtures/invalid/missing_hooks.yaml (triggers FRAME-001)
 - [ ] T041 [P] Create tests/fixtures/invalid/invalid_frame_name.yaml (triggers FRAME-002)
 - [ ] T042 [P] Create tests/fixtures/invalid/missing_primary_hook.yaml (triggers FRAME-003)
@@ -376,12 +378,12 @@ Each User Story is complete when:
 | Phase | Tasks | Parallel Tasks | Key Deliverable |
 |-------|-------|----------------|-----------------|
 | Setup | T001-T014 | 10 | Project structure |
-| Foundational | T015-T057a | 40 | Models, validators, rules, fixtures |
+| Foundational | T015-T057a | 42 | Models, validators, rules, fixtures |
 | US1: Validate | T058-T072a | 6 | `dot validate` command |
 | US2: Wizard | T073-T083 | 1 | `dot init` interactive |
 | US3: Non-Interactive | T084-T089 | 1 | `dot init --from-config` |
 | US4: Examples | T090-T098 | 5 | `dot examples` command |
 | Polish | T099-T108 | 5 | README, CI, release, benchmarks |
 
-**Total Tasks**: 112 (107 base + 5 additions: T055a, T057a, T072a, T108)
-**MVP Scope**: Phases 1-3 (T001-T072a) = 76 tasks
+**Total Tasks**: 114 (107 base + 7 additions: T039a, T039b, T055a, T057a, T072a, T108)
+**MVP Scope**: Phases 1-3 (T001-T072a) = 78 tasks

@@ -288,7 +288,7 @@ examples/
 | M1-07 | Implement Diagnostic model | Severity enum, rule_id, message, path, fix | M1-01 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
 | M1-06 | Implement Settings model | hook_prefix, weak_hook_prefix, delimiter with defaults | M1-01 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
 | M1-05 | Implement Concept model | Optional concept with name, description, examples, is_weak | M1-01 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
-| M1-04 | Implement Hook model | Hook with name, role, concept, qualifier, source, tenant, expression | M1-01 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
+| M1-04 | Implement Hook model | Hook with name, role, concept, qualifier, source, tenant, expr | M1-01 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
 | M1-03 | Implement Frame model | Frame with name, source, description, hooks list | M1-04 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
 | M1-02 | Implement Manifest model | Root model with metadata, settings, frames, concepts | M1-03, M1-05, M1-06 | [research/pydantic-v2-frozen-models-research.md](research/pydantic-v2-frozen-models-research.md) |
 | M1-08 | Implement naming validators | lower_snake_case, UPPER_SNAKE_CASE, hook naming pattern | M1-01 | [data-model.md §Naming Conventions](data-model.md#naming-conventions) |
