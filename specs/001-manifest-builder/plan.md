@@ -126,21 +126,21 @@ Phase 6: Release (M6)
 
 | Principle | Status | Notes |
 |-----------|--------|-------|
-| I. Organising Discipline | ✅ Pass | Manifest declares organization only |
-| II. Hooks as Identity | ✅ Pass | Validation enforces identity-only semantics |
-| III. Business Concepts | ✅ Pass | Schema requires definitions + examples |
-| IV. Key Sets Required | ✅ Pass | Auto-derived from hook fields |
-| V. Frames as Wrappers | ✅ Pass | Frame references source without transformation |
-| VI. Join Safety | ✅ Pass | Primary/foreign roles enable grain reasoning |
-| VII. Implied Relationships | ✅ Pass | Shared concepts imply relationships |
-| VIII. Manifest as SSOT | ✅ Pass | Versioned schema with extension points |
-| X. Simplicity | ✅ Pass | Minimal viable schema, no speculative features |
+| I. Organising Discipline | ⬜ | |
+| II. Hooks as Identity | ⬜ | |
+| III. Business Concepts | ⬜ | |
+| IV. Key Sets Required | ⬜ | |
+| V. Frames as Wrappers | ⬜ | |
+| VI. Join Safety | ⬜ | |
+| VII. Implied Relationships | ⬜ | |
+| VIII. Manifest as SSOT | ⬜ | |
+| X. Simplicity | ⬜ | |
 
 **Prohibited Patterns Check**:
-- ❌ No business logic in hooks — enforced by validation
-- ❌ No derived values — `expr` is source expression only (Manifest SQL subset)
-- ❌ No sentinel substitution — null propagation rule
-- ❌ No hooks without key sets — auto-derived key sets
+- ⬜ No business logic in hooks
+- ⬜ No derived values — `expr` is source expression only (Manifest SQL subset)
+- ⬜ No sentinel substitution — null propagation rule
+- ⬜ No hooks without key sets — auto-derived key sets
 
 ---
 
