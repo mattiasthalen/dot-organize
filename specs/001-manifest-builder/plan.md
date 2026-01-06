@@ -241,7 +241,9 @@ tests/
     ├── valid/
     │   ├── minimal.yaml
     │   ├── typical.yaml
-    │   └── complex.yaml
+    │   ├── complex.yaml
+    │   ├── composite_grain.yaml
+    │   └── key_alias.yaml
     └── invalid/
         ├── missing_hook.yaml
         └── duplicate_keyset.yaml
@@ -250,7 +252,9 @@ examples/
 ├── minimal.yaml          # Relational source example
 ├── file_based.yaml       # File/path source example
 ├── typical.yaml
-└── complex.yaml
+├── complex.yaml
+├── api.yaml              # API source example
+└── multi_source.yaml     # Multi-source pattern example
 ```
 
 **Structure Decision**: Single Python package (`dot`) with clear separation:
@@ -309,8 +313,8 @@ examples/
 - [ ] `tests/fixtures/invalid/` — invalid fixture collection
 
 **Done when**:
-- All 17 ERROR rules from spec are implemented
-- All 6 WARN rules from spec are implemented
+- All 18 ERROR rules from spec are implemented
+- All 7 WARN rules from spec are implemented
 - Auto-derived key sets follow `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]`
 
 **Tasks** (ordered by dependency):
@@ -325,7 +329,7 @@ examples/
 | M2-01 | Implement FRAME rules | FRAME-001 to FRAME-006 | M1-07, M1-08 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
 | M2-02 | Implement HOOK rules | HOOK-001 to HOOK-006 | M1-07, M1-08, M2-10 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
 | M2-03 | Implement KEYSET rules | KEYSET-001 (uniqueness) | M2-07 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
-| M2-04 | Implement CONCEPT rules | CONCEPT-001, CONCEPT-002 | M1-07, M2-08 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
+| M2-04 | Implement CONCEPT rules | CONCEPT-001, CONCEPT-002, CONCEPT-003 | M1-07, M2-08 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
 | M2-06 | Implement WARN rules | CONCEPT-W01, HOOK-W01, FRAME-W01 to W03, MANIFEST-W01 | M2-01 to M2-05 | [spec.md §Advisory Rules](spec.md#advisory-rules-warn-severity) |
 | M2-11 | Create invalid fixtures | One per rule for negative testing | M2-01 to M2-06 | [data-model.md §Implementation Cookbook](data-model.md#fixture-templates) |
 | M2-12 | Unit tests for all rules | Each rule has positive + negative test | M2-11 | [research/hypothesis-testing-research.md](research/hypothesis-testing-research.md) |
@@ -411,7 +415,7 @@ examples/
 - [ ] Negative fixtures: expected diagnostics verified
 
 **Done when**:
-- All 3 examples pass validation with exit code 0
+- All 6 examples pass validation with exit code 0
 - Invalid fixtures produce expected ERROR/WARN with correct rule IDs
 - All examples pass `dot validate`
 
