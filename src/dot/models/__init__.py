@@ -1,5 +1,20 @@
 """Immutable Pydantic models for HOOK manifests."""
 
-# Models will be exported after implementation
+from dot.models.concept import Concept
+from dot.models.diagnostic import Diagnostic, Severity
+from dot.models.frame import Frame, Hook, HookRole, Source
+from dot.models.manifest import Manifest, Metadata
+from dot.models.settings import Settings
 
-__all__: list[str] = []
+__all__ = [
+    "Concept",
+    "Diagnostic",
+    "Frame",
+    "Hook",
+    "HookRole",
+    "Manifest",
+    "Metadata",
+    "Settings",
+    "Severity",
+    "Source",
+]
