@@ -599,6 +599,7 @@ def warn_unknown_fields(raw_data: dict[str, Any]) -> list[Diagnostic]:
         "settings",
         "frames",
         "concepts",
+        "keysets",  # FR-039
     }
 
     unknown_fields = set(raw_data.keys()) - known_fields

@@ -329,7 +329,7 @@ Based on plan.md structure:
 
 - [x] T134 [P] Update example manifests in `examples/` to include concepts and keysets sections.
 
-- [ ] T136 Fix MANIFEST-W02 known_fields: Add `"keysets"` to `known_fields` set in `warn_unknown_fields()` at `src/dot/core/rules.py`. Currently `keysets` triggers spurious MANIFEST-W02 warning despite being a valid root field per FR-039.
+- [x] T136 Fix MANIFEST-W02 known_fields: Add `\"keysets\"` to `known_fields` set in `warn_unknown_fields()` at `src/dot/core/rules.py`. Currently `keysets` triggers spurious MANIFEST-W02 warning despite being a valid root field per FR-039.
 
 ---
 
