@@ -234,8 +234,11 @@ def _manifest_to_ordered_dict(manifest: Manifest) -> dict[str, Any]:
     # Frames
     result["frames"] = [_frame_to_dict(f) for f in manifest.frames]
 
-    # Concepts
+    # Concepts (FR-037)
     result["concepts"] = [_concept_to_dict(c) for c in manifest.concepts]
+
+    # KeySets (FR-039)
+    result["keysets"] = [_keyset_to_dict(ks) for ks in manifest.keysets]
 
     return result
 
@@ -313,11 +316,28 @@ def _concept_to_dict(concept: Any) -> dict[str, Any]:
     """Convert Concept to dict."""
     result: dict[str, Any] = {"name": concept.name}
 
+    # Frames list (FR-037a)
+    if concept.frames:
+        result["frames"] = list(concept.frames)
+
     if concept.description:
         result["description"] = concept.description
     if concept.examples:
         result["examples"] = list(concept.examples)
     if concept.is_weak:
         result["is_weak"] = concept.is_weak
+
+    return result
+
+
+def _keyset_to_dict(keyset: Any) -> dict[str, Any]:
+    """Convert KeySet to dict (FR-039)."""
+    result: dict[str, Any] = {
+        "name": keyset.name,
+        "concept": keyset.concept,
+    }
+
+    if keyset.frames:
+        result["frames"] = list(keyset.frames)
 
     return result
