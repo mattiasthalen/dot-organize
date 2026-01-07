@@ -1,0 +1,44 @@
+# T039a: Composite grain manifest - frame with multiple primary hooks
+# This represents order_lines with composite grain: order + product
+manifest_version: "1.0.0"
+schema_version: "1.0.0"
+
+metadata:
+  name: "composite-grain-manifest"
+  description: "Manifest demonstrating composite grain with multiple primary hooks"
+
+settings:
+  hook_prefix: "_hk__"
+  weak_key_prefix: "_wk__"
+  key_separator: "|"
+
+frames:
+  - name: "psa.order_line"
+    source:
+      relation: "psa.order_line"
+    hooks:
+      # Two primary hooks create composite grain: ORDER + PRODUCT
+      - name: "_hk__order"
+        role: "primary"
+        concept: "order"
+        source: "ERP"
+        expr: "order_id"
+      - name: "_hk__product"
+        role: "primary"
+        concept: "product"
+        source: "ERP"
+        expr: "product_id"
+      # Foreign hook to customer
+      - name: "_hk__customer"
+        role: "foreign"
+        concept: "customer"
+        source: "ERP"
+        expr: "customer_id"
+
+concepts:
+  - name: "order"
+    description: "A sales order representing a customer purchase"
+  - name: "product"
+    description: "A product item that can be ordered"
+  - name: "customer"
+    description: "A customer entity who places orders"

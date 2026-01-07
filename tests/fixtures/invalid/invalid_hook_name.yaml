@@ -1,0 +1,18 @@
+# T047: Triggers HOOK-002 - Hook name must match pattern <prefix><concept>[__<qualifier>]
+manifest_version: "1.0.0"
+schema_version: "1.0.0"
+
+frames:
+  - name: "psa.customer"
+    source:
+      relation: "psa.customer"
+    hooks:
+      - name: "customer_key"  # Invalid: missing _hk__ prefix -> HOOK-002
+        role: "primary"
+        concept: "customer"
+        source: "CRM"
+        expr: "customer_id"
+
+concepts:
+  - name: "customer"
+    description: "A customer entity for testing"
