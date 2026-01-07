@@ -4,7 +4,7 @@
   "title": "dot Manifest Schema v1",
   "description": "Schema for manifest files that declare business concepts, hooks, key sets, and frames using the HOOK methodology.",
   "type": "object",
-  "required": ["manifest_version", "schema_version", "metadata", "settings", "frames"],
+  "required": ["manifest_version", "schema_version", "frames", "concepts", "keysets"],
   "additionalProperties": false,
   "properties": {
     "manifest_version": {
@@ -38,8 +38,14 @@
       "items": {
         "$ref": "#/$defs/Concept"
       },
-      "default": [],
-      "description": "Optional enrichment definitions for auto-derived concepts"
+      "description": "List of distinct business concepts with frame references (FR-037)"
+    },
+    "keysets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/KeySet"
+      },
+      "description": "List of auto-derived key sets with frame references (FR-039)"
     }
   },
   "$defs": {
@@ -215,7 +221,7 @@
     },
     "Concept": {
       "type": "object",
-      "required": ["name", "description"],
+      "required": ["name"],
       "additionalProperties": false,
       "properties": {
         "name": {
@@ -224,10 +230,16 @@
           "description": "Concept name (must match a concept used in frames)",
           "examples": ["customer", "order", "product"]
         },
+        "frames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of frame names where this concept appears (FR-037a)"
+        },
         "description": {
           "type": "string",
-          "minLength": 1,
-          "description": "1-2 sentence definition"
+          "description": "Optional 1-2 sentence definition (type-check only per CONCEPT-002)"
         },
         "examples": {
           "type": "array",
@@ -241,6 +253,30 @@
           "type": "boolean",
           "default": false,
           "description": "True for reference/time/system concepts"
+        }
+      }
+    },
+    "KeySet": {
+      "type": "object",
+      "required": ["name", "concept"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Key set string: CONCEPT[~QUALIFIER]@SOURCE[~TENANT] (FR-054)",
+          "examples": ["CUSTOMER@CRM", "CUSTOMER~BILLING@SAP", "ORDER@SHOPIFY~US"]
+        },
+        "concept": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Business concept this keyset belongs to"
+        },
+        "frames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of frame names where this keyset is derived (FR-039a)"
         }
       }
     }
