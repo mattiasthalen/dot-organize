@@ -448,19 +448,21 @@ def wizard_add_frame(frame_number: int) -> WizardFrame | None:
     # Hooks - at least one primary hook required
     console.print("\n[bold]Primary Hook(s)[/bold] [dim](grain identifier)[/dim]")
 
-    # Ask for concept (derives from table name by default)
-    default_concept = frame.name.split(".")[-1] if "." in frame.name else frame.name
+    # Derive default concept from frame name (FR-026):
+    # Split table name by __ and use last element, then singularize
+    table_name = frame.name.split(".")[-1] if "." in frame.name else frame.name
+    default_concept = table_name.split("__")[-1] if "__" in table_name else table_name
     default_concept = default_concept.rstrip("s")  # Simple singularization
 
-    # Ask for source system
-    default_source = "SRC"
-    hook_source = Prompt.ask(
-        "Source system [dim](e.g., CRM, ERP)[/dim]",
-        default=default_source,
-        console=console,
-    )
-
     while True:
+        # Ask for source system (FR-029: each hook prompts individually)
+        default_source = "SRC"
+        hook_source = Prompt.ask(
+            "Source system [dim](e.g., CRM, ERP)[/dim]",
+            default=default_source,
+            console=console,
+        )
+
         # Ask for concept
         concept = Prompt.ask(
             "Business concept [dim](e.g., customer, order)[/dim]",
@@ -534,6 +536,14 @@ def wizard_add_frame(frame_number: int) -> WizardFrame | None:
         console.print("\n[bold]Foreign Hook(s)[/bold] [dim](references to other concepts)[/dim]")
 
         while True:
+            # Ask for source system (FR-029: each hook prompts individually)
+            default_source = "SRC"
+            hook_source = Prompt.ask(
+                "Source system [dim](e.g., CRM, ERP)[/dim]",
+                default=default_source,
+                console=console,
+            )
+
             # Ask for concept
             concept = Prompt.ask(
                 "Business concept [dim](e.g., customer, order)[/dim]",

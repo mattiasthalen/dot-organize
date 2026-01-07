@@ -300,9 +300,11 @@ Based on plan.md structure:
   - Prompt for concept, qualifier, tenant, hook_name (with `_hk__` prefix suggestion), and expr
   - Set role to "foreign" instead of "primary"
   - Update make_wizard_input helper and add tests for foreign hook wizard flow
-- [ ] T123 Fix wizard concept name suggestion (FR-026): When deriving concept from frame name, split table name by `__` and use last element (e.g., `frame.nw__customers` → table `nw__customers` → concept `customers`).
 
-- [ ] T124 Fix wizard source system prompt (FR-029): Move source system prompt INSIDE the hook loop so each hook can specify its own source. Hooks within the same frame may reference different source systems.
+- [x] T123 Fix wizard concept name suggestion (FR-026): When deriving concept from frame name, split table name by `__` and use last element (e.g., `frame.nw__customers` → table `nw__customers` → concept `customers`).
+
+- [x] T124 Fix wizard source system prompt (FR-029): Move source system prompt INSIDE the hook loop so each hook can specify its own source. Hooks within the same frame may reference different source systems.
+
 ---
 
 ## Dependencies & Execution Order

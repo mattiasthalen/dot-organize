@@ -61,11 +61,11 @@ def make_wizard_input(
     """
     Build input string to feed to the wizard.
 
-    The wizard prompts in this order:
+    The wizard prompts in this order (FR-029: source system per hook):
     1. Frame name
     2. Source type (1=relation, 2=path)
     3. Relation name or path
-    4. Source system (e.g., CRM)
+    4. Source system (per hook, inside loop)
     5. Business concept
     6. Qualifier (optional)
     7. Tenant (optional)
@@ -80,7 +80,7 @@ def make_wizard_input(
         frame_name,  # Frame name
         "1",  # Source type: 1=relation
         relation,  # Relation name
-        source_system,  # Source system
+        source_system,  # Source system (first primary hook)
         concept,  # Business concept
         qualifier,  # Qualifier (empty = skip)
         tenant,  # Tenant (empty = skip)
@@ -92,6 +92,7 @@ def make_wizard_input(
     if composite_hooks:
         for hook in composite_hooks:
             lines.append("y")  # Add another primary hook
+            lines.append(hook.get("source_system", source_system))  # Source system (FR-029)
             lines.append(hook.get("concept", "item"))
             lines.append(hook.get("qualifier", ""))
             lines.append(hook.get("tenant", ""))
@@ -104,6 +105,7 @@ def make_wizard_input(
     if foreign_hooks:
         lines.append("y")  # Yes, add foreign hooks
         for i, hook in enumerate(foreign_hooks):
+            lines.append(hook.get("source_system", source_system))  # Source system (FR-029)
             lines.append(hook.get("concept", "related"))
             lines.append(hook.get("qualifier", ""))
             lines.append(hook.get("tenant", ""))
@@ -551,13 +553,14 @@ class TestMultipleFrames:
             "frame.order_items",
             "1",  # relation
             "raw.order_items",
-            "CRM",  # source system
+            "CRM",  # source system (first hook)
             "order",  # first concept
             "",  # qualifier
             "",  # tenant
             "",  # hook_name (accept default: _hk__order)
             "order_id",  # expr
             "y",  # add another primary hook
+            "CRM",  # source system (second hook, FR-029)
             "item",  # second concept
             "",  # qualifier
             "",  # tenant
