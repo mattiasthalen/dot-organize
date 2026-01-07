@@ -2,10 +2,11 @@
 # See https://pre-commit.com for more information
 # Run: pre-commit install to set up the git hooks
 
-# Exclude research/exploratory scripts from strict checks
+# Exclude research/exploratory scripts and test files from strict checks
 exclude: |
   (?x)^(
-    specs/.*/research/.*\.py$
+    specs/.*/research/.*\.py$|
+    tests/.*\.py$
   )$
 
 repos:
@@ -36,3 +37,4 @@ repos:
           - pydantic>=2.0.0
           - typer>=0.9.0
           - types-PyYAML
+          - ruamel.yaml>=0.18.0

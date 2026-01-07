@@ -168,8 +168,8 @@
 **Purpose**: Final cleanup and integration verification
 
 - [X] T048 Add `clean` target to Makefile for build artifact cleanup
-- [ ] T049 Update README.md with brief development section pointing to CONTRIBUTING.md
-- [ ] T050 Verify complete workflow: bump version, verify resolution, run checks
+- [X] T049 Update README.md with brief development section pointing to CONTRIBUTING.md
+- [X] T050 Verify complete workflow: bump version, verify resolution, run checks
 - [ ] T051 Run quickstart.md validation steps as final integration check
 
 ---

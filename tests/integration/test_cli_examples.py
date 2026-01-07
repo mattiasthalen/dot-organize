@@ -14,9 +14,8 @@ from pathlib import Path
 
 import pytest
 import yaml
-from typer.testing import CliRunner
-
 from dot.cli.main import app
+from typer.testing import CliRunner
 
 runner = CliRunner()
 
@@ -281,6 +280,6 @@ class TestExamplesGoldenValidation:
             manifest_path.write_text(show_result.output)
 
             validate_result = runner.invoke(app, ["validate", str(manifest_path)])
-            assert validate_result.exit_code == 0, (
-                f"Example '{example_name}' failed validation:\n{validate_result.output}"
-            )
+            assert (
+                validate_result.exit_code == 0
+            ), f"Example '{example_name}' failed validation:\n{validate_result.output}"
