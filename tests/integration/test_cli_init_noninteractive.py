@@ -114,7 +114,7 @@ class TestFromConfigValid:
         assert result.exit_code == 0, f"Failed: {result.output}"
 
         # Check manifest was created
-        manifest_path = temp_cwd / ".dot-organize.yaml"
+        manifest_path = temp_cwd / "manifest.yaml"
         assert manifest_path.exists(), "Manifest not created"
 
         # Validate content
@@ -136,7 +136,7 @@ class TestFromConfigValid:
 
         assert result.exit_code == 0
 
-        manifest_path = temp_cwd / ".dot-organize.yaml"
+        manifest_path = temp_cwd / "manifest.yaml"
         content = yaml.safe_load(manifest_path.read_text())
 
         hook = content["frames"][0]["hooks"][0]
@@ -173,7 +173,7 @@ class TestFromConfigValid:
 
         assert result.exit_code == 0
 
-        manifest_path = temp_cwd / ".dot-organize.json"
+        manifest_path = temp_cwd / "manifest.json"
         assert manifest_path.exists()
 
         # Verify valid JSON
@@ -261,7 +261,7 @@ class TestQuickInitFlags:
 
         assert result.exit_code == 0, f"Failed: {result.output}"
 
-        manifest_path = temp_cwd / ".dot-organize.yaml"
+        manifest_path = temp_cwd / "manifest.yaml"
         assert manifest_path.exists()
 
         content = yaml.safe_load(manifest_path.read_text())
@@ -282,7 +282,7 @@ class TestQuickInitFlags:
 
         assert result.exit_code == 0
 
-        manifest_path = temp_cwd / ".dot-organize.yaml"
+        manifest_path = temp_cwd / "manifest.yaml"
         content = yaml.safe_load(manifest_path.read_text())
 
         # Frame name should include concept
@@ -301,7 +301,7 @@ class TestQuickInitFlags:
 
         assert result.exit_code == 0
 
-        manifest_path = temp_cwd / ".dot-organize.yaml"
+        manifest_path = temp_cwd / "manifest.yaml"
         content = yaml.safe_load(manifest_path.read_text())
 
         hook = content["frames"][0]["hooks"][0]
@@ -358,7 +358,7 @@ class TestQuickInitFlags:
 
         assert result.exit_code == 0
 
-        manifest_path = temp_cwd / ".dot-organize.json"
+        manifest_path = temp_cwd / "manifest.json"
         assert manifest_path.exists()
 
 
@@ -386,7 +386,7 @@ class TestGeneratedManifestValidation:
         # Validate
         result = runner.invoke(
             app,
-            ["validate", ".dot-organize.yaml"],
+            ["validate", "manifest.yaml"],
         )
         assert result.exit_code == 0, f"Validation failed: {result.output}"
 
@@ -405,6 +405,6 @@ class TestGeneratedManifestValidation:
         # Validate
         result = runner.invoke(
             app,
-            ["validate", ".dot-organize.yaml"],
+            ["validate", "manifest.yaml"],
         )
         assert result.exit_code == 0, f"Validation failed: {result.output}"

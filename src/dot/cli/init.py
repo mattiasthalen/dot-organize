@@ -10,7 +10,7 @@ Implements:
 - T079: Summary preview before writing
 - T080: Overwrite confirmation prompt
 - T081: Save with YAML/JSON format
-- T082: Ctrl+C handler for .dot-draft.yaml
+- T082: Ctrl+C handler for .manifest-draft.yaml
 - T083: TTY detection with helpful error
 - T110: Frozen dataclasses for WizardFrame/WizardState (NFR-057)
 - T111: Pure functions for state operations (NFR-057)
@@ -36,9 +36,11 @@ from rich.table import Table
 from dot.io.json import dump_manifest_json
 from dot.io.yaml import dump_manifest_yaml
 from dot.models import (
+    Concept,
     Frame,
     Hook,
     HookRole,
+    KeySet,
     Manifest,
     Source,
 )
@@ -201,8 +203,8 @@ def generate_hook_name(
 # =============================================================================
 
 _wizard_state: WizardState | None = None
-DRAFT_FILE = Path(".dot-draft.yaml")
-DEFAULT_OUTPUT = Path(".dot-organize.yaml")
+DRAFT_FILE = Path(".manifest-draft.yaml")
+DEFAULT_OUTPUT = Path("manifest.yaml")
 
 
 # =============================================================================
@@ -393,7 +395,7 @@ def wizard_intro() -> None:
     console.print(
         Panel(
             "[bold]Welcome to the dot-organize manifest builder![/bold]\n\n"
-            "This wizard will help you create a [cyan].dot-organize.yaml[/cyan] manifest.\n\n"
+            "This wizard will help you create a [cyan]manifest.yaml[/cyan] manifest.\n\n"
             "[dim]• Press Enter to accept defaults (shown in brackets)\n"
             "• Press Ctrl+C at any time to save progress and exit[/dim]",
             title="Manifest Builder Wizard",
@@ -655,8 +657,18 @@ def wizard_summary_table(state: WizardState) -> None:
 
 
 def build_manifest(state: WizardState) -> Manifest:
-    """Convert wizard state to immutable Manifest model."""
+    """Convert wizard state to immutable Manifest model.
+
+    Auto-populates:
+    - concepts: distinct concepts with frame references (FR-037, FR-037a)
+    - keysets: derived key sets with frame references (FR-039, FR-039a)
+    """
     frames = []
+
+    # Track concepts and keysets for auto-population
+    concept_frames: dict[str, list[str]] = {}  # concept -> [frame_names]
+    concept_is_weak: dict[str, bool] = {}  # concept -> is_weak (from hook prefix)
+    keyset_data: dict[str, dict[str, Any]] = {}  # keyset_name -> {concept, frames}
 
     for wf in state.frames:
         if not wf.name or not wf.source_value or not wf.hooks:
@@ -685,6 +697,32 @@ def build_manifest(state: WizardState) -> Manifest:
                 )
             )
 
+            # Track concept for auto-population
+            concept = h["concept"]
+            if concept not in concept_frames:
+                concept_frames[concept] = []
+            if wf.name not in concept_frames[concept]:
+                concept_frames[concept].append(wf.name)
+
+            # Determine is_weak from hook name prefix
+            hook_name = h["name"]
+            if hook_name.startswith("_wk__"):
+                concept_is_weak[concept] = True
+            elif concept not in concept_is_weak:
+                concept_is_weak[concept] = False
+
+            # Build keyset string: CONCEPT[~QUALIFIER]@SOURCE[~TENANT]
+            keyset_name = _build_keyset_string(
+                concept=h["concept"],
+                qualifier=h.get("qualifier"),
+                source=h["source"],
+                tenant=h.get("tenant"),
+            )
+            if keyset_name not in keyset_data:
+                keyset_data[keyset_name] = {"concept": concept, "frames": []}
+            if wf.name not in keyset_data[keyset_name]["frames"]:
+                keyset_data[keyset_name]["frames"].append(wf.name)
+
         # Build frame
         frame = Frame(
             name=wf.name,
@@ -693,11 +731,53 @@ def build_manifest(state: WizardState) -> Manifest:
         )
         frames.append(frame)
 
+    # Build concepts list (FR-037, FR-037a)
+    concepts = [
+        Concept(
+            name=name,
+            frames=tuple(sorted(frame_list)),
+            description="",  # Empty for user enrichment
+            examples=(),
+            is_weak=concept_is_weak.get(name, False),
+        )
+        for name, frame_list in sorted(concept_frames.items())
+    ]
+
+    # Build keysets list (FR-039, FR-039a)
+    keysets = [
+        KeySet(
+            name=ks_name,
+            concept=ks_info["concept"],
+            frames=tuple(sorted(ks_info["frames"])),
+        )
+        for ks_name, ks_info in sorted(keyset_data.items())
+    ]
+
     return Manifest(
         manifest_version="1.0.0",
         schema_version="1.0.0",
         frames=list(frames),
+        concepts=concepts,
+        keysets=keysets,
     )
+
+
+def _build_keyset_string(
+    concept: str,
+    qualifier: str | None,
+    source: str,
+    tenant: str | None,
+) -> str:
+    """Build keyset string per FR-054: CONCEPT[~QUALIFIER]@SOURCE[~TENANT]."""
+    concept_part = concept.upper()
+    if qualifier:
+        concept_part += f"~{qualifier.upper()}"
+
+    source_part = source.upper()
+    if tenant:
+        source_part += f"~{tenant.upper()}"
+
+    return f"{concept_part}@{source_part}"
 
 
 # =============================================================================
@@ -816,10 +896,22 @@ def validate_seed_frames(frames: list[dict[str, Any]]) -> list[str]:
 
 
 def build_manifest_from_seed(seed: dict[str, Any]) -> Manifest:
-    """Build manifest from seed config."""
+    """Build manifest from seed config.
+
+    Auto-populates:
+    - concepts: distinct concepts with frame references (FR-037, FR-037a)
+    - keysets: derived key sets with frame references (FR-039, FR-039a)
+    """
     frames = []
 
+    # Track concepts and keysets for auto-population
+    concept_frames: dict[str, list[str]] = {}  # concept -> [frame_names]
+    concept_is_weak: dict[str, bool] = {}  # concept -> is_weak
+    keyset_data: dict[str, dict[str, Any]] = {}  # keyset_name -> {concept, frames}
+
     for seed_frame in seed.get("frames", []):
+        frame_name = seed_frame["name"]
+
         # Build source
         source_dict = seed_frame.get("source", {})
         if "relation" in source_dict:
@@ -851,22 +943,75 @@ def build_manifest_from_seed(seed: dict[str, Any]) -> Manifest:
                 )
             )
 
+            # Track concept for auto-population
+            if concept not in concept_frames:
+                concept_frames[concept] = []
+            if frame_name not in concept_frames[concept]:
+                concept_frames[concept].append(frame_name)
+
+            # Determine is_weak from hook name prefix
+            if name.startswith("_wk__"):
+                concept_is_weak[concept] = True
+            elif concept not in concept_is_weak:
+                concept_is_weak[concept] = False
+
+            # Build keyset string: CONCEPT[~QUALIFIER]@SOURCE[~TENANT]
+            keyset_name = _build_keyset_string(
+                concept=concept,
+                qualifier=qualifier,
+                source=hook_source,
+                tenant=tenant,
+            )
+            if keyset_name not in keyset_data:
+                keyset_data[keyset_name] = {"concept": concept, "frames": []}
+            if frame_name not in keyset_data[keyset_name]["frames"]:
+                keyset_data[keyset_name]["frames"].append(frame_name)
+
         frame = Frame(
-            name=seed_frame["name"],
+            name=frame_name,
             source=source,
             hooks=list(hooks),
         )
         frames.append(frame)
 
+    # Build concepts list (FR-037, FR-037a)
+    concepts = [
+        Concept(
+            name=name,
+            frames=tuple(sorted(frame_list)),
+            description="",
+            examples=(),
+            is_weak=concept_is_weak.get(name, False),
+        )
+        for name, frame_list in sorted(concept_frames.items())
+    ]
+
+    # Build keysets list (FR-039, FR-039a)
+    keysets = [
+        KeySet(
+            name=ks_name,
+            concept=ks_info["concept"],
+            frames=tuple(sorted(ks_info["frames"])),
+        )
+        for ks_name, ks_info in sorted(keyset_data.items())
+    ]
+
     return Manifest(
         manifest_version="1.0.0",
         schema_version="1.0.0",
         frames=list(frames),
+        concepts=concepts,
+        keysets=keysets,
     )
 
 
 def build_manifest_from_flags(concept: str, source: str) -> Manifest:
-    """Build minimal manifest from --concept and --source flags."""
+    """Build minimal manifest from --concept and --source flags.
+
+    Auto-populates:
+    - concepts: distinct concepts with frame references (FR-037, FR-037a)
+    - keysets: derived key sets with frame references (FR-039, FR-039a)
+    """
     # Auto-derive frame name
     frame_name = f"frame.{concept}s"  # Simple pluralization
 
@@ -891,10 +1036,38 @@ def build_manifest_from_flags(concept: str, source: str) -> Manifest:
         hooks=[hook],
     )
 
+    # Build concepts list (FR-037, FR-037a)
+    concepts = [
+        Concept(
+            name=concept,
+            frames=(frame_name,),
+            description="",
+            examples=(),
+            is_weak=False,
+        )
+    ]
+
+    # Build keysets list (FR-039, FR-039a)
+    keyset_name = _build_keyset_string(
+        concept=concept,
+        qualifier=None,
+        source=source,
+        tenant=None,
+    )
+    keysets = [
+        KeySet(
+            name=keyset_name,
+            concept=concept,
+            frames=(frame_name,),
+        )
+    ]
+
     return Manifest(
         manifest_version="1.0.0",
         schema_version="1.0.0",
         frames=[frame],
+        concepts=concepts,
+        keysets=keysets,
     )
 
 
@@ -903,7 +1076,7 @@ def init_command(
         None,
         "--output",
         "-o",
-        help="Output file path. Default: .dot-organize.yaml",
+        help="Output file path. Default: manifest.yaml",
     ),
     format_: str | None = typer.Option(
         None,
@@ -942,7 +1115,7 @@ def init_command(
 
     # Update default path based on format if no explicit output given
     if output is None and format_ == "json":
-        output_path = Path(".dot-organize.json")
+        output_path = Path("manifest.json")
 
     # ==========================================================================
     # Non-interactive: --from-config

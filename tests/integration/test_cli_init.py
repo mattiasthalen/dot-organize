@@ -7,7 +7,7 @@ Tests the interactive wizard workflow:
 - Summary preview before write
 - Overwrite prompt for existing file
 - --format json → JSON output
-- Ctrl+C with ≥1 frame → .dot-draft.yaml saved
+- Ctrl+C with ≥1 frame → .manifest-draft.yaml saved
 - Non-TTY stdin → error with helpful message
 """
 
@@ -159,7 +159,7 @@ class TestWizardCompleteFlow:
         assert result.exit_code == 0, f"Wizard failed: {result.output}"
 
         # Check manifest was created
-        manifest_path = temp_cwd / ".dot-organize.yaml"
+        manifest_path = temp_cwd / "manifest.yaml"
         assert manifest_path.exists(), "Manifest file not created"
 
         # Validate manifest content - use standard yaml not ruamel
@@ -190,7 +190,7 @@ class TestWizardCompleteFlow:
         assert result.exit_code == 0, f"Wizard failed: {result.output}"
 
         # Check JSON manifest was created
-        manifest_path = temp_cwd / ".dot-organize.json"
+        manifest_path = temp_cwd / "manifest.json"
         assert manifest_path.exists(), "JSON manifest not created"
 
         # Validate JSON content
@@ -221,7 +221,7 @@ class TestWizardCompleteFlow:
         assert result.exit_code == 0, f"Wizard failed: {result.output}"
 
         # Validate the created manifest
-        result = runner.invoke(app, ["validate", ".dot-organize.yaml"])
+        result = runner.invoke(app, ["validate", "manifest.yaml"])
         assert result.exit_code == 0, f"Validation failed: {result.output}"
 
 
@@ -261,7 +261,7 @@ class TestWizardInputValidation:
 
         # Should still succeed after re-prompt
         assert result.exit_code == 0
-        manifest_path = temp_cwd / ".dot-organize.yaml"
+        manifest_path = temp_cwd / "manifest.yaml"
         assert manifest_path.exists()
 
     def test_empty_frame_name_rejected(self, temp_cwd: Path) -> None:
@@ -304,7 +304,7 @@ class TestWizardOverwrite:
     def test_prompts_before_overwrite(self, temp_cwd: Path) -> None:
         """Existing file triggers overwrite confirmation."""
         # Create existing manifest
-        existing_path = temp_cwd / ".dot-organize.yaml"
+        existing_path = temp_cwd / "manifest.yaml"
         existing_path.write_text("version: '1.0'\nframes: []")
 
         # Input with overwrite confirmation
@@ -336,7 +336,7 @@ class TestWizardOverwrite:
     def test_can_decline_overwrite(self, temp_cwd: Path) -> None:
         """Declining overwrite preserves original file."""
         # Create existing manifest
-        existing_path = temp_cwd / ".dot-organize.yaml"
+        existing_path = temp_cwd / "manifest.yaml"
         original_content = "version: '1.0'\nframes: []\n"
         existing_path.write_text(original_content)
 
@@ -376,7 +376,7 @@ class TestWizardCtrlC:
     """Test Ctrl+C handling saves draft when appropriate."""
 
     def test_ctrlc_with_frame_saves_draft(self, temp_cwd: Path) -> None:
-        """Ctrl+C after completing a frame saves .dot-draft.yaml."""
+        """Ctrl+C after completing a frame saves .manifest-draft.yaml."""
         # Simulate partial input then KeyboardInterrupt
         input_lines = [
             "frame.customers",
@@ -419,7 +419,7 @@ class TestWizardCtrlC:
         )
 
         # No draft should exist
-        draft_path = temp_cwd / ".dot-draft.yaml"
+        draft_path = temp_cwd / ".manifest-draft.yaml"
         # The draft should only be saved if at least one frame is complete
         # With incomplete input, no draft should be saved
 
@@ -543,7 +543,7 @@ class TestMultipleFrames:
 
         assert result.exit_code == 0, f"Failed: {result.output}"
 
-        manifest_path = temp_cwd / ".dot-organize.yaml"
+        manifest_path = temp_cwd / "manifest.yaml"
         content = yaml.safe_load(manifest_path.read_text())
         assert len(content["frames"]) == 2
 
@@ -580,7 +580,7 @@ class TestMultipleFrames:
 
         assert result.exit_code == 0, f"Failed: {result.output}"
 
-        manifest_path = temp_cwd / ".dot-organize.yaml"
+        manifest_path = temp_cwd / "manifest.yaml"
         content = yaml.safe_load(manifest_path.read_text())
         hooks = content["frames"][0]["hooks"]
         primary_hooks = [h for h in hooks if h.get("role") == "primary"]
@@ -621,7 +621,7 @@ class TestFileBasedSource:
 
         assert result.exit_code == 0, f"Failed: {result.output}"
 
-        manifest_path = temp_cwd / ".dot-organize.yaml"
+        manifest_path = temp_cwd / "manifest.yaml"
         content = yaml.safe_load(manifest_path.read_text())
         assert content["frames"][0]["source"]["path"] == "/data/customers.csv"
 
@@ -655,7 +655,7 @@ class TestForeignHooks:
 
         assert result.exit_code == 0, f"Failed: {result.output}"
 
-        manifest_path = temp_cwd / ".dot-organize.yaml"
+        manifest_path = temp_cwd / "manifest.yaml"
         content = yaml.safe_load(manifest_path.read_text())
         hooks = content["frames"][0]["hooks"]
 
@@ -688,7 +688,7 @@ class TestForeignHooks:
 
         assert result.exit_code == 0, f"Failed: {result.output}"
 
-        manifest_path = temp_cwd / ".dot-organize.yaml"
+        manifest_path = temp_cwd / "manifest.yaml"
         content = yaml.safe_load(manifest_path.read_text())
         hooks = content["frames"][0]["hooks"]
 
@@ -718,10 +718,221 @@ class TestForeignHooks:
 
         assert result.exit_code == 0, f"Failed: {result.output}"
 
-        manifest_path = temp_cwd / ".dot-organize.yaml"
+        manifest_path = temp_cwd / "manifest.yaml"
         content = yaml.safe_load(manifest_path.read_text())
         hooks = content["frames"][0]["hooks"]
 
         # Both hooks should have the same source
         for hook in hooks:
             assert hook["source"] == "SAP"
+
+
+# =============================================================================
+# Concepts and KeySets Auto-Population Tests (T132, FR-037, FR-039)
+# =============================================================================
+
+
+class TestConceptsAutoPopulation:
+    """Tests for automatic concepts population (FR-037, FR-037a)."""
+
+    def test_wizard_populates_concepts_from_hooks(self, temp_cwd: Path) -> None:
+        """Wizard auto-populates concepts array with distinct concepts from hooks."""
+        input_text = make_wizard_input(
+            frame_name="frame.customers",
+            relation="raw.customers",
+            source_system="CRM",
+            concept="customer",
+            expr="customer_id",
+        )
+
+        result = runner.invoke(app, ["init"], input=input_text)
+        assert result.exit_code == 0, f"Failed: {result.output}"
+
+        manifest_path = temp_cwd / "manifest.yaml"
+        content = yaml.safe_load(manifest_path.read_text())
+
+        assert "concepts" in content
+        assert len(content["concepts"]) == 1
+        assert content["concepts"][0]["name"] == "customer"
+
+    def test_concepts_include_frame_references(self, temp_cwd: Path) -> None:
+        """Each concept includes list of frames where it appears."""
+        input_text = make_wizard_input(
+            frame_name="frame.customers",
+            relation="raw.customers",
+            source_system="CRM",
+            concept="customer",
+            expr="customer_id",
+        )
+
+        result = runner.invoke(app, ["init"], input=input_text)
+        assert result.exit_code == 0, f"Failed: {result.output}"
+
+        manifest_path = temp_cwd / "manifest.yaml"
+        content = yaml.safe_load(manifest_path.read_text())
+
+        assert content["concepts"][0]["frames"] == ["frame.customers"]
+
+    def test_concepts_have_empty_or_no_description(self, temp_cwd: Path) -> None:
+        """Auto-populated concepts have empty/missing description for user enrichment."""
+        input_text = make_wizard_input(
+            frame_name="frame.customers",
+            relation="raw.customers",
+            source_system="CRM",
+            concept="customer",
+            expr="customer_id",
+        )
+
+        result = runner.invoke(app, ["init"], input=input_text)
+        assert result.exit_code == 0, f"Failed: {result.output}"
+
+        manifest_path = temp_cwd / "manifest.yaml"
+        content = yaml.safe_load(manifest_path.read_text())
+
+        # Description should be empty or not present (excluded from serialization)
+        assert content["concepts"][0].get("description", "") == ""
+
+    def test_concepts_deduplicated_across_frames(self, temp_cwd: Path) -> None:
+        """Same concept in multiple frames appears once with all frame references."""
+        # First frame with customer
+        input_text = make_wizard_input(
+            frame_name="frame.orders",
+            relation="raw.orders",
+            source_system="SHOPIFY",
+            concept="order",
+            expr="order_id",
+            foreign_hooks=[{"concept": "customer", "expr": "customer_id"}],
+            add_more_frames=True,
+        )
+        # Second frame input - another frame with customer
+        input_text += "\n".join([
+            "frame.customers",  # Frame name
+            "1",  # Source type: relation
+            "raw.customers",  # Relation
+            "CRM",  # Source system
+            "customer",  # Concept
+            "",  # Qualifier
+            "",  # Tenant
+            "",  # Hook name (default)
+            "customer_id",  # Expression
+            "n",  # No more primary hooks
+            "n",  # No foreign hooks
+            "n",  # No more frames
+            "y",  # Confirm write
+        ])
+
+        result = runner.invoke(app, ["init"], input=input_text)
+        assert result.exit_code == 0, f"Failed: {result.output}"
+
+        manifest_path = temp_cwd / "manifest.yaml"
+        content = yaml.safe_load(manifest_path.read_text())
+
+        # Customer should appear in both frames
+        customer_concept = next(
+            (c for c in content["concepts"] if c["name"] == "customer"), None
+        )
+        assert customer_concept is not None
+        assert set(customer_concept["frames"]) == {"frame.orders", "frame.customers"}
+
+
+class TestKeySetsAutoPopulation:
+    """Tests for automatic keysets population (FR-039, FR-039a)."""
+
+    def test_wizard_populates_keysets_from_hooks(self, temp_cwd: Path) -> None:
+        """Wizard auto-populates keysets array derived from hooks."""
+        input_text = make_wizard_input(
+            frame_name="frame.customers",
+            relation="raw.customers",
+            source_system="CRM",
+            concept="customer",
+            expr="customer_id",
+        )
+
+        result = runner.invoke(app, ["init"], input=input_text)
+        assert result.exit_code == 0, f"Failed: {result.output}"
+
+        manifest_path = temp_cwd / "manifest.yaml"
+        content = yaml.safe_load(manifest_path.read_text())
+
+        assert "keysets" in content
+        assert len(content["keysets"]) == 1
+        assert content["keysets"][0]["name"] == "CUSTOMER@CRM"
+        assert content["keysets"][0]["concept"] == "customer"
+
+    def test_keysets_include_frame_references(self, temp_cwd: Path) -> None:
+        """Each keyset includes list of frames where it's derived."""
+        input_text = make_wizard_input(
+            frame_name="frame.customers",
+            relation="raw.customers",
+            source_system="CRM",
+            concept="customer",
+            expr="customer_id",
+        )
+
+        result = runner.invoke(app, ["init"], input=input_text)
+        assert result.exit_code == 0, f"Failed: {result.output}"
+
+        manifest_path = temp_cwd / "manifest.yaml"
+        content = yaml.safe_load(manifest_path.read_text())
+
+        assert content["keysets"][0]["frames"] == ["frame.customers"]
+
+    def test_keyset_name_includes_qualifier(self, temp_cwd: Path) -> None:
+        """Keyset name includes qualifier when present: CONCEPT~QUALIFIER@SOURCE."""
+        input_text = make_wizard_input(
+            frame_name="frame.addresses",
+            relation="raw.addresses",
+            source_system="CRM",
+            concept="customer",
+            qualifier="billing",
+            expr="billing_customer_id",
+        )
+
+        result = runner.invoke(app, ["init"], input=input_text)
+        assert result.exit_code == 0, f"Failed: {result.output}"
+
+        manifest_path = temp_cwd / "manifest.yaml"
+        content = yaml.safe_load(manifest_path.read_text())
+
+        assert content["keysets"][0]["name"] == "CUSTOMER~BILLING@CRM"
+
+    def test_keyset_name_includes_tenant(self, temp_cwd: Path) -> None:
+        """Keyset name includes tenant when present: CONCEPT@SOURCE~TENANT."""
+        input_text = make_wizard_input(
+            frame_name="frame.customers",
+            relation="raw.customers",
+            source_system="SAP",
+            concept="customer",
+            tenant="US",
+            expr="customer_id",
+        )
+
+        result = runner.invoke(app, ["init"], input=input_text)
+        assert result.exit_code == 0, f"Failed: {result.output}"
+
+        manifest_path = temp_cwd / "manifest.yaml"
+        content = yaml.safe_load(manifest_path.read_text())
+
+        assert content["keysets"][0]["name"] == "CUSTOMER@SAP~US"
+
+    def test_multiple_keysets_from_different_sources(self, temp_cwd: Path) -> None:
+        """Multiple keysets created when same concept comes from different sources."""
+        # Frame with customer from SHOPIFY and foreign key to customer from CRM
+        input_text = make_wizard_input(
+            frame_name="frame.orders",
+            relation="raw.orders",
+            source_system="SHOPIFY",
+            concept="customer",
+            expr="shopify_customer_id",
+            foreign_hooks=[{"concept": "customer", "source_system": "CRM", "expr": "crm_customer_id"}],
+        )
+
+        result = runner.invoke(app, ["init"], input=input_text)
+        assert result.exit_code == 0, f"Failed: {result.output}"
+
+        manifest_path = temp_cwd / "manifest.yaml"
+        content = yaml.safe_load(manifest_path.read_text())
+
+        keyset_names = [ks["name"] for ks in content["keysets"]]
+        assert "CUSTOMER@SHOPIFY" in keyset_names
+        assert "CUSTOMER@CRM" in keyset_names
