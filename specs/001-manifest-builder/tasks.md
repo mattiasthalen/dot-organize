@@ -323,6 +323,8 @@ Based on plan.md structure:
 
 - [ ] T132 [P] Add tests for concepts/keysets auto-population in `tests/integration/test_cli_init.py`.
 
+- [ ] T135 Update CONCEPT-002 validation rule: Change from length check (10-200 chars) to type check only (must be string). Remove or move `tests/fixtures/invalid/short_concept_description.yaml` since empty/short descriptions are now valid.
+
 - [ ] T133 [P] Update JSON schema contract `specs/001-manifest-builder/contracts/manifest-schema.json` with `keysets` section and updated `concepts` schema (add frames field).
 
 - [ ] T134 [P] Update example manifests in `examples/` to include concepts and keysets sections.
@@ -449,5 +451,5 @@ Each User Story is complete when:
 | US4: Examples | T090-T098 | 5 | `dot examples` command |
 | Polish | T099-T134 | 29 | README, CI, release, benchmarks, paradigm verification, FP refactoring, branding refactor, bug fixes, wizard enhancements, concepts/keysets auto-population |
 
-**Total Tasks**: 140 (131 previous + 9 concepts/keysets: T126-T134)
+**Total Tasks**: 141 (140 previous + 1 CONCEPT-002 validation update: T135)
 **MVP Scope**: Phases 1-3 (T001-T072a) = 78 tasks

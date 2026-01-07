@@ -222,7 +222,7 @@ class Concept(BaseModel, frozen=True):
 |-------|------|----------|---------|------------|---------|
 | `name` | `str` | ✅ | — | Must match hook concept | CONCEPT-001 |
 | `frames` | `tuple[str, ...]` | ✅ | `()` | Frame names where concept appears | — |
-| `description` | `str` | ❌ | `""` | 10-200 chars if provided | CONCEPT-002 |
+| `description` | `str` | ❌ | `""` | Type check only (string) | CONCEPT-002 |
 | `examples` | `tuple[str, ...]` | ❌ | `()` | — | — |
 | `is_weak` | `bool` | ❌ | `False` | Derived from hook prefix | — |
 

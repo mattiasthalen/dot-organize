@@ -293,7 +293,7 @@ concepts:                          # Auto-populated from hooks (FR-037)
   - name: string                   # Concept name (derived from hooks)
     frames:                        # Frames where this concept appears (auto-derived)
       - string
-    description: string            # Optional: 10-200 characters (1-2 sentence definition)
+    description: string            # Optional: enrichment text (type check only)
     examples:                      # Optional: Real-world examples
       - string
     is_weak: boolean               # True if hook uses _wk__ prefix (default: false)
@@ -335,7 +335,7 @@ The tool automatically derives from frames and populates manifest sections:
 | HOOK-006 | Hook expr must be non-empty and valid SQL expression (Manifest SQL subset; see [data-model.md §Expression Validation](data-model.md#expression-validation)) | Principle II |
 | HOOK-007 | Hook names must be unique within the same frame | Principle V |
 | CONCEPT-001 | Concept in `concepts` section must match a concept used in at least one hook | Principle III |
-| CONCEPT-002 | Concept description must be 10-200 characters (1-2 sentences) | Principle III |
+| CONCEPT-002 | Concept description must be a string (type validation only) | Principle III |
 | CONCEPT-003 | Duplicate concept name in `concepts` section | Principle III |
 | MANIFEST-001 | manifest_version must be valid semver (MAJOR.MINOR.PATCH, no pre-release) | Principle VIII |
 | MANIFEST-002 | schema_version must be valid semver (MAJOR.MINOR.PATCH, no pre-release) | Principle VIII |
