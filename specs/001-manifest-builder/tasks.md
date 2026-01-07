@@ -294,6 +294,13 @@ Based on plan.md structure:
   - Update tests to include hook_name in wizard input sequence
 - [x] T121 Update test_cli_init.py: Add hook_name to make_wizard_input helper and fix all interactive wizard test inputs
 
+### Feature Additions
+
+- [ ] T122 [US2] Add foreign hook support to wizard (FR-028): After primary hooks are complete, prompt "Add foreign hooks?" to define relationships to other concepts within the same frame.
+  - Prompt for concept, qualifier, tenant, hook_name (with `_hk__` prefix suggestion), and expr
+  - Set role to "foreign" instead of "primary"
+  - Update make_wizard_input helper and add tests for foreign hook wizard flow
+
 ---
 
 ## Dependencies & Execution Order
@@ -414,7 +421,7 @@ Each User Story is complete when:
 | US2: Wizard | T073-T083 | 1 | `dot init` interactive |
 | US3: Non-Interactive | T084-T089 | 1 | `dot init --from-config` |
 | US4: Examples | T090-T098 | 5 | `dot examples` command |
-| Polish | T099-T121 | 16 | README, CI, release, benchmarks, paradigm verification, FP refactoring, branding refactor, bug fixes |
+| Polish | T099-T122 | 17 | README, CI, release, benchmarks, paradigm verification, FP refactoring, branding refactor, bug fixes, wizard enhancements |
 
-**Total Tasks**: 127 (125 previous + 2 bug fixes: T120-T121)
+**Total Tasks**: 128 (127 previous + 1 feature: T122)
 **MVP Scope**: Phases 1-3 (T001-T072a) = 78 tasks

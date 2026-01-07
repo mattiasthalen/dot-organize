@@ -149,6 +149,7 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - **FR-025**: Wizard MUST prompt before overwriting existing files.
 - **FR-026**: Wizard MUST auto-suggest valid names based on naming conventions.
 - **FR-027**: Wizard MUST auto-generate key set values using the recipe: `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]`.
+- **FR-028**: Wizard MUST prompt for foreign hooks after primary hooks are complete, allowing users to define relationships to other concepts within the same frame.
 
 #### Manifest Structure
 
