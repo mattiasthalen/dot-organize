@@ -258,10 +258,10 @@ examples/
 ```
 
 **Structure Decision**: Single Python package (`dot`) with clear separation:
-- `models/` — immutable Pydantic models (frozen=True)
-- `core/` — pure functions, no I/O, independently testable
-- `io/` — YAML/JSON serialization (thin)
-- `cli/` — typer commands (thin wrapper over core)
+- `models/` — immutable Pydantic models (frozen=True) — satisfies constitution's functional paradigm via "framework-mandated patterns" exception
+- `core/` — pure functions only, no I/O, no stateful classes, independently testable (constitution §Functional-First)
+- `io/` — YAML/JSON serialization (thin boundary layer)
+- `cli/` — typer commands (thin wrapper over core, framework-mandated pattern)
 
 ---
 

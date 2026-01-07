@@ -144,6 +144,16 @@
 - [ ] CHK087 - Is NFR-042 (pre-commit hooks for ruff and mypy) explicitly stated? [Completeness, Spec §NFR-042]
 - [ ] CHK088 - Is Python version constraint (3.10+) documented? [Completeness, Spec §Assumptions]
 
+## Functional Programming Paradigm Constraints (Constitution §Project-Level)
+
+- [ ] CHK111 - Is the functional-first programming paradigm requirement documented? [Constitution, Spec §NFR-050]
+- [ ] CHK112 - Is immutable data structures requirement (frozen models) documented? [Constitution, Spec §NFR-051]
+- [ ] CHK113 - Is pure functions requirement documented? [Constitution, Spec §NFR-052]
+- [ ] CHK114 - Is state isolation at boundaries (io/, cli/) documented? [Constitution, Spec §NFR-053]
+- [ ] CHK115 - Are permitted class patterns explicitly listed (frozen data, Protocol/ABC, framework)? [Constitution, Spec §NFR-054]
+- [ ] CHK116 - Is inheritance prohibition for code reuse documented? [Constitution, Spec §NFR-055]
+- [ ] CHK117 - Are method restrictions on data classes documented? [Constitution, Spec §NFR-056]
+
 ## Consistency Across Documents
 
 - [ ] CHK089 - Are validation rule IDs consistent between spec.md and data-model.md? [Consistency]
@@ -197,7 +207,8 @@
 | Wizard Behavior Constraints | 7 |
 | Example Manifest Constraints | 4 |
 | Implementation Standard Constraints | 4 |
+| Functional Programming Paradigm | 7 |
 | Consistency Across Documents | 6 |
 | Edge Case Coverage | 9 |
 | Ambiguities and Gaps | 7 |
-| **Total** | **110** |
+| **Total** | **117** |

@@ -233,7 +233,17 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - **NFR-040**: All code MUST pass `ruff check` and `ruff format` (linting and formatting).
 - **NFR-041**: All code MUST pass `mypy --strict` (static type checking).
 - **NFR-042**: Pre-commit hooks MUST enforce ruff and mypy before commits.
-- **NFR-043**: Tests SHOULD be written before or alongside implementation (test-driven development encouraged, per constitution).
+- **NFR-043**: Tests MUST be written before implementation (TDD); tests MUST fail before implementation code is written.
+
+#### Programming Paradigm (Constitution §Project-Level Constraints)
+
+- **NFR-050**: All code MUST follow the **functional-first programming paradigm** per constitution v1.1.0.
+- **NFR-051**: Data structures MUST be immutable. Use frozen Pydantic models (permitted as framework-mandated pattern), frozen dataclasses, NamedTuple, or TypedDict.
+- **NFR-052**: Logic MUST be expressed as pure functions that take inputs and return outputs without side effects.
+- **NFR-053**: State MUST NOT be encapsulated in objects. Stateful operations (I/O, configuration) MUST be isolated at application boundaries (io/, cli/ layers).
+- **NFR-054**: Classes are PERMITTED only for: frozen data containers, Protocol/ABC type contracts, framework-mandated patterns (Typer commands, Pydantic models).
+- **NFR-055**: Inheritance MUST NOT be used for code reuse; use composition or higher-order functions instead.
+- **NFR-056**: Methods on data classes MUST be limited to `__str__`, `__repr__`, `__hash__`, `__eq__`, and property accessors. Business logic MUST NOT reside in methods.
 
 ---
 
@@ -524,3 +534,4 @@ Customer, Order, Product from multiple sources with region traversal capability.
 | VII. Implied Relationships | Relationships derived from shared concept names across hooks |
 | VIII. Manifest as SSOT | Versioned schema with extension points |
 | X. Simplicity | Minimal viable schema; no speculative features |
+| Functional Paradigm | Pure functions in core/, frozen Pydantic models, no stateful classes, composition over inheritance (NFR-050 to NFR-056) |
