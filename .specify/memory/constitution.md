@@ -1,23 +1,25 @@
 <!--
   SYNC IMPACT REPORT
-  Version change: N/A → 1.0.0 (initial ratification)
+  Version change: 1.0.0 → 1.1.0
+  Bump rationale: MINOR — new mandatory programming paradigm guidance added
   
   Added Sections:
-  - Core Principles (10 principles)
-  - HOOK Semantic Definitions
-  - Prohibited Patterns
-  - Relationship and Traversal Rules
-  - Manifest and Governance Rules
-  - Generator Constraints
-  - Project-Level Constraints
-  - Governance
+  - Project-Level Constraints > Programming Paradigm (Functional-First)
+  
+  Modified Sections:
+  - None
+  
+  Removed Sections:
+  - None
   
   Templates requiring updates:
-  - .specify/templates/plan-template.md ✅ (no HOOK-specific updates required)
-  - .specify/templates/spec-template.md ✅ (no HOOK-specific updates required)
-  - .specify/templates/tasks-template.md ✅ (no HOOK-specific updates required)
+  - .specify/templates/plan-template.md ✅ (no paradigm-specific updates required)
+  - .specify/templates/spec-template.md ✅ (no paradigm-specific updates required)
+  - .specify/templates/tasks-template.md ✅ (no paradigm-specific updates required)
   
-  Follow-up TODOs: None
+  Follow-up TODOs:
+  - ⚠ REFACTOR REQUIRED: 82 classes in current implementation violate functional-first paradigm.
+    Migrate to frozen dataclasses/NamedTuples for data, pure functions for logic.
 -->
 
 # dot-organize Constitution
@@ -279,6 +281,23 @@ Generators produce output (SQL, USS SQL, Qlik scripts, etc.) from the manifest.
 
 ## Project-Level Constraints
 
+### Programming Paradigm (Functional-First)
+
+The codebase MUST follow a **functional programming paradigm**. Object-oriented patterns (classes with mutable state, inheritance hierarchies, method-heavy objects) are FORBIDDEN except where explicitly permitted below.
+
+- **Data structures** MUST be immutable. Use frozen `dataclasses`, `NamedTuple`, or `TypedDict` for structured data.
+- **Logic** MUST be expressed as pure functions that take inputs and return outputs without side effects.
+- **State** MUST NOT be encapsulated in objects. Stateful operations (I/O, configuration) MUST be isolated at application boundaries.
+- **Composition** MUST favour function composition and pipelines over inheritance and method chaining.
+- **Classes** are PERMITTED only for:
+  - Frozen dataclasses or NamedTuples (data containers with no behaviour).
+  - Protocol/ABC definitions for type contracts (no implementation).
+  - Framework-mandated patterns (e.g., Typer command classes, Pydantic models configured as frozen/immutable).
+- **Inheritance** MUST NOT be used for code reuse; use composition or higher-order functions instead.
+- **Methods** on data classes MUST be limited to `__str__`, `__repr__`, `__hash__`, `__eq__`, and property accessors. Business logic MUST NOT reside in methods.
+
+**Rationale**: Functional programming aligns with HOOK's philosophy of simplicity and entropy resistance. Pure functions are easier to test, reason about, and compose. Immutable data prevents hidden state mutations that cause bugs. This paradigm reduces cognitive load and maintenance burden.
+
 ### Python CLI and Library
 
 - The library MUST be usable as a Python import and as a standalone CLI.
@@ -357,4 +376,4 @@ This constitution supersedes all other practices, conventions, and informal agre
 
 ---
 
-**Version**: 1.0.0 | **Ratified**: 2026-01-04 | **Last Amended**: 2026-01-04
+**Version**: 1.1.0 | **Ratified**: 2026-01-04 | **Last Amended**: 2026-01-07
