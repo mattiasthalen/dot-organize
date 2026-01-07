@@ -194,7 +194,7 @@ class Hook(BaseModel, frozen=True):
    - `_hk__order__number` (expr: `order_number`) → `ORDER~NUMBER@ERP`
    - `_hk__order__id` (expr: `order_id`) → `ORDER~ID@ERP`
    - Both represent the same business concept via different source columns
-   - KEYSET-001 ensures these produce unique key sets (no collision)
+   - Different hook names ensure no collision within the same frame
 
 3. **Composite Grain**: Frame with multiple primary hooks defines composite grain
    - `order_lines` frame with `_hk__order` (primary) + `_hk__product` (primary)
@@ -394,7 +394,7 @@ def validate_expr(expr: str) -> list[Diagnostic]:
 | HOOK-004 | `validate_hook_concept(hook.concept)` | FR-050 |
 | HOOK-005 | `validate_hook_source(hook.source)` | FR-053 |
 | HOOK-006 | `validate_hook_expr(hook.expr)` | FR-034, FR-034a |
-| KEYSET-001 | `validate_keyset_uniqueness(manifest)` | FR-036 |
+| HOOK-007 | `validate_hook_name_uniqueness(frame)` | FR-036 |
 | CONCEPT-001 | `validate_concept_in_frames(concept, manifest)` | Validation Rules table |
 | CONCEPT-002 | `validate_concept_description(concept)` | Validation Rules table |
 | MANIFEST-001 | `validate_manifest_version(manifest.manifest_version)` | FR-030 |
@@ -625,7 +625,6 @@ def validate_manifest(manifest: Manifest) -> list[Diagnostic]:
         diagnostics.extend(validate_concept(concept, ctx, manifest))
     
     # Global rules (cross-entity)
-    diagnostics.extend(validate_keyset_uniqueness(manifest))
     diagnostics.extend(warn_concept_count(manifest))
     diagnostics.extend(warn_duplicate_source(manifest))
     
@@ -902,7 +901,7 @@ M1-02 to M1-06 (all models)
   └─► M2-07 to M2-09 (registries need models)
 
 M2-07 (key set derivation)
-  └─► M2-03 (KEYSET-001 uses derived key sets)
+  └─► Used for key set display and downstream code generation
 
 M2-01 to M2-06 (all rules)
   └─► M3-01 (YAML reader calls validation)

@@ -327,8 +327,7 @@ examples/
 | M2-10 | Implement expr validation | Forbidden patterns (SELECT, FROM, JOIN, etc.) | M1-07 | [data-model.md §Expression Validation](data-model.md#expression-validation) |
 | M2-05 | Implement MANIFEST rules | MANIFEST-001, MANIFEST-002 (semver) | M1-07, M1-08 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
 | M2-01 | Implement FRAME rules | FRAME-001 to FRAME-006 | M1-07, M1-08 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
-| M2-02 | Implement HOOK rules | HOOK-001 to HOOK-006 | M1-07, M1-08, M2-10 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
-| M2-03 | Implement KEYSET rules | KEYSET-001 (uniqueness) | M2-07 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
+| M2-02 | Implement HOOK rules | HOOK-001 to HOOK-007 | M1-07, M1-08, M2-10 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
 | M2-04 | Implement CONCEPT rules | CONCEPT-001, CONCEPT-002, CONCEPT-003 | M1-07, M2-08 | [spec.md §Constitutional Rules](spec.md#constitutional-rules-error-severity) |
 | M2-06 | Implement WARN rules | CONCEPT-W01, HOOK-W01, FRAME-W01 to W03, MANIFEST-W01 | M2-01 to M2-05 | [spec.md §Advisory Rules](spec.md#advisory-rules-warn-severity) |
 | M2-11 | Create invalid fixtures | One per rule for negative testing | M2-01 to M2-06 | [data-model.md §Implementation Cookbook](data-model.md#fixture-templates) |

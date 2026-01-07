@@ -43,7 +43,7 @@
 
 ## Key Set Constraints
 
-- [ ] CHK025 - Is KEYSET-001 (auto-derived key sets must be globally unique) explicitly stated? [Completeness, Spec §Validation Rules]
+- [ ] CHK025 - Is HOOK-007 (hook names must be unique within the same frame) explicitly stated? [Completeness, Spec §Validation Rules]
 - [ ] CHK026 - Is the key set derivation recipe `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]` precisely documented? [Clarity, Spec §FR-054, FR-055]
 - [ ] CHK027 - Are key set parsing rules (split on @ then ~) explicitly documented? [Clarity, Spec §FR-055]
 - [ ] CHK028 - Are key set allowed characters (a-z, 0-9, _, A-Z, @, ~) enumerated? [Completeness, Spec §FR-056]

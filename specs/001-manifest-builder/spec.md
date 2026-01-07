@@ -33,7 +33,7 @@ As a data engineer, I want to validate an existing HOOK manifest file so that I 
 
 1. **Given** a valid manifest file, **When** I run `dot validate manifest.yaml`, **Then** the tool exits with code 0 and prints "Manifest is valid."
 2. **Given** a manifest with a hook missing required fields (name, role, concept, source, or expr), **When** I run `dot validate manifest.yaml`, **Then** the tool exits with code 1 and prints an ERROR referencing rule ID `HOOK-001` with the path to the invalid hook.
-3. **Given** a manifest with duplicate key set values (same CONCEPT@SOURCE derived from multiple hooks), **When** I run `dot validate manifest.yaml`, **Then** the tool exits with code 1 and prints an ERROR referencing rule ID `KEYSET-001`.
+3. **Given** a manifest with duplicate hook names within the same frame, **When** I run `dot validate manifest.yaml`, **Then** the tool exits with code 1 and prints an ERROR referencing rule ID `HOOK-007`.
 4. **Given** a manifest with a warning-level issue (e.g., >100 business concepts), **When** I run `dot validate manifest.yaml`, **Then** the tool exits with code 0 but prints a WARN message.
 5. **Given** any manifest, **When** I run `dot validate manifest.yaml --json`, **Then** the tool outputs machine-readable JSON diagnostics.
 
@@ -306,7 +306,7 @@ The tool automatically derives from frames:
 | HOOK-004 | Hook concept must be lower_snake_case | Principle III |
 | HOOK-005 | Hook source must be UPPER_SNAKE_CASE | Principle IV |
 | HOOK-006 | Hook expr must be non-empty and valid SQL expression (Manifest SQL subset) | Principle II |
-| KEYSET-001 | Auto-derived key sets must be globally unique across all hooks | Principle IV |
+| HOOK-007 | Hook names must be unique within the same frame | Principle V |
 | CONCEPT-001 | Concept in `concepts` section must match a concept used in at least one hook | Principle III |
 | CONCEPT-002 | Concept description must be 10-200 characters (1-2 sentences) | Principle III |
 | CONCEPT-003 | Duplicate concept name in `concepts` section | Principle III |
