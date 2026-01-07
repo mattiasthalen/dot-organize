@@ -204,18 +204,18 @@ Based on plan.md structure:
 
 ### Tests for User Story 3 (TDD - Write FIRST, must FAIL) ⚠️
 
-- [ ] T084 [P] [US3] Create tests/integration/test_cli_init_noninteractive.py with tests:
+- [X] T084 [P] [US3] Create tests/integration/test_cli_init_noninteractive.py with tests:
   - --from-config with valid seed → complete manifest
   - --from-config with invalid seed → exit 1 with errors
   - --concept and --source flags → minimal manifest with auto-derived key set
 
 ### Implementation for User Story 3
 
-- [ ] T085 [US3] Implement --from-config flag in src/dot/cli/init.py (parse seed YAML)
-- [ ] T086 [US3] Implement seed config validation with actionable error messages
-- [ ] T087 [US3] Implement manifest generation from seed config
-- [ ] T088 [US3] Implement --concept and --source flags for minimal manifest generation
-- [ ] T089 [US3] Implement auto-derivation of key set from command flags
+- [X] T085 [US3] Implement --from-config flag in src/dot/cli/init.py (parse seed YAML)
+- [X] T086 [US3] Implement seed config validation with actionable error messages
+- [X] T087 [US3] Implement manifest generation from seed config
+- [X] T088 [US3] Implement --concept and --source flags for minimal manifest generation
+- [X] T089 [US3] Implement auto-derivation of key set from command flags
 
 **Checkpoint**: `dot init --from-config` and flag-based creation works - User Story 3 complete and independently testable
 

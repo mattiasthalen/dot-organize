@@ -559,6 +559,162 @@ def write_manifest(
 # =============================================================================
 
 
+# =============================================================================
+# Non-Interactive Mode Functions
+# =============================================================================
+
+
+def load_seed_config(path: Path) -> dict[str, Any]:
+    """Load and validate seed config from YAML file.
+    
+    Returns:
+        Parsed seed config dictionary.
+        
+    Raises:
+        FileNotFoundError: If file doesn't exist.
+        ParseError: If YAML is invalid.
+        ValueError: If config is missing required fields.
+    """
+    if not path.exists():
+        raise FileNotFoundError(f"Seed file not found: {path}")
+    
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        raise ValueError(f"Invalid YAML in seed file: {e}") from e
+    
+    if not data:
+        raise ValueError("Seed file is empty")
+    
+    if "frames" not in data:
+        raise ValueError("Seed file must contain 'frames' list")
+    
+    if not data["frames"]:
+        raise ValueError("Seed file must contain at least one frame")
+    
+    return data
+
+
+def validate_seed_frames(frames: list[dict[str, Any]]) -> list[str]:
+    """Validate seed frame definitions.
+    
+    Returns:
+        List of error messages (empty if valid).
+    """
+    errors = []
+    
+    for i, frame in enumerate(frames):
+        prefix = f"frames[{i}]"
+        
+        if "name" not in frame:
+            errors.append(f"{prefix}: missing 'name'")
+        
+        if "source" not in frame:
+            errors.append(f"{prefix}: missing 'source'")
+        elif not isinstance(frame["source"], dict):
+            errors.append(f"{prefix}.source: must be an object")
+        elif "relation" not in frame["source"] and "path" not in frame["source"]:
+            errors.append(f"{prefix}.source: must contain 'relation' or 'path'")
+        
+        if "hooks" not in frame:
+            errors.append(f"{prefix}: missing 'hooks'")
+        elif not frame["hooks"]:
+            errors.append(f"{prefix}.hooks: must contain at least one hook")
+        else:
+            for j, hook in enumerate(frame["hooks"]):
+                hook_prefix = f"{prefix}.hooks[{j}]"
+                if "concept" not in hook:
+                    errors.append(f"{hook_prefix}: missing 'concept'")
+                if "source" not in hook:
+                    errors.append(f"{hook_prefix}: missing 'source'")
+                if "expr" not in hook:
+                    errors.append(f"{hook_prefix}: missing 'expr'")
+    
+    return errors
+
+
+def build_manifest_from_seed(seed: dict[str, Any]) -> Manifest:
+    """Build manifest from seed config."""
+    frames = []
+    
+    for seed_frame in seed.get("frames", []):
+        # Build source
+        source_dict = seed_frame.get("source", {})
+        if "relation" in source_dict:
+            source = Source(relation=source_dict["relation"])
+        else:
+            source = Source(path=source_dict.get("path"))
+        
+        # Build hooks with auto-generated names
+        hooks = []
+        for h in seed_frame.get("hooks", []):
+            concept = h["concept"]
+            hook_source = h["source"]
+            qualifier = h.get("qualifier")
+            tenant = h.get("tenant")
+            expr = h["expr"]
+            
+            # Auto-generate hook name if not provided
+            name = h.get("name") or generate_hook_name(concept, hook_source, qualifier, tenant)
+            
+            hooks.append(Hook(
+                name=name,
+                role=HookRole.PRIMARY,  # Default to primary
+                concept=concept,
+                qualifier=qualifier,
+                source=hook_source,
+                tenant=tenant,
+                expr=expr,
+            ))
+        
+        frame = Frame(
+            name=seed_frame["name"],
+            source=source,
+            hooks=tuple(hooks),
+        )
+        frames.append(frame)
+    
+    return Manifest(
+        manifest_version="1.0.0",
+        schema_version="1.0.0",
+        frames=tuple(frames),
+    )
+
+
+def build_manifest_from_flags(concept: str, source: str) -> Manifest:
+    """Build minimal manifest from --concept and --source flags."""
+    # Auto-derive frame name
+    frame_name = f"frame.{concept}s"  # Simple pluralization
+    
+    # Auto-derive relation
+    relation = f"raw.{concept}s"
+    
+    # Auto-generate hook
+    hook_name = generate_hook_name(concept, source)
+    expr = f"{concept}_id"
+    
+    hook = Hook(
+        name=hook_name,
+        role=HookRole.PRIMARY,
+        concept=concept,
+        source=source,
+        expr=expr,
+    )
+    
+    frame = Frame(
+        name=frame_name,
+        source=Source(relation=relation),
+        hooks=(hook,),
+    )
+    
+    return Manifest(
+        manifest_version="1.0.0",
+        schema_version="1.0.0",
+        frames=(frame,),
+    )
+
+
 def init_command(
     output: Path | None = typer.Option(
         None,
@@ -572,6 +728,21 @@ def init_command(
         "-f",
         help="Output format: yaml or json. Default: inferred from extension or yaml.",
     ),
+    from_config: Path | None = typer.Option(
+        None,
+        "--from-config",
+        help="Generate manifest from seed config file (non-interactive).",
+    ),
+    concept: str | None = typer.Option(
+        None,
+        "--concept",
+        help="Business concept for quick manifest (requires --source).",
+    ),
+    source: str | None = typer.Option(
+        None,
+        "--source",
+        help="Source system for quick manifest (requires --concept).",
+    ),
     check_tty: bool = typer.Option(
         False,
         "--check-tty",
@@ -579,9 +750,63 @@ def init_command(
         help="Force TTY check (for testing).",
     ),
 ) -> None:
-    """Create a new manifest via interactive wizard."""
+    """Create a new manifest via interactive wizard or from config."""
     global _wizard_state
 
+    # Determine output path and format
+    output_path = output or DEFAULT_OUTPUT
+    output_format = determine_format(output_path, format_)
+
+    # Update default path based on format if no explicit output given
+    if output is None and format_ == "json":
+        output_path = Path(".dot-organize.json")
+
+    # ==========================================================================
+    # Non-interactive: --from-config
+    # ==========================================================================
+    if from_config is not None:
+        try:
+            seed = load_seed_config(from_config)
+            errors = validate_seed_frames(seed.get("frames", []))
+            
+            if errors:
+                err_console.print("[bold red]Error:[/bold red] Invalid seed config:")
+                for error in errors:
+                    err_console.print(f"  • {error}")
+                raise typer.Exit(1)
+            
+            manifest = build_manifest_from_seed(seed)
+            write_manifest(manifest, output_path, output_format)
+            console.print(f"[green]✓[/green] Manifest written to [cyan]{output_path}[/cyan]")
+            return
+            
+        except FileNotFoundError as e:
+            err_console.print(f"[bold red]Error:[/bold red] {e}")
+            raise typer.Exit(1)
+        except ValueError as e:
+            err_console.print(f"[bold red]Error:[/bold red] {e}")
+            raise typer.Exit(1)
+
+    # ==========================================================================
+    # Non-interactive: --concept and --source flags
+    # ==========================================================================
+    if concept is not None or source is not None:
+        if concept is None:
+            err_console.print("[bold red]Error:[/bold red] --concept is required when using --source")
+            raise typer.Exit(1)
+        if source is None:
+            err_console.print("[bold red]Error:[/bold red] --source is required when using --concept")
+            raise typer.Exit(1)
+        
+        manifest = build_manifest_from_flags(concept, source)
+        write_manifest(manifest, output_path, output_format)
+        console.print(f"[green]✓[/green] Manifest written to [cyan]{output_path}[/cyan]")
+        return
+
+    # ==========================================================================
+    # Interactive wizard mode
+    # ==========================================================================
+    
     # TTY check
     if check_tty and not sys.stdin.isatty():
         err_console.print(
@@ -601,14 +826,6 @@ def init_command(
 
     # Initialize wizard state
     _wizard_state = WizardState()
-
-    # Determine output path and format
-    output_path = output or DEFAULT_OUTPUT
-    output_format = determine_format(output_path, format_)
-
-    # Update default path based on format if no explicit output given
-    if output is None and format_ == "json":
-        output_path = Path(".dot-organize.json")
 
     # Show intro
     wizard_intro()
