@@ -1,9 +1,9 @@
 # Requirements Quality Checklist: Full Spec Review
 
-**Feature**: 001-manifest-builder  
-**Purpose**: Comprehensive requirements quality validation (unit tests for English)  
-**Audience**: Author (self-review, pre-commit)  
-**Created**: 2026-01-04  
+**Feature**: 001-manifest-builder
+**Purpose**: Comprehensive requirements quality validation (unit tests for English)
+**Audience**: Author (self-review, pre-commit)
+**Created**: 2026-01-04
 **Last Review**: 2026-01-04
 
 ---

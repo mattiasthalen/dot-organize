@@ -1,8 +1,8 @@
 # Feature Specification: Release Engineering
 
-**Feature Branch**: `002-release-engineering`  
-**Created**: 2026-01-07  
-**Status**: Draft  
+**Feature Branch**: `002-release-engineering`
+**Created**: 2026-01-07
+**Status**: Draft
 **Input**: User description: "Release engineering — git-tag SemVer + developer environment bootstrap + pre-commit enablement"
 
 ---

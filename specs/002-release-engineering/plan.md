@@ -12,14 +12,14 @@ Implement git-tag-based semantic versioning using `hatch-vcs`, Makefile-driven b
 
 ## Technical Context
 
-**Language/Version**: Python 3.10+ (existing constraint)  
-**Primary Dependencies**: hatch-vcs (new), pre-commit (existing)  
-**Build Backend**: hatchling (existing)  
-**Testing**: pytest (existing), manual verification  
-**Target Platform**: Linux/macOS (devcontainer: Debian bookworm)  
-**Project Type**: CLI/library package  
-**Performance Goals**: Bump commands complete in < 5 seconds  
-**Constraints**: Zero new runtime dependencies  
+**Language/Version**: Python 3.10+ (existing constraint)
+**Primary Dependencies**: hatch-vcs (new), pre-commit (existing)
+**Build Backend**: hatchling (existing)
+**Testing**: pytest (existing), manual verification
+**Target Platform**: Linux/macOS (devcontainer: Debian bookworm)
+**Project Type**: CLI/library package
+**Performance Goals**: Bump commands complete in < 5 seconds
+**Constraints**: Zero new runtime dependencies
 **Scale/Scope**: Single maintainer local workflow
 
 ---
@@ -54,7 +54,7 @@ Phase 1 (Versioning) ────► Phase 2 (Bump Helpers) ────► Phas
 
 ## Phase 1: Dynamic Versioning (FR-001 through FR-003a)
 
-**Goal**: Version derived from git tags via `hatch-vcs`.  
+**Goal**: Version derived from git tags via `hatch-vcs`.
 **Research Reference**: [research.md §1 - Dynamic Versioning from Git Tags](research.md#1-dynamic-versioning-from-git-tags)
 
 #### Task Sequence
@@ -196,8 +196,8 @@ rm -f src/dot/_version.py
 
 ### Phase 2: Bump Helpers (FR-004 through FR-014)
 
-**Goal**: Maintainers can bump versions with single commands.  
-**Research Reference**: [research.md §2 - Bump Helper Implementation](research.md#2-bump-helper-implementation)  
+**Goal**: Maintainers can bump versions with single commands.
+**Research Reference**: [research.md §2 - Bump Helper Implementation](research.md#2-bump-helper-implementation)
 **Depends on**: Phase 1 complete (version resolution must work for verification)
 
 #### Task Sequence
@@ -274,7 +274,7 @@ bump_version() {
     local bump_type="$1"
     local current="$2"
     parse_version "$current"
-    
+
     case "$bump_type" in
         patch)
             PATCH=$((PATCH + 1))
@@ -292,7 +292,7 @@ bump_version() {
             error "Invalid bump type: $bump_type (use patch, minor, or major)"
             ;;
     esac
-    
+
     echo "v${MAJOR}.${MINOR}.${PATCH}"
 }
 
@@ -328,16 +328,16 @@ create_tag() {
 # Main
 main() {
     cd "$REPO_ROOT"
-    
+
     # Parse arguments
     local action="${1:-}"
     local explicit_version="${2:-}"
-    
+
     # Handle --force flag
     for arg in "$@"; do
         [[ "$arg" == "--force" ]] && FORCE=true
     done
-    
+
     if [[ -z "$action" ]]; then
         echo "Usage: $0 [patch|minor|major|version X.Y.Z] [--force]"
         echo ""
@@ -351,13 +351,13 @@ main() {
         echo "  --force         Allow bump with dirty working tree"
         exit 1
     fi
-    
+
     check_clean
-    
+
     local current_version
     current_version=$(get_latest_version)
     local new_version
-    
+
     case "$action" in
         patch|minor|major)
             new_version=$(bump_version "$action" "$current_version")
@@ -375,7 +375,7 @@ main() {
             error "Unknown action: $action"
             ;;
     esac
-    
+
     check_tag_exists "$new_version"
     create_tag "$new_version"
 }
@@ -523,8 +523,8 @@ git tag -l 'v*' | xargs -r git tag -d
 
 ### Phase 3: Developer Bootstrap (FR-015 through FR-021)
 
-**Goal**: Devcontainer auto-bootstraps; manual bootstrap works identically.  
-**Research Reference**: [research.md §3 - Bootstrap Mechanism](research.md#3-bootstrap-mechanism)  
+**Goal**: Devcontainer auto-bootstraps; manual bootstrap works identically.
+**Research Reference**: [research.md §3 - Bootstrap Mechanism](research.md#3-bootstrap-mechanism)
 **Depends on**: Phase 2 complete (Makefile targets used by bootstrap verification)
 
 #### Task Sequence
@@ -693,8 +693,8 @@ git checkout .devcontainer/devcontainer.json
 
 ### Phase 4: Documentation (FR-022 through FR-025)
 
-**Goal**: Clear contributor and release documentation.  
-**Research Reference**: [research.md §6 - Version Surfacing and Documentation](research.md#6-version-surfacing-and-documentation)  
+**Goal**: Clear contributor and release documentation.
+**Research Reference**: [research.md §6 - Version Surfacing and Documentation](research.md#6-version-surfacing-and-documentation)
 **Depends on**: Phase 3 complete (docs reference bootstrap/make commands)
 
 #### Task Sequence

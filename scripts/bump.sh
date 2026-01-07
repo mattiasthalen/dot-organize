@@ -51,7 +51,7 @@ bump_version() {
     local bump_type="$1"
     local current="$2"
     parse_version "$current"
-    
+
     case "$bump_type" in
         patch)
             PATCH=$((PATCH + 1))
@@ -69,7 +69,7 @@ bump_version() {
             error "Invalid bump type: $bump_type (use patch, minor, or major)"
             ;;
     esac
-    
+
     echo "v${MAJOR}.${MINOR}.${PATCH}"
 }
 
@@ -105,16 +105,16 @@ create_tag() {
 # Main
 main() {
     cd "$REPO_ROOT"
-    
+
     # Parse arguments
     local action="${1:-}"
     local explicit_version="${2:-}"
-    
+
     # Handle --force flag
     for arg in "$@"; do
         [[ "$arg" == "--force" ]] && FORCE=true
     done
-    
+
     if [[ -z "$action" ]]; then
         echo "Usage: $0 [patch|minor|major|version X.Y.Z] [--force]"
         echo ""
@@ -128,13 +128,13 @@ main() {
         echo "  --force         Allow bump with dirty working tree"
         exit 1
     fi
-    
+
     check_clean
-    
+
     local current_version
     current_version=$(get_latest_version)
     local new_version
-    
+
     case "$action" in
         patch|minor|major)
             new_version=$(bump_version "$action" "$current_version")
@@ -152,7 +152,7 @@ main() {
             error "Unknown action: $action"
             ;;
     esac
-    
+
     check_tag_exists "$new_version"
     create_tag "$new_version"
 }

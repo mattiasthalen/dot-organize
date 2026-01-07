@@ -1,6 +1,6 @@
 # Quickstart: Release Engineering
 
-**Feature**: 002-release-engineering  
+**Feature**: 002-release-engineering
 **Purpose**: Quick reference for implementing this feature
 
 ---

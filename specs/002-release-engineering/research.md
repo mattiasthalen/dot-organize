@@ -1,7 +1,7 @@
 # Research: Release Engineering
 
-**Feature**: 002-release-engineering  
-**Date**: 2026-01-07  
+**Feature**: 002-release-engineering
+**Date**: 2026-01-07
 **Purpose**: Resolve open questions and evaluate tooling options
 
 ---
@@ -135,11 +135,11 @@ bump-version:  scripts/bump.sh version $(VERSION)
 
 **Question**: How is version exposed to users?
 
-**Current State**: 
+**Current State**:
 - `dot --version` already implemented in CLI (uses `dot.__version__`)
 - `__version__` is hardcoded in `src/dot/__init__.py`
 
-**Decision**: 
+**Decision**:
 - Replace hardcoded `__version__` with dynamic import from package metadata
 - `hatch-vcs` writes version to package metadata at build time
 - `importlib.metadata.version("dot-organize")` reads it at runtime

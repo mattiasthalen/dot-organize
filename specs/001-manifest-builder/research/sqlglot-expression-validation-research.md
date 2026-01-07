@@ -1,8 +1,8 @@
 # sqlglot Expression Validation Research
 
-**Date**: 2026-01-07  
-**sqlglot Version**: 28.5.0  
-**Python Version**: 3.12  
+**Date**: 2026-01-07
+**sqlglot Version**: 28.5.0
+**Python Version**: 3.12
 **Purpose**: Research SQL expression parsing for HOOK manifest `expr` field validation
 
 ---
@@ -129,18 +129,18 @@ def is_pure_expression(expr_str: str) -> bool:
         parsed = parse_one(expr_str)
     except Exception:
         return False
-    
+
     # Statement types that are NOT allowed
     statement_types = (
         exp.Select,
-        exp.Insert, 
-        exp.Update, 
+        exp.Insert,
+        exp.Update,
         exp.Delete,
-        exp.Create, 
-        exp.Drop, 
+        exp.Create,
+        exp.Drop,
         exp.Alter,
     )
-    
+
     return not isinstance(parsed, statement_types)
 ```
 
@@ -271,26 +271,26 @@ from sqlglot import parse_one, exp
 def check_expression_warnings(expr_str: str) -> list[str]:
     """Check for patterns that should trigger warnings."""
     warnings = []
-    
+
     try:
         parsed = parse_one(expr_str)
     except Exception:
         return []  # Parse errors handled separately
-    
+
     # COALESCE may mask nulls (Constitution §II concern for future generators)
     if parsed.find(exp.Coalesce):
         warnings.append("COALESCE may mask null values")
-    
+
     # Non-deterministic functions
-    non_deterministic = {'GETDATE', 'NOW', 'RANDOM', 'NEWID', 'UUID', 
+    non_deterministic = {'GETDATE', 'NOW', 'RANDOM', 'NEWID', 'UUID',
                          'CURRENT_TIMESTAMP', 'SYSDATE', 'RAND'}
-    
+
     for node in parsed.walk():
         if isinstance(node, (exp.Anonymous, exp.Func)):
             func_name = getattr(node, 'name', '') or str(node.this) if hasattr(node, 'this') else ''
             if func_name.upper() in non_deterministic:
                 warnings.append(f"Non-deterministic function: {func_name}")
-    
+
     return warnings
 ```
 
@@ -355,16 +355,16 @@ class Diagnostic:
     fix: str
 
 def validate_hook_expr(
-    expr: str, 
+    expr: str,
     path: str = "expr"
 ) -> list[Diagnostic]:
     """
     Validate hook expression using sqlglot.
-    
+
     Returns list of diagnostics (empty if valid).
     """
     diagnostics: list[Diagnostic] = []
-    
+
     # Check non-empty
     if not expr or not expr.strip():
         diagnostics.append(Diagnostic(
@@ -375,7 +375,7 @@ def validate_hook_expr(
             fix="Add a valid SQL expression for the business key"
         ))
         return diagnostics
-    
+
     # Try to parse
     try:
         parsed = parse_one(expr)
@@ -388,7 +388,7 @@ def validate_hook_expr(
             fix="Fix the SQL expression syntax"
         ))
         return diagnostics
-    
+
     # Reject SQL statements
     statement_types = (
         exp.Select, exp.Insert, exp.Update, exp.Delete,
@@ -403,7 +403,7 @@ def validate_hook_expr(
             fix="Use a pure SQL expression, not a statement"
         ))
         return diagnostics
-    
+
     # Reject subqueries
     if parsed.find(exp.Select):
         diagnostics.append(Diagnostic(
@@ -414,11 +414,11 @@ def validate_hook_expr(
             fix="Remove subquery and use a direct column reference or expression"
         ))
         return diagnostics
-    
+
     # Check for non-deterministic functions (warning only)
     non_deterministic = {'GETDATE', 'NOW', 'RANDOM', 'NEWID', 'UUID',
                          'CURRENT_TIMESTAMP', 'SYSDATE', 'RAND'}
-    
+
     for node in parsed.walk():
         if isinstance(node, (exp.Anonymous, exp.Func)):
             func_name = getattr(node, 'name', '')
@@ -432,7 +432,7 @@ def validate_hook_expr(
                     path=path,
                     fix="Consider using a deterministic expression for hook values"
                 ))
-    
+
     return diagnostics
 ```
 
@@ -488,13 +488,13 @@ def validate_hook_expr(expr: str) -> list[Diagnostic]:
         parsed = sqlglot.parse_one(expr)
     except Exception as e:
         return [error(f"Invalid syntax: {e}")]
-    
+
     if isinstance(parsed, (exp.Select, exp.Insert, ...)):
         return [error("Expression must not be a SQL statement")]
-    
+
     if parsed.find(exp.Select):
         return [error("Expression must not contain subqueries")]
-    
+
     return []
 ```
 
@@ -516,9 +516,9 @@ def validate_hook_expr(expr: str) -> list[Diagnostic]:
 sqlglot supports 20+ SQL dialects:
 
 ```
-bigquery, clickhouse, databricks, doris, drill, duckdb, 
-hive, materialize, mysql, oracle, postgres, presto, 
-prql, redshift, snowflake, spark, spark2, sqlite, 
+bigquery, clickhouse, databricks, doris, drill, duckdb,
+hive, materialize, mysql, oracle, postgres, presto,
+prql, redshift, snowflake, spark, spark2, sqlite,
 starrocks, tableau, teradata, trino, tsql
 ```
 
@@ -543,7 +543,7 @@ sqlglot has **no external dependencies** (pure Python), making it lightweight.
 **Recommendation**: Add sqlglot to dependencies and enhance HOOK-006 validation to use `sqlglot.parse_one()` for expression validation. This provides:
 
 1. ✅ Syntax validation (catches typos, unbalanced parens)
-2. ✅ Statement rejection (no SELECT, INSERT, etc.)  
+2. ✅ Statement rejection (no SELECT, INSERT, etc.)
 3. ✅ Subquery detection
 4. ✅ Future-proof for dialect transpilation in generators
 5. ✅ Better error messages than regex

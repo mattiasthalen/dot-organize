@@ -20,7 +20,7 @@ Usage:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -31,11 +31,13 @@ from rich.table import Table
 # Exit Codes (following Unix conventions)
 # =============================================================================
 
+
 class ExitCode:
     """Standard exit codes for the CLI."""
-    SUCCESS = 0           # Command completed successfully
+
+    SUCCESS = 0  # Command completed successfully
     VALIDATION_ERROR = 1  # Validation failed (e.g., invalid manifest)
-    USAGE_ERROR = 2       # Usage error (e.g., file not found, bad arguments)
+    USAGE_ERROR = 2  # Usage error (e.g., file not found, bad arguments)
 
 
 # =============================================================================
@@ -51,16 +53,16 @@ err_console: Console = Console(stderr=True)
 def configure_console(no_color: bool) -> None:
     """
     Configure Rich consoles based on --no-color flag.
-    
+
     Rich respects the NO_COLOR environment variable automatically,
     but we also support an explicit --no-color CLI flag.
-    
+
     When no_color=True:
     - color_system=None disables all ANSI color codes
     - This ensures output works in environments without color support
     """
     global console, err_console
-    
+
     if no_color:
         # Disable all colors - outputs plain text
         console = Console(color_system=None, force_terminal=False)
@@ -97,14 +99,14 @@ def main_callback(
 ) -> None:
     """
     MyApp - A demonstration CLI with Rich output.
-    
+
     Use --no-color to disable ANSI color codes for accessibility
     or when piping output to files/other commands.
     """
     # Skip configuration during shell completion
     if ctx.resilient_parsing:
         return
-    
+
     # Configure consoles based on --no-color flag
     configure_console(no_color)
 
@@ -112,6 +114,7 @@ def main_callback(
 # =============================================================================
 # Main Commands: validate, init
 # =============================================================================
+
 
 @app.command()
 def validate(
@@ -133,7 +136,7 @@ def validate(
 ) -> None:
     """
     Validate a manifest or configuration file.
-    
+
     Exit codes:
     - 0: Validation successful
     - 1: Validation failed (file is invalid)
@@ -149,13 +152,13 @@ def validate(
             )
         )
         raise typer.Exit(code=ExitCode.USAGE_ERROR)
-    
+
     # Simulate validation logic
     console.print(f"[dim]Validating:[/dim] [cyan]{file_path}[/cyan]")
-    
+
     if strict:
         console.print("[dim]Mode:[/dim] [yellow]strict[/yellow]")
-    
+
     # Example: Check file extension as simple validation
     if file_path.suffix not in (".json", ".yaml", ".yml", ".toml"):
         err_console.print(
@@ -167,7 +170,7 @@ def validate(
             )
         )
         raise typer.Exit(code=ExitCode.VALIDATION_ERROR)
-    
+
     # Validation successful
     console.print(
         Panel(
@@ -182,7 +185,7 @@ def validate(
 @app.command()
 def init(
     directory: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Argument(
             help="Directory to initialize. Defaults to current directory.",
         ),
@@ -198,26 +201,26 @@ def init(
 ) -> None:
     """
     Initialize a new project configuration.
-    
+
     Creates a default manifest.json in the specified directory.
     """
     target_dir = directory or Path.cwd()
-    
+
     if not target_dir.exists():
         err_console.print(
             f"[bold red]Error:[/bold red] Directory not found: [cyan]{target_dir}[/cyan]"
         )
         raise typer.Exit(code=ExitCode.USAGE_ERROR)
-    
+
     config_file = target_dir / "manifest.json"
-    
+
     if config_file.exists() and not force:
         err_console.print(
             f"[bold yellow]Warning:[/bold yellow] Configuration already exists: [cyan]{config_file}[/cyan]\n"
             "Use [bold]--force[/bold] to overwrite."
         )
         raise typer.Exit(code=ExitCode.VALIDATION_ERROR)
-    
+
     # Create config (simulated)
     console.print(f"[dim]Creating configuration in:[/dim] [cyan]{target_dir}[/cyan]")
     console.print("[bold green]✓[/bold green] Project initialized successfully!")
@@ -272,13 +275,13 @@ def examples_list(
 ) -> None:
     """
     List all available example configurations.
-    
+
     Use --verbose to see descriptions and complexity levels.
     """
     if not EXAMPLES_DATA:
         console.print("[yellow]No examples available.[/yellow]")
         raise typer.Exit(code=ExitCode.SUCCESS)
-    
+
     if verbose:
         # Rich table for detailed view
         table = Table(
@@ -289,7 +292,7 @@ def examples_list(
         table.add_column("Name", style="cyan", no_wrap=True)
         table.add_column("Description", style="white")
         table.add_column("Complexity", justify="center")
-        
+
         for name, data in EXAMPLES_DATA.items():
             complexity_style = "green" if data["complexity"] == "low" else "yellow"
             table.add_row(
@@ -297,7 +300,7 @@ def examples_list(
                 data["description"],
                 f"[{complexity_style}]{data['complexity']}[/{complexity_style}]",
             )
-        
+
         console.print(table)
     else:
         # Simple list view
@@ -326,7 +329,7 @@ def examples_show(
 ) -> None:
     """
     Show the content of a specific example.
-    
+
     Use --raw to get the content without decoration (for piping to files).
     """
     if name not in EXAMPLES_DATA:
@@ -340,9 +343,9 @@ def examples_show(
             )
         )
         raise typer.Exit(code=ExitCode.USAGE_ERROR)
-    
+
     example = EXAMPLES_DATA[name]
-    
+
     if raw:
         # Raw output - no formatting, just the content
         # Use print() directly to avoid Rich formatting
@@ -360,6 +363,7 @@ def examples_show(
         console.print("\n[bold]Content:[/bold]")
         # Use Rich's syntax highlighting for JSON
         from rich.syntax import Syntax
+
         syntax = Syntax(example["content"], "json", theme="monokai", line_numbers=True)
         console.print(syntax)
 
@@ -368,11 +372,12 @@ def examples_show(
 # Alternative: Adding callback to sub-app (optional)
 # =============================================================================
 
+
 @examples_app.callback()
 def examples_callback() -> None:
     """
     Example configurations and templates.
-    
+
     Browse and explore pre-built configuration examples.
     """
     # This docstring becomes the help text for the "examples" command group
@@ -382,6 +387,7 @@ def examples_callback() -> None:
 # =============================================================================
 # Entry Point
 # =============================================================================
+
 
 def main() -> None:
     """Main entry point for the CLI."""

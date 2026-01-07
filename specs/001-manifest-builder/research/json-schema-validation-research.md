@@ -1,9 +1,9 @@
 # JSON Schema Validation Research
 
-**Date**: 2026-01-06  
-**jsonschema Version**: 4.25.1  
-**fastjsonschema Version**: 2.21.2  
-**Python Version**: 3.12  
+**Date**: 2026-01-06
+**jsonschema Version**: 4.25.1
+**fastjsonschema Version**: 2.21.2
+**Python Version**: 3.12
 **Purpose**: Research JSON Schema validation for HOOK manifest structural validation
 
 ---
@@ -183,7 +183,7 @@ def validate_yaml_file(yaml_path: Path, schema: dict) -> bool:
     """Load YAML and validate against schema."""
     with open(yaml_path) as f:
         manifest_data = yaml.safe_load(f)
-    
+
     validator = Draft202012Validator(schema)
     return validator.is_valid(manifest_data)
 ```
@@ -251,15 +251,15 @@ Error 2:
 def error_path_to_jsonpath(error) -> str:
     """Convert jsonschema error path to JSONPath-like string."""
     path_parts = list(error.absolute_path)
-    
+
     if not path_parts:
         return "(root)"
-    
+
     json_path = "".join(
         f"[{p}]" if isinstance(p, int) else f".{p}"
         for p in path_parts
     ).lstrip(".")
-    
+
     return json_path
 ```
 
@@ -366,14 +366,14 @@ error.validator = "oneOf"
 def _map_error_to_rule_id(error, json_path: str) -> str:
     """Map JSON Schema validation errors to our rule IDs."""
     validator = error.validator
-    
+
     if validator == "required":
         if "hooks" in json_path:
             return "HOOK-001"
         elif "frames" in json_path:
             return "FRAME-001"
         return "MANIFEST-001"
-    
+
     elif validator == "pattern":
         if "manifest_version" in json_path:
             return "MANIFEST-002"
@@ -382,24 +382,24 @@ def _map_error_to_rule_id(error, json_path: str) -> str:
         elif "frames" in json_path and ".name" in json_path:
             return "FRAME-002"
         return "SCHEMA-PATTERN"
-    
+
     elif validator == "enum":
         if "role" in json_path:
             return "HOOK-003"
         return "SCHEMA-ENUM"
-    
+
     elif validator == "oneOf":
         if "source" in json_path:
             return "FRAME-006"
         return "SCHEMA-ONEOF"
-    
+
     elif validator == "minItems":
         if "hooks" in json_path:
             return "FRAME-003"
         elif "frames" in json_path:
             return "MANIFEST-004"
         return "SCHEMA-MIN-ITEMS"
-    
+
     return f"SCHEMA-{validator.upper()}"
 ```
 
@@ -409,27 +409,27 @@ def _map_error_to_rule_id(error, json_path: str) -> str:
 def _build_fix_message(error, json_path: str) -> str:
     """Build a helpful fix message based on error type."""
     validator = error.validator
-    
+
     if validator == "required":
         missing = error.message.split("'")[1]
         return f"Add required field '{missing}'"
-    
+
     elif validator == "pattern":
         if "manifest_version" in json_path:
             return "Use semver format: MAJOR.MINOR.PATCH (e.g., '1.0.0')"
         elif "hooks" in json_path and ".name" in json_path:
             return "Use format: _hk__<concept> or _wk__<concept>[__<qualifier>]"
         return f"Value must match pattern: {error.validator_value}"
-    
+
     elif validator == "enum":
         allowed = ", ".join(repr(v) for v in error.validator_value)
         return f"Use one of: {allowed}"
-    
+
     elif validator == "oneOf":
         if "source" in json_path:
             return "Provide exactly one of 'relation' OR 'path', not both or neither"
         return "Value must match exactly one of the allowed schemas"
-    
+
     return f"Check value at '{json_path}'"
 ```
 
@@ -445,7 +445,7 @@ class Severity(str, Enum):
 
 class Diagnostic(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     rule_id: str
     severity: Severity
     message: str
@@ -460,7 +460,7 @@ def jsonschema_error_to_diagnostic(error) -> Diagnostic:
         f"[{p}]" if isinstance(p, int) else f".{p}"
         for p in path_parts
     ).lstrip(".") or "(root)"
-    
+
     return Diagnostic(
         rule_id=_map_error_to_rule_id(error, json_path),
         severity=Severity.ERROR,
@@ -512,23 +512,23 @@ def jsonschema_error_to_diagnostic(error) -> Diagnostic:
 def validate_manifest(manifest_data: dict) -> list[Diagnostic]:
     """Complete manifest validation: Schema first, then Pydantic."""
     diagnostics: list[Diagnostic] = []
-    
+
     # Step 1: JSON Schema validation (structural)
     schema_validator = SchemaValidator()
     schema_errors = schema_validator.validate(manifest_data)
     diagnostics.extend(schema_errors)
-    
+
     # If schema fails, don't attempt Pydantic
     # (the data structure is invalid for parsing)
     if schema_errors:
         return diagnostics
-    
+
     # Step 2: Pydantic validation (semantic)
     # Parse into Pydantic models (may raise ValidationError)
     # Then run semantic validators
     semantic_errors = validate_semantic_rules(manifest_data)
     diagnostics.extend(semantic_errors)
-    
+
     return diagnostics
 ```
 
@@ -560,21 +560,21 @@ from jsonschema import Draft202012Validator
 
 class SchemaValidator:
     """JSON Schema validator for HOOK manifests."""
-    
+
     def __init__(self, schema_path: Path | None = None):
         if schema_path is None:
             schema_path = Path("specs/001-manifest-builder/contracts/manifest-schema.json")
-        
+
         with open(schema_path) as f:
             self.schema = json.load(f)
-        
+
         self.validator = Draft202012Validator(self.schema)
-    
+
     def validate(self, data: dict) -> list[Diagnostic]:
         """Validate data, returning list of Diagnostics."""
         errors = list(self.validator.iter_errors(data))
         return [jsonschema_error_to_diagnostic(e) for e in errors]
-    
+
     def is_valid(self, data: dict) -> bool:
         """Quick validity check."""
         return self.validator.is_valid(data)
@@ -586,12 +586,12 @@ class SchemaValidator:
 def validate_semantic_rules(manifest_data: dict) -> list[Diagnostic]:
     """Semantic validation requiring cross-field checks."""
     diagnostics: list[Diagnostic] = []
-    
+
     # Rule: Each frame must have exactly one primary hook
     for i, frame in enumerate(manifest_data.get("frames", [])):
         hooks = frame.get("hooks", [])
         primary_hooks = [h for h in hooks if h.get("role") == "primary"]
-        
+
         if len(primary_hooks) == 0:
             diagnostics.append(Diagnostic(
                 rule_id="FRAME-003",
@@ -608,7 +608,7 @@ def validate_semantic_rules(manifest_data: dict) -> list[Diagnostic]:
                 path=f"frames[{i}].hooks",
                 fix="Ensure exactly one hook has role='primary'"
             ))
-    
+
     return diagnostics
 ```
 
@@ -618,17 +618,17 @@ def validate_semantic_rules(manifest_data: dict) -> list[Diagnostic]:
 def validate_manifest_file(yaml_path: Path) -> tuple[bool, list[Diagnostic]]:
     """Validate a YAML manifest file completely."""
     import yaml
-    
+
     # Load YAML
     with open(yaml_path) as f:
         manifest_data = yaml.safe_load(f)
-    
+
     # Validate
     diagnostics = validate_manifest(manifest_data)
-    
+
     # Check for errors (not just warnings)
     has_errors = any(d.severity == Severity.ERROR for d in diagnostics)
-    
+
     return (not has_errors, diagnostics)
 
 
@@ -652,13 +652,13 @@ def format_diagnostics_json(diagnostics: list[Diagnostic]) -> str:
     """Format diagnostics as JSON for --json flag."""
     errors = [d.model_dump() for d in diagnostics if d.severity == Severity.ERROR]
     warnings = [d.model_dump() for d in diagnostics if d.severity == Severity.WARN]
-    
+
     output = {
         "valid": len(errors) == 0,
         "errors": errors,
         "warnings": warnings
     }
-    
+
     return json.dumps(output, indent=2)
 ```
 

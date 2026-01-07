@@ -1,7 +1,7 @@
 # Specification Quality Checklist: Manifest Builder
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning  
-**Created**: 2026-01-04  
+**Purpose**: Validate specification completeness and quality before proceeding to planning
+**Created**: 2026-01-04
 **Feature**: [spec.md](spec.md)
 
 ## Content Quality

@@ -1,8 +1,8 @@
 # Hypothesis Property-Based Testing Research
 
-**Date**: 2026-01-06  
-**Hypothesis Version**: 6.149.x  
-**Python Version**: 3.12  
+**Date**: 2026-01-06
+**Hypothesis Version**: 6.149.x
+**Python Version**: 3.12
 **Purpose**: Property-based testing for HOOK manifest validation
 
 ---
@@ -355,19 +355,19 @@ def hook_with_matching_concept(draw):
     """Generate a hook name that matches its concept."""
     # First draw the concept
     concept = draw(st.from_regex(r"^[a-z][a-z0-9_]*$", fullmatch=True))
-    
+
     # Draw the prefix type
     prefix = draw(st.sampled_from(["_hk", "_wk"]))
-    
+
     # Optionally draw a qualifier
     has_qualifier = draw(st.booleans())
-    
+
     if has_qualifier:
         qualifier = draw(st.from_regex(r"^[a-z][a-z0-9_]*$", fullmatch=True))
         hook_name = f"{prefix}__{concept}__{qualifier}"
     else:
         hook_name = f"{prefix}__{concept}"
-    
+
     return {
         "hook_name": hook_name,
         "concept": concept,
@@ -386,24 +386,24 @@ def test_hook_concept_relationship(data):
 from hypothesis import strategies as st
 from typing import Optional
 
-@st.composite  
+@st.composite
 def key_set_components(draw):
     """Generate components for key set derivation: CONCEPT[~QUALIFIER]@SOURCE[~TENANT]"""
     concept = draw(st.from_regex(r"^[a-z][a-z0-9_]*$", fullmatch=True))
-    
+
     # Optional qualifier
     qualifier: Optional[str] = None
     if draw(st.booleans()):
         qualifier = draw(st.from_regex(r"^[a-z][a-z0-9_]*$", fullmatch=True))
-    
+
     # Source is required
     source = draw(st.from_regex(r"^[a-z][a-z0-9_]*$", fullmatch=True))
-    
+
     # Optional tenant
     tenant: Optional[str] = None
     if draw(st.booleans()):
         tenant = draw(st.from_regex(r"^[a-z][a-z0-9_]*$", fullmatch=True))
-    
+
     # Build expected key set
     key = concept
     if qualifier:
@@ -411,11 +411,11 @@ def key_set_components(draw):
     key += f"@{source}"
     if tenant:
         key += f"~{tenant}"
-    
+
     return {
         "concept": concept,
         "qualifier": qualifier,
-        "source": source, 
+        "source": source,
         "tenant": tenant,
         "expected_key": key
     }
@@ -641,7 +641,7 @@ def test_yaml_round_trip(manifest):
     """Property: serialize → deserialize preserves data."""
     yaml_str = model_to_yaml(manifest)
     parsed = yaml_to_model(yaml_str)
-    
+
     # Compare as dicts to avoid datetime precision issues
     assert manifest.model_dump() == parsed.model_dump()
 ```
@@ -728,7 +728,7 @@ def test_variable_timing(x):
 
 # Derandomize for reproducibility
 @settings(derandomize=True)
-@given(...)  
+@given(...)
 def test_deterministic(x):
     pass
 ```
@@ -860,7 +860,7 @@ invalid_lower_snake = st.one_of(
 # ============== Tests for lower_snake_case ==============
 
 class TestLowerSnakeCase:
-    
+
     @example("a")
     @example("abc")
     @example("abc_def")
@@ -870,7 +870,7 @@ class TestLowerSnakeCase:
     def test_valid_lower_snake_accepted(self, s):
         """Property: valid lower_snake_case strings pass validation."""
         assert is_lower_snake_case(s) is True
-    
+
     @example("")
     @example("A")
     @example("ABC")
@@ -882,7 +882,7 @@ class TestLowerSnakeCase:
     def test_invalid_lower_snake_rejected(self, s):
         """Property: invalid strings fail validation."""
         assert is_lower_snake_case(s) is False
-    
+
     @given(st.text())
     def test_lower_snake_returns_bool(self, s):
         """Property: validator always returns a boolean."""
@@ -893,7 +893,7 @@ class TestLowerSnakeCase:
 # ============== Tests for hook_name ==============
 
 class TestHookName:
-    
+
     @example("_hk__customer_id")
     @example("_wk__order_id")
     @example("_hk__customer__region")
@@ -902,7 +902,7 @@ class TestHookName:
     def test_valid_hook_name_accepted(self, s):
         """Property: valid hook names pass validation."""
         assert is_valid_hook_name(s) is True
-    
+
     @example("")
     @example("hk__customer")      # Missing leading underscore
     @example("_hk_customer")      # Single underscore separator
@@ -919,7 +919,7 @@ class TestHookName:
 # ============== Tests for semver ==============
 
 class TestSemver:
-    
+
     @example("0.0.0")
     @example("1.0.0")
     @example("1.2.3")
@@ -929,7 +929,7 @@ class TestSemver:
     def test_valid_semver_accepted(self, s):
         """Property: valid semver strings pass validation."""
         assert is_valid_semver(s) is True
-    
+
     @example("")
     @example("1")
     @example("1.2")
@@ -962,7 +962,7 @@ def derive_key_set(
 ) -> str:
     """
     Derive a key set string: CONCEPT[~QUALIFIER]@SOURCE[~TENANT]
-    
+
     Examples:
         - customer@orders
         - customer~region@orders
@@ -998,26 +998,26 @@ def key_set_components(draw):
 # ============== Tests ==============
 
 class TestKeySetDerivation:
-    
+
     @given(key_set_components())
     def test_derivation_is_deterministic(self, components):
         """Property: same inputs always produce same output."""
         result1 = derive_key_set(**components)
         result2 = derive_key_set(**components)
         assert result1 == result2
-    
+
     @given(key_set_components())
     def test_concept_in_result(self, components):
         """Property: concept is always in the result."""
         result = derive_key_set(**components)
         assert result.startswith(components["concept"])
-    
+
     @given(key_set_components())
     def test_source_in_result(self, components):
         """Property: source is always in the result after @."""
         result = derive_key_set(**components)
         assert f"@{components['source']}" in result
-    
+
     @given(key_set_components())
     def test_qualifier_when_present(self, components):
         """Property: qualifier appears with ~ when provided."""
@@ -1028,14 +1028,14 @@ class TestKeySetDerivation:
             at_pos = result.index("@")
             qual_pos = result.index(f"~{components['qualifier']}")
             assert qual_pos < at_pos
-    
+
     @given(key_set_components())
     def test_tenant_when_present(self, components):
         """Property: tenant appears with ~ at end when provided."""
         result = derive_key_set(**components)
         if components["tenant"]:
             assert result.endswith(f"~{components['tenant']}")
-    
+
     @example({"concept": "customer", "source": "orders", "qualifier": None, "tenant": None})
     @example({"concept": "customer", "source": "orders", "qualifier": "region", "tenant": None})
     @example({"concept": "customer", "source": "orders", "qualifier": None, "tenant": "tenant1"})
@@ -1044,7 +1044,7 @@ class TestKeySetDerivation:
     def test_format_matches_specification(self, components):
         """Property: result matches CONCEPT[~QUALIFIER]@SOURCE[~TENANT] format."""
         result = derive_key_set(**components)
-        
+
         # Build expected result
         expected = components["concept"]
         if components["qualifier"]:
@@ -1052,7 +1052,7 @@ class TestKeySetDerivation:
         expected += f"@{components['source']}"
         if components["tenant"]:
             expected += f"~{components['tenant']}"
-        
+
         assert result == expected
 ```
 
@@ -1201,33 +1201,33 @@ manifest_strategy = st.builds(
 # ============== Tests ==============
 
 class TestSerializationRoundTrip:
-    
+
     @settings(max_examples=100)
     @given(manifest_strategy)
     def test_yaml_round_trip_preserves_data(self, manifest):
         """Property: serialize → deserialize preserves all data."""
         yaml_str = model_to_yaml(manifest)
         parsed = yaml_to_model(yaml_str)
-        
+
         # Compare model dumps
         original = manifest.model_dump(mode='json')
         roundtrip = parsed.model_dump(mode='json')
-        
+
         assert original == roundtrip
-    
+
     @settings(max_examples=50)
     @given(manifest_strategy)
     def test_serialization_produces_valid_yaml(self, manifest):
         """Property: serialization always produces parseable YAML."""
         yaml_str = model_to_yaml(manifest)
-        
+
         # Should not raise
         yaml = YAML()
         data = yaml.load(StringIO(yaml_str))
-        
+
         assert isinstance(data, dict)
         assert "metadata" in data
-    
+
     @settings(max_examples=50)
     @given(manifest_strategy)
     def test_double_serialization_is_idempotent(self, manifest):
@@ -1235,7 +1235,7 @@ class TestSerializationRoundTrip:
         yaml1 = model_to_yaml(manifest)
         parsed = yaml_to_model(yaml1)
         yaml2 = model_to_yaml(parsed)
-        
+
         assert yaml1 == yaml2
 ```
 
