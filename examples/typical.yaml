@@ -54,3 +54,41 @@ frames:
         concept: customer
         source: ECOMMERCE
         expr: "customer_id"
+
+# Auto-populated concepts (FR-037)
+concepts:
+  - name: customer
+    frames:
+      - staging.customer
+      - staging.order_header
+  - name: order
+    frames:
+      - staging.order_header
+      - staging.order_line
+  - name: order_line
+    frames:
+      - staging.order_line
+  - name: product
+    frames:
+      - staging.order_line
+
+# Auto-populated keysets (FR-039)
+keysets:
+  - name: CUSTOMER@ECOMMERCE
+    concept: customer
+    frames:
+      - staging.customer
+      - staging.order_header
+  - name: ORDER@ECOMMERCE
+    concept: order
+    frames:
+      - staging.order_header
+      - staging.order_line
+  - name: ORDER_LINE@ECOMMERCE
+    concept: order_line
+    frames:
+      - staging.order_line
+  - name: PRODUCT@ECOMMERCE
+    concept: product
+    frames:
+      - staging.order_line

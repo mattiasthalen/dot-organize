@@ -120,3 +120,75 @@ frames:
         qualifier: parent
         source: ERP
         expr: "parent_category_id"
+
+# Auto-populated concepts (FR-037)
+concepts:
+  - name: category
+    frames:
+      - erp.category
+      - erp.product
+  - name: customer
+    frames:
+      - analytics.customer_metrics
+      - crm.customer
+      - finance.transaction
+  - name: employee
+    frames:
+      - crm.customer
+  - name: merchant
+    frames:
+      - finance.transaction
+  - name: product
+    frames:
+      - erp.product
+  - name: transaction
+    frames:
+      - finance.transaction
+
+# Auto-populated keysets (FR-039)
+keysets:
+  - name: CATEGORY@ERP
+    concept: category
+    frames:
+      - erp.category
+      - erp.product
+  - name: CATEGORY~PARENT@ERP
+    concept: category
+    frames:
+      - erp.category
+  - name: CUSTOMER@ANALYTICS
+    concept: customer
+    frames:
+      - analytics.customer_metrics
+  - name: CUSTOMER@CRM~ACME
+    concept: customer
+    frames:
+      - crm.customer
+  - name: CUSTOMER@FINANCE
+    concept: customer
+    frames:
+      - finance.transaction
+  - name: CUSTOMER~PREMIUM@CRM~ACME
+    concept: customer
+    frames:
+      - crm.customer
+  - name: EMPLOYEE@CRM~ACME
+    concept: employee
+    frames:
+      - crm.customer
+  - name: MERCHANT@FINANCE
+    concept: merchant
+    frames:
+      - finance.transaction
+  - name: PRODUCT@ERP
+    concept: product
+    frames:
+      - erp.product
+  - name: PRODUCT~SKU@ERP
+    concept: product
+    frames:
+      - erp.product
+  - name: TRANSACTION@FINANCE
+    concept: transaction
+    frames:
+      - finance.transaction

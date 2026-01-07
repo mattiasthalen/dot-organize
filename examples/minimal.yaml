@@ -18,3 +18,16 @@ frames:
         concept: customer
         source: CRM
         expr: "id"
+
+# Auto-populated concepts (FR-037)
+concepts:
+  - name: customer
+    frames:
+      - frame.customer
+
+# Auto-populated keysets (FR-039)
+keysets:
+  - name: CUSTOMER@CRM
+    concept: customer
+    frames:
+      - frame.customer

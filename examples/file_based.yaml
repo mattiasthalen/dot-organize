@@ -32,3 +32,30 @@ frames:
         concept: product
         source: CATALOG
         expr: "sku"
+
+# Auto-populated concepts (FR-037)
+concepts:
+  - name: customer
+    frames:
+      - psa.transaction
+  - name: product
+    frames:
+      - psa.product
+  - name: transaction
+    frames:
+      - psa.transaction
+
+# Auto-populated keysets (FR-039)
+keysets:
+  - name: CUSTOMER@PAYMENT
+    concept: customer
+    frames:
+      - psa.transaction
+  - name: PRODUCT@CATALOG
+    concept: product
+    frames:
+      - psa.product
+  - name: TRANSACTION@PAYMENT
+    concept: transaction
+    frames:
+      - psa.transaction
