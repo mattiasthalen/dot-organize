@@ -305,29 +305,29 @@ Based on plan.md structure:
 
 - [x] T124 Fix wizard source system prompt (FR-029): Move source system prompt INSIDE the hook loop so each hook can specify its own source. Hooks within the same frame may reference different source systems.
 
-- [ ] T125 Change default manifest filename (FR-086): Rename `.dot-organize.yaml` to `manifest.yaml`, `.dot-organize.json` to `manifest.json`, and `.dot-draft.yaml` to `.manifest-draft.yaml`.
+- [x] T125 Change default manifest filename (FR-086): Rename `.dot-organize.yaml` to `manifest.yaml`, `.dot-organize.json` to `manifest.json`, and `.dot-draft.yaml` to `.manifest-draft.yaml`.
 
 ### Concepts and Key Sets Auto-Population (FR-037, FR-039)
 
-- [ ] T126 [P] Add `frames: tuple[str, ...]` field to `Concept` model in `src/dot/models/concept.py` (frozen Pydantic, immutable tuple).
+- [x] T126 [P] Add `frames: tuple[str, ...]` field to `Concept` model in `src/dot/models/concept.py` (frozen Pydantic, immutable tuple).
 
-- [ ] T127 [P] Create `KeySet` frozen Pydantic model in `src/dot/models/keyset.py` with fields: `name: str`, `concept: str`, `frames: tuple[str, ...]`.
+- [x] T127 [P] Create `KeySet` frozen Pydantic model in `src/dot/models/keyset.py` with fields: `name: str`, `concept: str`, `frames: tuple[str, ...]`.
 
-- [ ] T128 Add `keysets: list[KeySet]` field to `Manifest` model in `src/dot/models/manifest.py`. Import KeySet from new module.
+- [x] T128 Add `keysets: list[KeySet]` field to `Manifest` model in `src/dot/models/manifest.py`. Import KeySet from new module.
 
-- [ ] T129 Update `build_manifest()` in `src/dot/cli/init.py` to auto-populate `concepts` array with distinct concepts, their frame references, and is_weak derived from hook prefix.
+- [x] T129 Update `build_manifest()` in `src/dot/cli/init.py` to auto-populate `concepts` array with distinct concepts, their frame references, and is_weak derived from hook prefix.
 
-- [ ] T130 Update `build_manifest()` in `src/dot/cli/init.py` to auto-populate `keysets` array with derived key sets, their concept, and frame references.
+- [x] T130 Update `build_manifest()` in `src/dot/cli/init.py` to auto-populate `keysets` array with derived key sets, their concept, and frame references.
 
-- [ ] T131 Update `build_manifest_from_seed()` and `build_manifest_from_flags()` in `src/dot/cli/init.py` to also populate concepts and keysets.
+- [x] T131 Update `build_manifest_from_seed()` and `build_manifest_from_flags()` in `src/dot/cli/init.py` to also populate concepts and keysets.
 
-- [ ] T132 [P] Add tests for concepts/keysets auto-population in `tests/integration/test_cli_init.py`.
+- [x] T132 [P] Add tests for concepts/keysets auto-population in `tests/integration/test_cli_init.py`.
 
-- [ ] T135 Update CONCEPT-002 validation rule: Change from length check (10-200 chars) to type check only (must be string). Remove or move `tests/fixtures/invalid/short_concept_description.yaml` since empty/short descriptions are now valid.
+- [x] T135 Update CONCEPT-002 validation rule: Change from length check (10-200 chars) to type check only (must be string). Remove or move `tests/fixtures/invalid/short_concept_description.yaml` since empty/short descriptions are now valid.
 
-- [ ] T133 [P] Update JSON schema contract `specs/001-manifest-builder/contracts/manifest-schema.json` with `keysets` section and updated `concepts` schema (add frames field).
+- [x] T133 [P] Update JSON schema contract `specs/001-manifest-builder/contracts/manifest-schema.json` with `keysets` section and updated `concepts` schema (add frames field).
 
-- [ ] T134 [P] Update example manifests in `examples/` to include concepts and keysets sections.
+- [x] T134 [P] Update example manifests in `examples/` to include concepts and keysets sections.
 
 ---
 
