@@ -145,19 +145,19 @@
 
 ### Implementation for User Story 5
 
-- [ ] T038 [US5] Create `docs/CONTRIBUTING.md` with devcontainer and manual setup instructions
-- [ ] T039 [US5] Document tag format and version resolution behavior in CONTRIBUTING.md (FR-022)
-- [ ] T040 [US5] Document bump workflow in CONTRIBUTING.md (FR-023)
-- [ ] T041 [US5] Document bootstrap process in CONTRIBUTING.md (FR-024)
-- [ ] T042 [US5] Document pre-commit hooks and manual execution in CONTRIBUTING.md (FR-025)
-- [ ] T043 [US5] Add note about CI environment: bootstrap skips interactive prompts; CI systems should use `uv pip install -e .` directly
+- [X] T038 [US5] Create `docs/CONTRIBUTING.md` with devcontainer and manual setup instructions
+- [X] T039 [US5] Document tag format and version resolution behavior in CONTRIBUTING.md (FR-022)
+- [X] T040 [US5] Document bump workflow in CONTRIBUTING.md (FR-023)
+- [X] T041 [US5] Document bootstrap process in CONTRIBUTING.md (FR-024)
+- [X] T042 [US5] Document pre-commit hooks and manual execution in CONTRIBUTING.md (FR-025)
+- [X] T043 [US5] Add note about CI environment: bootstrap skips interactive prompts; CI systems should use `uv pip install -e .` directly
 
 ### Verification for User Story 5
 
-- [ ] T044 [US5] Verify devcontainer section exists: grep "Using Devcontainer" docs/CONTRIBUTING.md
-- [ ] T045 [US5] Verify manual setup section exists: grep "Manual Setup" docs/CONTRIBUTING.md
-- [ ] T046 [US5] Verify tag format documented: grep "Tag Format" docs/CONTRIBUTING.md
-- [ ] T047 [US5] Verify bump commands documented: grep "Bumping Versions" docs/CONTRIBUTING.md
+- [X] T044 [US5] Verify devcontainer section exists: grep "Using Devcontainer" docs/CONTRIBUTING.md
+- [X] T045 [US5] Verify manual setup section exists: grep "Manual Setup" docs/CONTRIBUTING.md
+- [X] T046 [US5] Verify tag format documented: grep "Tag Format" docs/CONTRIBUTING.md
+- [X] T047 [US5] Verify bump commands documented: grep "Bumping Versions" docs/CONTRIBUTING.md
 
 **Checkpoint**: FR-022 through FR-025 verified, SC-006 (self-service docs) confirmed
 
