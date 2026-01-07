@@ -106,10 +106,7 @@ class TestConceptModel:
             description="A person or organization that purchases goods or services.",
         )
         assert concept.name == "customer"
-        assert (
-            concept.description
-            == "A person or organization that purchases goods or services."
-        )
+        assert concept.description == "A person or organization that purchases goods or services."
 
     def test_concept_defaults(self) -> None:
         """Concept has correct defaults for optional fields."""

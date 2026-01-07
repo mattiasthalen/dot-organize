@@ -805,21 +805,23 @@ class TestConceptsAutoPopulation:
             add_more_frames=True,
         )
         # Second frame input - another frame with customer
-        input_text += "\n".join([
-            "frame.customers",  # Frame name
-            "1",  # Source type: relation
-            "raw.customers",  # Relation
-            "CRM",  # Source system
-            "customer",  # Concept
-            "",  # Qualifier
-            "",  # Tenant
-            "",  # Hook name (default)
-            "customer_id",  # Expression
-            "n",  # No more primary hooks
-            "n",  # No foreign hooks
-            "n",  # No more frames
-            "y",  # Confirm write
-        ])
+        input_text += "\n".join(
+            [
+                "frame.customers",  # Frame name
+                "1",  # Source type: relation
+                "raw.customers",  # Relation
+                "CRM",  # Source system
+                "customer",  # Concept
+                "",  # Qualifier
+                "",  # Tenant
+                "",  # Hook name (default)
+                "customer_id",  # Expression
+                "n",  # No more primary hooks
+                "n",  # No foreign hooks
+                "n",  # No more frames
+                "y",  # Confirm write
+            ]
+        )
 
         result = runner.invoke(app, ["init"], input=input_text)
         assert result.exit_code == 0, f"Failed: {result.output}"
@@ -828,9 +830,7 @@ class TestConceptsAutoPopulation:
         content = yaml.safe_load(manifest_path.read_text())
 
         # Customer should appear in both frames
-        customer_concept = next(
-            (c for c in content["concepts"] if c["name"] == "customer"), None
-        )
+        customer_concept = next((c for c in content["concepts"] if c["name"] == "customer"), None)
         assert customer_concept is not None
         assert set(customer_concept["frames"]) == {"frame.orders", "frame.customers"}
 
@@ -924,7 +924,9 @@ class TestKeySetsAutoPopulation:
             source_system="SHOPIFY",
             concept="customer",
             expr="shopify_customer_id",
-            foreign_hooks=[{"concept": "customer", "source_system": "CRM", "expr": "crm_customer_id"}],
+            foreign_hooks=[
+                {"concept": "customer", "source_system": "CRM", "expr": "crm_customer_id"}
+            ],
         )
 
         result = runner.invoke(app, ["init"], input=input_text)

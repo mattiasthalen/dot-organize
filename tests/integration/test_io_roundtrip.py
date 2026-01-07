@@ -14,9 +14,7 @@ class TestYamlRoundTrip:
         from dot.io.yaml import dump_manifest_yaml, load_manifest_yaml
 
         # Load original
-        original_path = (
-            Path(__file__).parent.parent / "fixtures" / "valid" / "minimal.yaml"
-        )
+        original_path = Path(__file__).parent.parent / "fixtures" / "valid" / "minimal.yaml"
         original = load_manifest_yaml(original_path)
 
         # Save to new file
@@ -37,9 +35,7 @@ class TestYamlRoundTrip:
         from dot.io.yaml import dump_manifest_yaml, load_manifest_yaml, parse_yaml
 
         # Load original
-        original_path = (
-            Path(__file__).parent.parent / "fixtures" / "valid" / "minimal.yaml"
-        )
+        original_path = Path(__file__).parent.parent / "fixtures" / "valid" / "minimal.yaml"
         original = load_manifest_yaml(original_path)
 
         # Save to new file
@@ -58,9 +54,7 @@ class TestYamlRoundTrip:
         """Round-trip works with composite grain manifest."""
         from dot.io.yaml import dump_manifest_yaml, load_manifest_yaml
 
-        original_path = (
-            Path(__file__).parent.parent / "fixtures" / "valid" / "composite_grain.yaml"
-        )
+        original_path = Path(__file__).parent.parent / "fixtures" / "valid" / "composite_grain.yaml"
         original = load_manifest_yaml(original_path)
 
         output_path = tmp_path / "roundtrip.yaml"

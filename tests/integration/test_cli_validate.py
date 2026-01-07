@@ -44,9 +44,7 @@ class TestValidateCommandSuccess:
 
         assert result.exit_code == 0
 
-    def test_valid_manifest_shows_success_message(
-        self, valid_manifest_path: Path
-    ) -> None:
+    def test_valid_manifest_shows_success_message(self, valid_manifest_path: Path) -> None:
         """Valid manifest shows success message."""
         result = runner.invoke(app, ["validate", str(valid_manifest_path)])
 
@@ -59,9 +57,7 @@ class TestValidateCommandSuccess:
         # Warnings should not cause failure
         assert result.exit_code == 0
 
-    def test_manifest_with_warnings_shows_warnings(
-        self, warn_manifest_path: Path
-    ) -> None:
+    def test_manifest_with_warnings_shows_warnings(self, warn_manifest_path: Path) -> None:
         """Manifest with warnings shows warning messages."""
         result = runner.invoke(app, ["validate", str(warn_manifest_path)])
 
@@ -78,17 +74,12 @@ class TestValidateCommandErrors:
 
         assert result.exit_code == 1
 
-    def test_invalid_manifest_shows_error_rule_id(
-        self, invalid_manifest_path: Path
-    ) -> None:
+    def test_invalid_manifest_shows_error_rule_id(self, invalid_manifest_path: Path) -> None:
         """Invalid manifest shows rule ID in error message."""
         result = runner.invoke(app, ["validate", str(invalid_manifest_path)])
 
         # Should contain rule ID like FRAME-001, HOOK-002, etc.
-        assert any(
-            rule in result.stdout
-            for rule in ["FRAME-", "HOOK-", "CONCEPT-", "MANIFEST-"]
-        )
+        assert any(rule in result.stdout for rule in ["FRAME-", "HOOK-", "CONCEPT-", "MANIFEST-"])
 
     def test_invalid_manifest_shows_path(self, invalid_manifest_path: Path) -> None:
         """Invalid manifest shows path to problematic field."""
@@ -185,9 +176,7 @@ class TestValidateCommandAccessibility:
 
     def test_no_color_flag_disables_colors(self, valid_manifest_path: Path) -> None:
         """--no-color flag disables ANSI escape codes."""
-        result = runner.invoke(
-            app, ["validate", str(valid_manifest_path), "--no-color"]
-        )
+        result = runner.invoke(app, ["validate", str(valid_manifest_path), "--no-color"])
 
         assert "\x1b[" not in result.stdout
 

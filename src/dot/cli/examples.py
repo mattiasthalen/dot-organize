@@ -63,8 +63,7 @@ def _get_examples_dir() -> Path:
         return examples_dir
 
     raise FileNotFoundError(
-        "Examples directory not found. "
-        "Please ensure the package is installed correctly."
+        "Examples directory not found. Please ensure the package is installed correctly."
     )
 
 
@@ -126,9 +125,7 @@ def list_examples() -> None:
 def show_example(
     name: Annotated[
         str,
-        typer.Argument(
-            help="Name of the example to show (e.g., minimal, typical, complex)"
-        ),
+        typer.Argument(help="Name of the example to show (e.g., minimal, typical, complex)"),
     ],
     output: Annotated[
         Path | None,

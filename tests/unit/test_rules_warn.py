@@ -22,9 +22,7 @@ class TestConceptWarnings:
         now = datetime.now(timezone.utc)
         # Create 101 concepts
         concepts = [
-            Concept(
-                name=f"concept_{i}", description=f"Concept number {i} description here"
-            )
+            Concept(name=f"concept_{i}", description=f"Concept number {i} description here")
             for i in range(101)
         ]
         # Create hooks for all concepts to avoid CONCEPT-001 errors

@@ -521,9 +521,7 @@ class TestConceptRules:
             ],
         )
         # Test the "order" concept which is not used in any hook
-        diagnostics = validate_concept_in_frames(
-            manifest.concepts[1], "concepts[1]", manifest
-        )
+        diagnostics = validate_concept_in_frames(manifest.concepts[1], "concepts[1]", manifest)
 
         assert len(diagnostics) == 1
         assert diagnostics[0].rule_id == "CONCEPT-001"
@@ -562,9 +560,7 @@ class TestConceptRules:
                 Concept(name="customer", description="A customer"),
             ],
         )
-        diagnostics = validate_concept_in_frames(
-            manifest.concepts[0], "concepts[0]", manifest
-        )
+        diagnostics = validate_concept_in_frames(manifest.concepts[0], "concepts[0]", manifest)
         assert diagnostics == []
 
     def test_concept_002_description_type_check_only(self) -> None:

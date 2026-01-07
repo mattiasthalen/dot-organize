@@ -159,9 +159,7 @@ class TestNFR003MemoryUnder100MB:
         manifest = generate_large_manifest(num_frames, hooks_per_frame)
 
         # Write to temp file to simulate real loading
-        with NamedTemporaryFile(
-            mode="w", suffix=".yaml", delete=False
-        ) as f:
+        with NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             temp_path = Path(f.name)
 
         # Serialize manifest to YAML file

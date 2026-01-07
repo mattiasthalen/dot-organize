@@ -74,9 +74,7 @@ class TestExpressionValidation:
         from dot.core.expression import validate_expr
 
         diagnostics = validate_expr(expr)
-        assert diagnostics == [], (
-            f"Expected no diagnostics for '{expr}', got {diagnostics}"
-        )
+        assert diagnostics == [], f"Expected no diagnostics for '{expr}', got {diagnostics}"
 
     @pytest.mark.parametrize(
         "expr,expected_pattern",

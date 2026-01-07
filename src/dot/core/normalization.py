@@ -15,9 +15,7 @@ LOWER_SNAKE_CASE = re.compile(r"^[a-z][a-z0-9_]*$")
 UPPER_SNAKE_CASE = re.compile(r"^[A-Z][A-Z0-9_]*$")
 # Hook name: _hk__<concept> or _wk__<concept> optionally followed by __<qualifier>
 # concept and qualifier must be lower_snake_case without trailing underscore
-HOOK_NAME = re.compile(
-    r"^_(hk|wk)__[a-z][a-z0-9]*(_[a-z0-9]+)*(__[a-z][a-z0-9]*(_[a-z0-9]+)*)?$"
-)
+HOOK_NAME = re.compile(r"^_(hk|wk)__[a-z][a-z0-9]*(_[a-z0-9]+)*(__[a-z][a-z0-9]*(_[a-z0-9]+)*)?$")
 FRAME_NAME = re.compile(r"^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$")
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 

@@ -54,9 +54,7 @@ class TestYamlReader:
         assert keys[1] == "schema_version"
         assert keys[2] == "metadata"
 
-    def test_load_manifest_yaml_returns_manifest(
-        self, valid_manifest_path: Path
-    ) -> None:
+    def test_load_manifest_yaml_returns_manifest(self, valid_manifest_path: Path) -> None:
         """Load valid manifest YAML returns Manifest object."""
         manifest = load_manifest_yaml(valid_manifest_path)
 
@@ -64,9 +62,7 @@ class TestYamlReader:
         assert len(manifest.frames) > 0
         assert len(manifest.concepts) > 0
 
-    def test_load_manifest_yaml_also_returns_raw_data(
-        self, valid_manifest_path: Path
-    ) -> None:
+    def test_load_manifest_yaml_also_returns_raw_data(self, valid_manifest_path: Path) -> None:
         """Load manifest returns both Manifest and raw dict for unknown field detection."""
         manifest, raw_data = load_manifest_yaml(valid_manifest_path, return_raw=True)
 
@@ -146,9 +142,7 @@ class TestYamlParseErrors:
 class TestYamlValidation:
     """Tests for YAML validation against Pydantic models."""
 
-    def test_invalid_manifest_data_raises_validation_error(
-        self, tmp_path: Path
-    ) -> None:
+    def test_invalid_manifest_data_raises_validation_error(self, tmp_path: Path) -> None:
         """Invalid manifest data raises validation error with field info."""
         # Valid YAML syntax but invalid manifest data
         yaml_content = dedent("""\

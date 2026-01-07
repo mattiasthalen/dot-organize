@@ -278,8 +278,7 @@ def validate_hook_role(hook: Hook, path: str) -> list[Diagnostic]:
             Diagnostic(
                 rule_id="HOOK-003",
                 severity=Severity.ERROR,
-                message=f"Invalid hook role: '{hook.role}'. "
-                f"Must be 'primary' or 'foreign'",
+                message=f"Invalid hook role: '{hook.role}'. Must be 'primary' or 'foreign'",
                 path=f"{path}.role",
                 fix="Set role to 'primary' (defines grain) or 'foreign' (references)",
             )
@@ -297,8 +296,7 @@ def validate_hook_concept(hook: Hook, path: str) -> list[Diagnostic]:
             Diagnostic(
                 rule_id="HOOK-004",
                 severity=Severity.ERROR,
-                message=f"Invalid concept name: '{hook.concept}'. "
-                f"Must be lower_snake_case",
+                message=f"Invalid concept name: '{hook.concept}'. Must be lower_snake_case",
                 path=f"{path}.concept",
                 fix="Use format like 'customer', 'order_line', 'product'",
             )
@@ -310,8 +308,7 @@ def validate_hook_concept(hook: Hook, path: str) -> list[Diagnostic]:
             Diagnostic(
                 rule_id="HOOK-004",
                 severity=Severity.ERROR,
-                message=f"Invalid qualifier: '{hook.qualifier}'. "
-                f"Must be lower_snake_case",
+                message=f"Invalid qualifier: '{hook.qualifier}'. Must be lower_snake_case",
                 path=f"{path}.qualifier",
                 fix="Use format like 'manager', 'billing', 'shipping'",
             )
@@ -382,9 +379,7 @@ def validate_hook_name_uniqueness(frame: Frame, path: str) -> list[Diagnostic]:
 # =============================================================================
 
 
-def validate_concept_in_frames(
-    concept: Concept, path: str, manifest: Manifest
-) -> list[Diagnostic]:
+def validate_concept_in_frames(concept: Concept, path: str, manifest: Manifest) -> list[Diagnostic]:
     """CONCEPT-001: Concept must be used in at least one hook."""
     diagnostics: list[Diagnostic] = []
 
@@ -466,9 +461,7 @@ def warn_concept_count(manifest: Manifest) -> list[Diagnostic]:
     return diagnostics
 
 
-def warn_weak_hook_mismatch(
-    hook: Hook, path: str, concepts: list[Concept]
-) -> list[Diagnostic]:
+def warn_weak_hook_mismatch(hook: Hook, path: str, concepts: list[Concept]) -> list[Diagnostic]:
     """HOOK-W01: Warn if weak hook prefix but concept is_weak=False."""
     diagnostics: list[Diagnostic] = []
 

@@ -176,9 +176,7 @@ def wizard_frame_add_hook(frame: WizardFrame, hook: dict[str, Any]) -> WizardFra
     )
 
 
-def generate_hook_name(
-    concept: str, qualifier: str | None = None, is_weak: bool = False
-) -> str:
+def generate_hook_name(concept: str, qualifier: str | None = None, is_weak: bool = False) -> str:
     """
     Generate hook name following FR-051 pattern: <prefix><concept>[__<qualifier>].
 

@@ -65,9 +65,7 @@ class Source(BaseModel, frozen=True):
         has_path = self.path is not None
 
         if has_relation and has_path:
-            raise ValueError(
-                "Source must have exactly one of 'relation' or 'path', not both"
-            )
+            raise ValueError("Source must have exactly one of 'relation' or 'path', not both")
         if not has_relation and not has_path:
             raise ValueError("Source must have exactly one of 'relation' or 'path'")
 

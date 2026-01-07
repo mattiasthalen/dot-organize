@@ -234,9 +234,7 @@ class TestExamplesGoldenValidation:
 
         # Run full validation
         validate_result = runner.invoke(app, ["validate", str(manifest_path)])
-        assert validate_result.exit_code == 0, (
-            f"Validation failed: {validate_result.output}"
-        )
+        assert validate_result.exit_code == 0, f"Validation failed: {validate_result.output}"
 
     def test_file_based_example_passes_full_validation(self, temp_cwd: Path) -> None:
         """File-based example passes full dot validate pipeline."""
@@ -247,9 +245,7 @@ class TestExamplesGoldenValidation:
         manifest_path.write_text(show_result.output)
 
         validate_result = runner.invoke(app, ["validate", str(manifest_path)])
-        assert validate_result.exit_code == 0, (
-            f"Validation failed: {validate_result.output}"
-        )
+        assert validate_result.exit_code == 0, f"Validation failed: {validate_result.output}"
 
     def test_typical_example_passes_full_validation(self, temp_cwd: Path) -> None:
         """Typical example passes full dot validate pipeline."""
@@ -260,9 +256,7 @@ class TestExamplesGoldenValidation:
         manifest_path.write_text(show_result.output)
 
         validate_result = runner.invoke(app, ["validate", str(manifest_path)])
-        assert validate_result.exit_code == 0, (
-            f"Validation failed: {validate_result.output}"
-        )
+        assert validate_result.exit_code == 0, f"Validation failed: {validate_result.output}"
 
     def test_complex_example_passes_full_validation(self, temp_cwd: Path) -> None:
         """Complex example passes full dot validate pipeline."""
@@ -273,9 +267,7 @@ class TestExamplesGoldenValidation:
         manifest_path.write_text(show_result.output)
 
         validate_result = runner.invoke(app, ["validate", str(manifest_path)])
-        assert validate_result.exit_code == 0, (
-            f"Validation failed: {validate_result.output}"
-        )
+        assert validate_result.exit_code == 0, f"Validation failed: {validate_result.output}"
 
     def test_all_examples_pass_validation(self, temp_cwd: Path) -> None:
         """Parametric test: ALL bundled examples pass validation."""

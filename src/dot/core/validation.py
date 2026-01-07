@@ -96,9 +96,7 @@ def validate_manifest(
 
             # WARN: weak hook mismatch
             if include_warnings:
-                diagnostics.extend(
-                    warn_weak_hook_mismatch(hook, hook_path, manifest.concepts)
-                )
+                diagnostics.extend(warn_weak_hook_mismatch(hook, hook_path, manifest.concepts))
 
         # WARN: too many hooks
         if include_warnings:
