@@ -167,8 +167,11 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - **FR-034a**: Hook `expr` is a SQL expression (Manifest SQL subset) for Feature 001. Qlik expression support may be introduced in a later feature.
 - **FR-035**: Hook `role` MUST be `primary` (defines frame grain, one or more per frame) or `foreign` (references other concept).
 - **FR-036**: Key sets MUST be auto-derived from hook fields as `<CONCEPT>[~<QUALIFIER>]@<SOURCE>[~<TENANT>]`.
-- **FR-037**: Manifest MAY include optional `concepts` array for definitions/examples (enrichment only).
+- **FR-037**: Manifest MUST include `concepts` array with all distinct concepts from hooks. Each concept entry MUST include `name` and `frames` (list of frame names where this concept appears). Description, examples, and is_weak are optional enrichment fields.
+- **FR-037a**: Wizard MUST auto-populate `concepts` array with: `name` (from hooks), `frames` (derived), `is_weak` (true if hook uses `_wk__` prefix), and empty `description`/`examples` for user enrichment.
 - **FR-038**: Manifest MUST include `settings` object with hook_prefix, weak_hook_prefix, and delimiter.
+- **FR-039**: Manifest MUST include `keysets` array with all auto-derived key sets. Each keyset entry MUST include `name` (the key set string), `concept` (the business concept), and `frames` (list of frame names where this key set is derived).
+- **FR-039a**: Wizard MUST auto-populate `keysets` array from all hooks using the derivation pattern in FR-054.
 
 #### Naming Conventions
 
@@ -194,6 +197,7 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - **FR-083**: Validate command MUST NOT discard user input on validation failure.
 - **FR-084**: Init wizard MUST save partial progress if user cancels (Ctrl+C saves draft).
 - **FR-085**: All CLI output MUST be UTF-8 encoded.
+- **FR-086**: Default manifest filename MUST be `manifest.yaml` (or `manifest.json` with `--format json`). Draft files use `.manifest-draft.yaml`.
 
 ### Key Entities
 
@@ -285,21 +289,29 @@ frames:
         tenant: string             # Optional tenant (e.g., "AU") — appended as @SOURCE~TENANT
         expr: string               # SQL expression for business key (Manifest SQL subset)
 
-concepts:                          # Optional: definitions for auto-derived concepts
-  - name: string                   # Concept name (must match a concept used in frames)
-    description: string            # 10-200 characters (1-2 sentence definition)
-    examples:                      # Real-world examples
+concepts:                          # Auto-populated from hooks (FR-037)
+  - name: string                   # Concept name (derived from hooks)
+    frames:                        # Frames where this concept appears (auto-derived)
       - string
-    is_weak: boolean               # True for reference/time/system concepts (default: false)
+    description: string            # Optional: 10-200 characters (1-2 sentence definition)
+    examples:                      # Optional: Real-world examples
+      - string
+    is_weak: boolean               # True if hook uses _wk__ prefix (default: false)
+
+keysets:                           # Auto-populated from hooks (FR-039)
+  - name: string                   # Key set string (e.g., "CUSTOMER@CRM")
+    concept: string                # Business concept this key set belongs to
+    frames:                        # Frames where this key set is derived
+      - string
 ```
 
 ### Auto-Derived Registries
 
-The tool automatically derives from frames:
+The tool automatically derives from frames and populates manifest sections:
 
-- **Key Sets**: `<CONCEPT>[~<QUALIFIER>]@<SOURCE>[~<TENANT>]` (e.g., `CUSTOMER@CRM`, `ORDER@SAP~AU`, `EMPLOYEE~MANAGER@CRM~AU`)
-- **Business Concepts**: Unique concept names across all hooks
-- **Hook Registry**: All hooks indexed by name for relationship detection
+- **Key Sets** (`keysets` section): `<CONCEPT>[~<QUALIFIER>]@<SOURCE>[~<TENANT>]` with frame references
+- **Business Concepts** (`concepts` section): Unique concept names with frame references
+- **Hook Registry**: All hooks indexed by name for relationship detection (runtime only, not persisted)
 
 ---
 

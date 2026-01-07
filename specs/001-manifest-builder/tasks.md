@@ -305,6 +305,28 @@ Based on plan.md structure:
 
 - [x] T124 Fix wizard source system prompt (FR-029): Move source system prompt INSIDE the hook loop so each hook can specify its own source. Hooks within the same frame may reference different source systems.
 
+- [ ] T125 Change default manifest filename (FR-086): Rename `.dot-organize.yaml` to `manifest.yaml`, `.dot-organize.json` to `manifest.json`, and `.dot-draft.yaml` to `.manifest-draft.yaml`.
+
+### Concepts and Key Sets Auto-Population (FR-037, FR-039)
+
+- [ ] T126 [P] Add `frames: tuple[str, ...]` field to `Concept` model in `src/dot/models/concept.py` (frozen Pydantic, immutable tuple).
+
+- [ ] T127 [P] Create `KeySet` frozen Pydantic model in `src/dot/models/keyset.py` with fields: `name: str`, `concept: str`, `frames: tuple[str, ...]`.
+
+- [ ] T128 Add `keysets: list[KeySet]` field to `Manifest` model in `src/dot/models/manifest.py`. Import KeySet from new module.
+
+- [ ] T129 Update `build_manifest()` in `src/dot/cli/init.py` to auto-populate `concepts` array with distinct concepts, their frame references, and is_weak derived from hook prefix.
+
+- [ ] T130 Update `build_manifest()` in `src/dot/cli/init.py` to auto-populate `keysets` array with derived key sets, their concept, and frame references.
+
+- [ ] T131 Update `build_manifest_from_seed()` and `build_manifest_from_flags()` in `src/dot/cli/init.py` to also populate concepts and keysets.
+
+- [ ] T132 [P] Add tests for concepts/keysets auto-population in `tests/integration/test_cli_init.py`.
+
+- [ ] T133 [P] Update JSON schema contract `specs/001-manifest-builder/contracts/manifest-schema.json` with `keysets` section and updated `concepts` schema (add frames field).
+
+- [ ] T134 [P] Update example manifests in `examples/` to include concepts and keysets sections.
+
 ---
 
 ## Dependencies & Execution Order
@@ -425,7 +447,7 @@ Each User Story is complete when:
 | US2: Wizard | T073-T083 | 1 | `dot init` interactive |
 | US3: Non-Interactive | T084-T089 | 1 | `dot init --from-config` |
 | US4: Examples | T090-T098 | 5 | `dot examples` command |
-| Polish | T099-T124 | 19 | README, CI, release, benchmarks, paradigm verification, FP refactoring, branding refactor, bug fixes, wizard enhancements |
+| Polish | T099-T134 | 29 | README, CI, release, benchmarks, paradigm verification, FP refactoring, branding refactor, bug fixes, wizard enhancements, concepts/keysets auto-population |
 
-**Total Tasks**: 130 (128 previous + 2 wizard fixes: T123-T124)
+**Total Tasks**: 140 (131 previous + 9 concepts/keysets: T126-T134)
 **MVP Scope**: Phases 1-3 (T001-T072a) = 78 tasks

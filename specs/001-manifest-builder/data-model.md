@@ -45,7 +45,8 @@ class Manifest(BaseModel, frozen=True):
     metadata: Metadata             # Required. Name, description, timestamps
     settings: Settings             # Required. Hook prefixes, delimiter
     frames: list[Frame]            # Required. At least one frame
-    concepts: list[Concept] = []   # Optional. Enrichment definitions
+    concepts: list[Concept] = []   # Required. Auto-populated from hooks (FR-037)
+    keysets: list[KeySet] = []     # Required. Auto-populated from hooks (FR-039)
 ```
 
 | Field | Type | Required | Default | Validation | Spec Reference |
@@ -55,7 +56,8 @@ class Manifest(BaseModel, frozen=True):
 | `metadata` | `Metadata` | ✅ | — | — | FR-030 |
 | `settings` | `Settings` | ✅ | — | — | FR-038 |
 | `frames` | `list[Frame]` | ✅ | — | len >= 1 | FR-032 |
-| `concepts` | `list[Concept]` | ❌ | `[]` | — | FR-037 |
+| `concepts` | `list[Concept]` | ✅ | `[]` | Auto-populated | FR-037 |
+| `keysets` | `list[KeySet]` | ✅ | `[]` | Auto-populated | FR-039 |
 
 ---
 
@@ -209,18 +211,40 @@ class Hook(BaseModel, frozen=True):
 
 ```python
 class Concept(BaseModel, frozen=True):
-    name: str                      # Required. Must match a concept used in frames
-    description: str               # Required. 1-2 sentence definition
-    examples: list[str] = []       # Optional. Real-world examples
-    is_weak: bool = False          # Optional. True for reference/time concepts
+    name: str                           # Required. Concept name from hooks
+    frames: tuple[str, ...] = ()        # Required. Frames where this concept appears
+    description: str = ""               # Optional. 1-2 sentence definition (enrichment)
+    examples: tuple[str, ...] = ()      # Optional. Real-world examples
+    is_weak: bool = False               # Optional. True if derived from _wk__ prefix
 ```
 
 | Field | Type | Required | Default | Validation | Rule ID |
 |-------|------|----------|---------|------------|---------|
 | `name` | `str` | ✅ | — | Must match hook concept | CONCEPT-001 |
-| `description` | `str` | ✅ | — | 1-2 sentences | CONCEPT-002 |
-| `examples` | `list[str]` | ❌ | `[]` | — | — |
-| `is_weak` | `bool` | ❌ | `False` | — | — |
+| `frames` | `tuple[str, ...]` | ✅ | `()` | Frame names where concept appears | — |
+| `description` | `str` | ❌ | `""` | 10-200 chars if provided | CONCEPT-002 |
+| `examples` | `tuple[str, ...]` | ❌ | `()` | — | — |
+| `is_weak` | `bool` | ❌ | `False` | Derived from hook prefix | — |
+
+---
+
+### 6a. KeySet
+
+**File**: `src/dot/models/keyset.py`  
+**Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1), FR-039
+
+```python
+class KeySet(BaseModel, frozen=True):
+    name: str                           # Required. Key set string (e.g., "CUSTOMER@CRM")
+    concept: str                        # Required. Business concept this key set belongs to
+    frames: tuple[str, ...] = ()        # Required. Frames where this key set is derived
+```
+
+| Field | Type | Required | Default | Validation | Rule ID |
+|-------|------|----------|---------|------------|---------|
+| `name` | `str` | ✅ | — | Pattern: `<CONCEPT>[~<QUALIFIER>]@<SOURCE>[~<TENANT>]` | — |
+| `concept` | `str` | ✅ | — | Must match hook concept | — |
+| `frames` | `tuple[str, ...]` | ✅ | `()` | Frame names where key set is derived | — |
 
 ---
 
