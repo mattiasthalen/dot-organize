@@ -7,41 +7,39 @@ Spec Reference: spec.md#validation-rules, data-model.md §Validation
 
 from typing import Any
 
-from dot.models.diagnostic import Diagnostic, Severity
-from dot.models.manifest import Manifest
-from dot.models.settings import Settings
-
 from dot.core.rules import (
-    # MANIFEST rules
-    validate_manifest_version,
-    validate_schema_version,
-    # FRAME rules
-    validate_frame_has_hooks,
-    validate_frame_name,
-    validate_frame_has_primary_hook,
-    validate_frame_source_present,
-    validate_frame_source_exclusivity,
-    validate_frame_source_nonempty,
-    # HOOK rules
-    validate_hook_required_fields,
-    validate_hook_name,
-    validate_hook_role,
-    validate_hook_concept,
-    validate_hook_source,
-    validate_hook_expr,
-    validate_hook_name_uniqueness,
+    validate_concept_description,
     # CONCEPT rules
     validate_concept_in_frames,
-    validate_concept_description,
+    # FRAME rules
+    validate_frame_has_hooks,
+    validate_frame_has_primary_hook,
+    validate_frame_name,
+    validate_frame_source_exclusivity,
+    validate_frame_source_nonempty,
+    validate_frame_source_present,
+    validate_hook_concept,
+    validate_hook_expr,
+    validate_hook_name,
+    validate_hook_name_uniqueness,
+    # HOOK rules
+    validate_hook_required_fields,
+    validate_hook_role,
+    validate_hook_source,
+    # MANIFEST rules
+    validate_manifest_version,
     validate_no_duplicate_concepts,
+    validate_schema_version,
     # WARN rules
     warn_concept_count,
-    warn_weak_hook_mismatch,
     warn_duplicate_source,
-    warn_too_many_hooks,
     warn_too_many_frames,
+    warn_too_many_hooks,
     warn_unknown_fields,
+    warn_weak_hook_mismatch,
 )
+from dot.models.diagnostic import Diagnostic, Severity
+from dot.models.manifest import Manifest
 
 
 def validate_manifest(
@@ -132,6 +130,7 @@ def validate_manifest(
     # Sort by severity (ERROR first), then rule_id, then path
     # ==========================================================================
     def sort_key(d: Diagnostic) -> tuple[int, str, str]:
+        """Sort diagnostics by severity (ERROR first), then rule_id, then path."""
         severity_order = 0 if d.severity == Severity.ERROR else 1
         return (severity_order, d.rule_id, d.path)
 

@@ -4,7 +4,7 @@ T067: Create typer app skeleton with --version, --help
 T068: Entry point is configured in pyproject.toml
 """
 
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -28,7 +28,7 @@ def version_callback(value: bool) -> None:
 @app.callback()
 def main(
     version: Annotated[
-        Optional[bool],
+        bool | None,
         typer.Option(
             "--version",
             "-v",
@@ -43,9 +43,9 @@ def main(
 
 
 # Import and register subcommands
-from dot.cli.validate import validate  # noqa: E402
-from dot.cli.init import init_command  # noqa: E402
 from dot.cli.examples import examples_app  # noqa: E402
+from dot.cli.init import init_command  # noqa: E402
+from dot.cli.validate import validate  # noqa: E402
 
 app.command("validate")(validate)
 app.command("init")(init_command)

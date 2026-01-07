@@ -11,16 +11,12 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import pytest
 import yaml
 from typer.testing import CliRunner
 
 from dot.cli.main import app
-
-if TYPE_CHECKING:
-    pass
 
 runner = CliRunner()
 
@@ -114,13 +110,13 @@ class TestFromConfigValid:
             app,
             ["init", "--from-config", str(valid_seed)],
         )
-        
+
         assert result.exit_code == 0, f"Failed: {result.output}"
-        
+
         # Check manifest was created
         manifest_path = temp_cwd / ".dot-organize.yaml"
         assert manifest_path.exists(), "Manifest not created"
-        
+
         # Validate content
         content = yaml.safe_load(manifest_path.read_text())
         assert "manifest_version" in content
@@ -137,12 +133,12 @@ class TestFromConfigValid:
             app,
             ["init", "--from-config", str(valid_seed)],
         )
-        
+
         assert result.exit_code == 0
-        
+
         manifest_path = temp_cwd / ".dot-organize.yaml"
         content = yaml.safe_load(manifest_path.read_text())
-        
+
         hook = content["frames"][0]["hooks"][0]
         # Hook name should be auto-generated: _hk__customer__crm
         assert hook["name"].startswith("_hk__")
@@ -155,12 +151,12 @@ class TestFromConfigValid:
     ) -> None:
         """--output flag writes to custom path."""
         custom_path = temp_cwd / "custom" / "manifest.yaml"
-        
+
         result = runner.invoke(
             app,
             ["init", "--from-config", str(valid_seed), "--output", str(custom_path)],
         )
-        
+
         assert result.exit_code == 0
         assert custom_path.exists()
 
@@ -174,12 +170,12 @@ class TestFromConfigValid:
             app,
             ["init", "--from-config", str(valid_seed), "--format", "json"],
         )
-        
+
         assert result.exit_code == 0
-        
+
         manifest_path = temp_cwd / ".dot-organize.json"
         assert manifest_path.exists()
-        
+
         # Verify valid JSON
         content = json.loads(manifest_path.read_text())
         assert "frames" in content
@@ -203,7 +199,7 @@ class TestFromConfigInvalid:
             app,
             ["init", "--from-config", str(invalid_seed)],
         )
-        
+
         assert result.exit_code == 1
         assert "error" in result.output.lower()
 
@@ -217,7 +213,7 @@ class TestFromConfigInvalid:
             app,
             ["init", "--from-config", str(seed_missing_source)],
         )
-        
+
         assert result.exit_code == 1
         assert "error" in result.output.lower() or "source" in result.output.lower()
 
@@ -227,7 +223,7 @@ class TestFromConfigInvalid:
             app,
             ["init", "--from-config", "nonexistent.yaml"],
         )
-        
+
         assert result.exit_code != 0
         # Should mention file not found
         assert "not found" in result.output.lower() or "error" in result.output.lower()
@@ -236,12 +232,12 @@ class TestFromConfigInvalid:
         """Invalid YAML syntax produces error."""
         bad_yaml = temp_cwd / "bad.yaml"
         bad_yaml.write_text("invalid: yaml: :\n  - broken")
-        
+
         result = runner.invoke(
             app,
             ["init", "--from-config", str(bad_yaml)],
         )
-        
+
         assert result.exit_code != 0
 
 
@@ -262,15 +258,15 @@ class TestQuickInitFlags:
             app,
             ["init", "--concept", "customer", "--source", "CRM"],
         )
-        
+
         assert result.exit_code == 0, f"Failed: {result.output}"
-        
+
         manifest_path = temp_cwd / ".dot-organize.yaml"
         assert manifest_path.exists()
-        
+
         content = yaml.safe_load(manifest_path.read_text())
         assert len(content["frames"]) == 1
-        
+
         frame = content["frames"][0]
         assert "customer" in frame["name"].lower()
 
@@ -283,12 +279,12 @@ class TestQuickInitFlags:
             app,
             ["init", "--concept", "order", "--source", "ERP"],
         )
-        
+
         assert result.exit_code == 0
-        
+
         manifest_path = temp_cwd / ".dot-organize.yaml"
         content = yaml.safe_load(manifest_path.read_text())
-        
+
         # Frame name should include concept
         frame_name = content["frames"][0]["name"]
         assert "order" in frame_name.lower()
@@ -302,12 +298,12 @@ class TestQuickInitFlags:
             app,
             ["init", "--concept", "product", "--source", "PIM"],
         )
-        
+
         assert result.exit_code == 0
-        
+
         manifest_path = temp_cwd / ".dot-organize.yaml"
         content = yaml.safe_load(manifest_path.read_text())
-        
+
         hook = content["frames"][0]["hooks"][0]
         assert hook["concept"] == "product"
         assert hook["source"] == "PIM"
@@ -319,7 +315,7 @@ class TestQuickInitFlags:
             app,
             ["init", "--concept", "customer"],
         )
-        
+
         # Should error - source is required
         assert result.exit_code != 0 or "source" in result.output.lower()
 
@@ -329,19 +325,27 @@ class TestQuickInitFlags:
             app,
             ["init", "--source", "CRM"],
         )
-        
-        # Should error - concept is required  
+
+        # Should error - concept is required
         assert result.exit_code != 0 or "concept" in result.output.lower()
 
     def test_quick_init_with_custom_output(self, temp_cwd: Path) -> None:
         """Quick init respects --output flag."""
         custom_path = temp_cwd / "quick.yaml"
-        
+
         result = runner.invoke(
             app,
-            ["init", "--concept", "customer", "--source", "CRM", "--output", str(custom_path)],
+            [
+                "init",
+                "--concept",
+                "customer",
+                "--source",
+                "CRM",
+                "--output",
+                str(custom_path),
+            ],
         )
-        
+
         assert result.exit_code == 0
         assert custom_path.exists()
 
@@ -351,9 +355,9 @@ class TestQuickInitFlags:
             app,
             ["init", "--concept", "customer", "--source", "CRM", "--format", "json"],
         )
-        
+
         assert result.exit_code == 0
-        
+
         manifest_path = temp_cwd / ".dot-organize.json"
         assert manifest_path.exists()
 
@@ -378,7 +382,7 @@ class TestGeneratedManifestValidation:
             ["init", "--from-config", str(valid_seed)],
         )
         assert result.exit_code == 0
-        
+
         # Validate
         result = runner.invoke(
             app,
@@ -397,7 +401,7 @@ class TestGeneratedManifestValidation:
             ["init", "--concept", "customer", "--source", "CRM"],
         )
         assert result.exit_code == 0
-        
+
         # Validate
         result = runner.invoke(
             app,

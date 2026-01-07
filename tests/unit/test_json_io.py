@@ -36,9 +36,7 @@ class TestJsonReader:
         assert isinstance(result, dict)
         assert result["manifest_version"] == "1.0.0"
 
-    def test_load_manifest_json_returns_manifest(
-        self, tmp_path: Path
-    ) -> None:
+    def test_load_manifest_json_returns_manifest(self, tmp_path: Path) -> None:
         """Load valid manifest JSON returns Manifest object."""
         json_content = dedent("""\
             {

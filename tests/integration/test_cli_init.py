@@ -14,20 +14,14 @@ Tests the interactive wizard workflow:
 from __future__ import annotations
 
 import json
-import signal
-import sys
 from pathlib import Path
-from typing import TYPE_CHECKING
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 import yaml
 from typer.testing import CliRunner
 
 from dot.cli.main import app
-
-if TYPE_CHECKING:
-    from _pytest.tmpdir import TempPathFactory
 
 runner = CliRunner()
 
@@ -64,7 +58,7 @@ def make_wizard_input(
 ) -> str:
     """
     Build input string to feed to the wizard.
-    
+
     The wizard prompts in this order:
     1. Frame name
     2. Source type (1=relation, 2=path)
@@ -79,37 +73,37 @@ def make_wizard_input(
     11. Confirm write?
     """
     lines = [
-        frame_name,                     # Frame name
-        "1",                            # Source type: 1=relation
-        relation,                       # Relation name
-        source_system,                  # Source system
-        concept,                        # Business concept
-        qualifier,                      # Qualifier (empty = skip)
-        tenant,                         # Tenant (empty = skip)
-        expr,                           # SQL expression
+        frame_name,  # Frame name
+        "1",  # Source type: 1=relation
+        relation,  # Relation name
+        source_system,  # Source system
+        concept,  # Business concept
+        qualifier,  # Qualifier (empty = skip)
+        tenant,  # Tenant (empty = skip)
+        expr,  # SQL expression
     ]
-    
+
     # Add additional hooks for composite grain if specified
     if composite_hooks:
         for hook in composite_hooks:
-            lines.append("y")           # Add another hook
+            lines.append("y")  # Add another hook
             lines.append(hook.get("concept", "item"))
             lines.append(hook.get("qualifier", ""))
             lines.append(hook.get("tenant", ""))
             lines.append(hook.get("expr", "item_id"))
-    
-    lines.append("n")                   # Done adding hooks
-    
+
+    lines.append("n")  # Done adding hooks
+
     if add_more_frames:
-        lines.append("y")               # Add another frame?
+        lines.append("y")  # Add another frame?
     else:
-        lines.append("n")               # No more frames
-    
+        lines.append("n")  # No more frames
+
     if confirm_write:
-        lines.append("y")               # Confirm write
+        lines.append("y")  # Confirm write
     else:
-        lines.append("n")               # Cancel write
-    
+        lines.append("n")  # Cancel write
+
     return "\n".join(lines) + "\n"
 
 
@@ -130,27 +124,28 @@ class TestWizardCompleteFlow:
             concept="customer",
             expr="customer_id",
         )
-        
+
         result = runner.invoke(
             app,
             ["init"],
             input=input_text,
         )
-        
+
         assert result.exit_code == 0, f"Wizard failed: {result.output}"
-        
+
         # Check manifest was created
         manifest_path = temp_cwd / ".dot-organize.yaml"
         assert manifest_path.exists(), "Manifest file not created"
-        
+
         # Validate manifest content - use standard yaml not ruamel
         import yaml as pyyaml
+
         content = pyyaml.safe_load(manifest_path.read_text())
         assert isinstance(content, dict), f"Expected dict, got {type(content)}"
         assert "manifest_version" in content or "schema_version" in content
         assert "frames" in content
         assert len(content["frames"]) >= 1
-        
+
         # Validate frame content
         frame = content["frames"][0]
         assert frame["name"] == "frame.customers"
@@ -160,19 +155,19 @@ class TestWizardCompleteFlow:
     def test_wizard_creates_valid_json_manifest(self, temp_cwd: Path) -> None:
         """--format json creates valid JSON manifest."""
         input_text = make_wizard_input()
-        
+
         result = runner.invoke(
             app,
             ["init", "--format", "json"],
             input=input_text,
         )
-        
+
         assert result.exit_code == 0, f"Wizard failed: {result.output}"
-        
+
         # Check JSON manifest was created
         manifest_path = temp_cwd / ".dot-organize.json"
         assert manifest_path.exists(), "JSON manifest not created"
-        
+
         # Validate JSON content
         content = json.loads(manifest_path.read_text())
         assert "manifest_version" in content or "schema_version" in content
@@ -181,13 +176,13 @@ class TestWizardCompleteFlow:
     def test_wizard_shows_summary_preview(self, temp_cwd: Path) -> None:
         """Wizard displays summary preview before writing."""
         input_text = make_wizard_input()
-        
+
         result = runner.invoke(
             app,
             ["init"],
             input=input_text,
         )
-        
+
         assert result.exit_code == 0, f"Failed: {result.output}"
         # Summary should be shown before confirmation
         assert "frame.customers" in result.output or "customers" in result.output
@@ -195,11 +190,11 @@ class TestWizardCompleteFlow:
     def test_wizard_validates_output_file(self, temp_cwd: Path) -> None:
         """Created manifest passes validation."""
         input_text = make_wizard_input()
-        
+
         # Run wizard
         result = runner.invoke(app, ["init"], input=input_text)
         assert result.exit_code == 0, f"Wizard failed: {result.output}"
-        
+
         # Validate the created manifest
         result = runner.invoke(app, ["validate", ".dot-organize.yaml"])
         assert result.exit_code == 0, f"Validation failed: {result.output}"
@@ -217,26 +212,26 @@ class TestWizardInputValidation:
         """Invalid frame name is rejected with re-prompt."""
         # First try invalid name with spaces, then valid name
         input_lines = [
-            "invalid frame name",       # Invalid (has spaces)
-            "frame.customers",          # Valid
-            "1",                        # Source type: relation
-            "raw.customers",            # Relation
-            "CRM",                      # Source system
-            "customer",                 # Concept
-            "",                         # Qualifier (empty)
-            "",                         # Tenant (empty)
-            "customer_id",              # SQL expression
-            "n",                        # Done adding hooks
-            "n",                        # No more frames
-            "y",                        # Confirm write
+            "invalid frame name",  # Invalid (has spaces)
+            "frame.customers",  # Valid
+            "1",  # Source type: relation
+            "raw.customers",  # Relation
+            "CRM",  # Source system
+            "customer",  # Concept
+            "",  # Qualifier (empty)
+            "",  # Tenant (empty)
+            "customer_id",  # SQL expression
+            "n",  # Done adding hooks
+            "n",  # No more frames
+            "y",  # Confirm write
         ]
-        
+
         result = runner.invoke(
             app,
             ["init"],
             input="\n".join(input_lines) + "\n",
         )
-        
+
         # Should still succeed after re-prompt
         assert result.exit_code == 0
         manifest_path = temp_cwd / ".dot-organize.yaml"
@@ -245,26 +240,26 @@ class TestWizardInputValidation:
     def test_empty_frame_name_rejected(self, temp_cwd: Path) -> None:
         """Empty frame name is rejected with re-prompt."""
         input_lines = [
-            "",                         # Empty (invalid)
-            "frame.customers",          # Valid
-            "1",                        # Source type: relation
-            "raw.customers",            # Relation
-            "CRM",                      # Source system
-            "customer",                 # Concept
-            "",                         # Qualifier
-            "",                         # Tenant
-            "customer_id",              # Expression
-            "n",                        # Done adding hooks
-            "n",                        # No more frames
-            "y",                        # Confirm write
+            "",  # Empty (invalid)
+            "frame.customers",  # Valid
+            "1",  # Source type: relation
+            "raw.customers",  # Relation
+            "CRM",  # Source system
+            "customer",  # Concept
+            "",  # Qualifier
+            "",  # Tenant
+            "customer_id",  # Expression
+            "n",  # Done adding hooks
+            "n",  # No more frames
+            "y",  # Confirm write
         ]
-        
+
         result = runner.invoke(
             app,
             ["init"],
             input="\n".join(input_lines) + "\n",
         )
-        
+
         # Should succeed after re-prompt
         assert result.exit_code == 0
 
@@ -282,7 +277,7 @@ class TestWizardOverwrite:
         # Create existing manifest
         existing_path = temp_cwd / ".dot-organize.yaml"
         existing_path.write_text("version: '1.0'\nframes: []")
-        
+
         # Input with overwrite confirmation
         input_lines = [
             "frame.customers",
@@ -290,20 +285,20 @@ class TestWizardOverwrite:
             "raw.customers",
             "CRM",
             "customer",
-            "",                         # qualifier
-            "",                         # tenant
+            "",  # qualifier
+            "",  # tenant
             "customer_id",
             "n",
             "n",
-            "y",                        # Confirm overwrite
+            "y",  # Confirm overwrite
         ]
-        
+
         result = runner.invoke(
             app,
             ["init"],
             input="\n".join(input_lines) + "\n",
         )
-        
+
         # Should ask about overwrite
         assert "overwrite" in result.output.lower() or "exist" in result.output.lower()
 
@@ -313,7 +308,7 @@ class TestWizardOverwrite:
         existing_path = temp_cwd / ".dot-organize.yaml"
         original_content = "version: '1.0'\nframes: []\n"
         existing_path.write_text(original_content)
-        
+
         # Input declining overwrite
         input_lines = [
             "frame.customers",
@@ -321,20 +316,20 @@ class TestWizardOverwrite:
             "raw.customers",
             "CRM",
             "customer",
-            "",                         # qualifier
-            "",                         # tenant
+            "",  # qualifier
+            "",  # tenant
             "customer_id",
             "n",
             "n",
-            "n",                        # Decline overwrite
+            "n",  # Decline overwrite
         ]
-        
+
         result = runner.invoke(
             app,
             ["init"],
             input="\n".join(input_lines) + "\n",
         )
-        
+
         # Original file should be preserved
         assert existing_path.read_text() == original_content
 
@@ -359,12 +354,12 @@ class TestWizardCtrlC:
             # At this point we have one complete frame
             # Ctrl+C will be simulated
         ]
-        
+
         # We need to test that draft is saved when interrupted
         # This is tricky in testing - we'll mock the signal handler behavior
         with patch("dot.cli.init.save_draft") as mock_save:
             mock_save.return_value = True
-            
+
             # Simulate the wizard being interrupted
             result = runner.invoke(
                 app,
@@ -372,7 +367,7 @@ class TestWizardCtrlC:
                 input="\n".join(input_lines) + "\n",
                 catch_exceptions=False,
             )
-            
+
             # The wizard should handle partial input gracefully
             # Either by completing or by noting the interruption
 
@@ -383,13 +378,13 @@ class TestWizardCtrlC:
             "frame.customers",
             # Interrupted before completing frame
         ]
-        
+
         result = runner.invoke(
             app,
             ["init"],
             input="\n".join(input_lines),  # No trailing newline = incomplete
         )
-        
+
         # No draft should exist
         draft_path = temp_cwd / ".dot-draft.yaml"
         # The draft should only be saved if at least one frame is complete
@@ -409,14 +404,14 @@ class TestNonTTYDetection:
         # CliRunner doesn't have a real TTY, so we need to mock the check
         with patch("sys.stdin") as mock_stdin:
             mock_stdin.isatty.return_value = False
-            
+
             # The init command should detect non-TTY and error
             result = runner.invoke(
                 app,
                 ["init", "--check-tty"],  # Flag to force TTY check
                 input="",
             )
-            
+
             # Should exit with code 2 (usage error)
             if "--check-tty" in result.output or result.exit_code == 2:
                 # Expected behavior - error about non-interactive mode
@@ -435,33 +430,33 @@ class TestCustomOutput:
     def test_custom_output_path(self, temp_cwd: Path) -> None:
         """--output flag writes to specified path."""
         custom_path = temp_cwd / "custom" / "manifest.yaml"
-        
+
         input_text = make_wizard_input()
-        
+
         result = runner.invoke(
             app,
             ["init", "--output", str(custom_path)],
             input=input_text,
         )
-        
+
         assert result.exit_code == 0, f"Failed: {result.output}"
         assert custom_path.exists(), "Custom output path not created"
 
     def test_output_json_extension(self, temp_cwd: Path) -> None:
         """--output with .json extension creates JSON."""
         json_path = temp_cwd / "manifest.json"
-        
+
         input_text = make_wizard_input()
-        
+
         result = runner.invoke(
             app,
             ["init", "--output", str(json_path)],
             input=input_text,
         )
-        
+
         assert result.exit_code == 0
         assert json_path.exists()
-        
+
         # Verify it's valid JSON
         content = json.loads(json_path.read_text())
         assert "frames" in content
@@ -480,37 +475,37 @@ class TestMultipleFrames:
         input_lines = [
             # First frame
             "frame.customers",
-            "1",                        # relation
+            "1",  # relation
             "raw.customers",
-            "CRM",                      # source system
-            "customer",                 # concept
-            "",                         # qualifier
-            "",                         # tenant
-            "customer_id",              # expr
-            "n",                        # done with hooks
-            "y",                        # add another frame
+            "CRM",  # source system
+            "customer",  # concept
+            "",  # qualifier
+            "",  # tenant
+            "customer_id",  # expr
+            "n",  # done with hooks
+            "y",  # add another frame
             # Second frame
             "frame.orders",
-            "1",                        # relation
+            "1",  # relation
             "raw.orders",
-            "CRM",                      # source system
-            "order",                    # concept
-            "",                         # qualifier
-            "",                         # tenant
-            "order_id",                 # expr
-            "n",                        # done with hooks
-            "n",                        # no more frames
-            "y",                        # confirm write
+            "CRM",  # source system
+            "order",  # concept
+            "",  # qualifier
+            "",  # tenant
+            "order_id",  # expr
+            "n",  # done with hooks
+            "n",  # no more frames
+            "y",  # confirm write
         ]
-        
+
         result = runner.invoke(
             app,
             ["init"],
             input="\n".join(input_lines) + "\n",
         )
-        
+
         assert result.exit_code == 0, f"Failed: {result.output}"
-        
+
         manifest_path = temp_cwd / ".dot-organize.yaml"
         content = yaml.safe_load(manifest_path.read_text())
         assert len(content["frames"]) == 2
@@ -519,31 +514,31 @@ class TestMultipleFrames:
         """Wizard supports composite grain with multiple primary hooks."""
         input_lines = [
             "frame.order_items",
-            "1",                        # relation
+            "1",  # relation
             "raw.order_items",
-            "CRM",                      # source system
-            "order",                    # first concept
-            "",                         # qualifier
-            "",                         # tenant
-            "order_id",                 # expr
-            "y",                        # add another hook
-            "item",                     # second concept
-            "",                         # qualifier
-            "",                         # tenant
-            "item_id",                  # expr
-            "n",                        # done with hooks
-            "n",                        # no more frames
-            "y",                        # confirm write
+            "CRM",  # source system
+            "order",  # first concept
+            "",  # qualifier
+            "",  # tenant
+            "order_id",  # expr
+            "y",  # add another hook
+            "item",  # second concept
+            "",  # qualifier
+            "",  # tenant
+            "item_id",  # expr
+            "n",  # done with hooks
+            "n",  # no more frames
+            "y",  # confirm write
         ]
-        
+
         result = runner.invoke(
             app,
             ["init"],
             input="\n".join(input_lines) + "\n",
         )
-        
+
         assert result.exit_code == 0, f"Failed: {result.output}"
-        
+
         manifest_path = temp_cwd / ".dot-organize.yaml"
         content = yaml.safe_load(manifest_path.read_text())
         hooks = content["frames"][0]["hooks"]
@@ -563,26 +558,26 @@ class TestFileBasedSource:
         """Wizard supports file-based source."""
         input_lines = [
             "frame.customers",
-            "2",                        # path (file-based)
-            "/data/customers.csv",      # path
-            "CSV",                      # source system
-            "customer",                 # concept
-            "",                         # qualifier
-            "",                         # tenant
-            "customer_id",              # expr
-            "n",                        # done with hooks
-            "n",                        # no more frames
-            "y",                        # confirm write
+            "2",  # path (file-based)
+            "/data/customers.csv",  # path
+            "CSV",  # source system
+            "customer",  # concept
+            "",  # qualifier
+            "",  # tenant
+            "customer_id",  # expr
+            "n",  # done with hooks
+            "n",  # no more frames
+            "y",  # confirm write
         ]
-        
+
         result = runner.invoke(
             app,
             ["init"],
             input="\n".join(input_lines) + "\n",
         )
-        
+
         assert result.exit_code == 0, f"Failed: {result.output}"
-        
+
         manifest_path = temp_cwd / ".dot-organize.yaml"
         content = yaml.safe_load(manifest_path.read_text())
         assert content["frames"][0]["source"]["path"] == "/data/customers.csv"

@@ -10,7 +10,7 @@ Commands:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -43,24 +43,25 @@ EXAMPLES: dict[str, dict[str, str]] = {
 
 def _get_examples_dir() -> Path:
     """Get the examples directory path.
-    
+
     Examples are bundled with the package, so we look relative to this file
     or in the standard package location.
     """
     # Try package data location first (installed package)
     import dot
+
     package_dir = Path(dot.__file__).parent
     examples_dir = package_dir / "examples"
     if examples_dir.is_dir():
         return examples_dir
-    
+
     # Fall back to development location (repo root)
     # Go up from src/dot/cli/examples.py to repo root
     repo_root = Path(__file__).parent.parent.parent.parent
     examples_dir = repo_root / "examples"
     if examples_dir.is_dir():
         return examples_dir
-    
+
     raise FileNotFoundError(
         "Examples directory not found. "
         "Please ensure the package is installed correctly."
@@ -69,25 +70,25 @@ def _get_examples_dir() -> Path:
 
 def _read_example(name: str) -> str:
     """Read an example file by name.
-    
+
     Args:
         name: Example name (e.g., "minimal", "typical")
-        
+
     Returns:
         Example file content as string
-        
+
     Raises:
         FileNotFoundError: If example doesn't exist
     """
     if name not in EXAMPLES:
         raise FileNotFoundError(f"Example '{name}' not found")
-    
+
     examples_dir = _get_examples_dir()
     file_path = examples_dir / EXAMPLES[name]["file"]
-    
+
     if not file_path.exists():
         raise FileNotFoundError(f"Example file not found: {file_path}")
-    
+
     return file_path.read_text()
 
 
@@ -103,7 +104,7 @@ examples_app = typer.Typer(
 def list_examples() -> None:
     """List available example manifests."""
     console = Console()
-    
+
     table = Table(
         title="Available Examples",
         show_header=True,
@@ -112,10 +113,10 @@ def list_examples() -> None:
     table.add_column("Name", style="green", no_wrap=True)
     table.add_column("Description", style="white")
     table.add_column("Features", style="dim")
-    
+
     for name, info in EXAMPLES.items():
         table.add_row(name, info["description"], info["features"])
-    
+
     console.print(table)
     console.print()
     console.print("[dim]Use 'dot examples show <name>' to view an example[/dim]")
@@ -130,7 +131,7 @@ def show_example(
         ),
     ],
     output: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option(
             "--output",
             "-o",
@@ -139,11 +140,11 @@ def show_example(
     ] = None,
 ) -> None:
     """Show an example manifest.
-    
+
     Use --output to save the example to a file.
     """
     console = Console(stderr=True)
-    
+
     try:
         content = _read_example(name)
     except FileNotFoundError as e:
@@ -151,7 +152,7 @@ def show_example(
         available = ", ".join(EXAMPLES.keys())
         console.print(f"[dim]Available examples: {available}[/dim]")
         raise typer.Exit(1)
-    
+
     if output:
         output.write_text(content)
         console.print(f"[green]✓[/green] Example saved to: {output}")

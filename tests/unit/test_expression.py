@@ -74,7 +74,9 @@ class TestExpressionValidation:
         from dot.core.expression import validate_expr
 
         diagnostics = validate_expr(expr)
-        assert diagnostics == [], f"Expected no diagnostics for '{expr}', got {diagnostics}"
+        assert diagnostics == [], (
+            f"Expected no diagnostics for '{expr}', got {diagnostics}"
+        )
 
     @pytest.mark.parametrize(
         "expr,expected_pattern",
@@ -124,7 +126,10 @@ class TestExpressionValidation:
         assert diagnostics[0].rule_id == "HOOK-006"
         assert diagnostics[0].severity == Severity.ERROR
         # The message should mention the forbidden pattern
-        assert expected_pattern.lower() in diagnostics[0].message.lower() or "forbidden" in diagnostics[0].message.lower()
+        assert (
+            expected_pattern.lower() in diagnostics[0].message.lower()
+            or "forbidden" in diagnostics[0].message.lower()
+        )
 
     def test_empty_expression_fails(self) -> None:
         """Empty expression returns diagnostic."""

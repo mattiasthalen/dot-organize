@@ -13,6 +13,28 @@ from dot.cli.main import app
 runner = CliRunner()
 
 
+class TestMainCLI:
+    """Tests for main CLI application."""
+
+    def test_version_flag_shows_version(self) -> None:
+        """--version flag shows version and exits."""
+        from dot import __version__
+
+        result = runner.invoke(app, ["--version"])
+
+        assert result.exit_code == 0
+        assert __version__ in result.stdout
+
+    def test_short_version_flag_shows_version(self) -> None:
+        """Short -v flag shows version and exits."""
+        from dot import __version__
+
+        result = runner.invoke(app, ["-v"])
+
+        assert result.exit_code == 0
+        assert __version__ in result.stdout
+
+
 class TestValidateCommandSuccess:
     """Tests for successful validation scenarios."""
 

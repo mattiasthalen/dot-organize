@@ -3,10 +3,17 @@
 Spec Reference: spec.md#manifest-schema-v1, FR-032, FR-033, FR-034, FR-035
 """
 
+from __future__ import annotations
+
+import sys
 from enum import Enum
-from typing import Self
 
 from pydantic import BaseModel, model_validator
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 
 class HookRole(str, Enum):
@@ -58,7 +65,9 @@ class Source(BaseModel, frozen=True):
         has_path = self.path is not None
 
         if has_relation and has_path:
-            raise ValueError("Source must have exactly one of 'relation' or 'path', not both")
+            raise ValueError(
+                "Source must have exactly one of 'relation' or 'path', not both"
+            )
         if not has_relation and not has_path:
             raise ValueError("Source must have exactly one of 'relation' or 'path'")
 

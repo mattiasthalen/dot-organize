@@ -5,8 +5,6 @@ TDD - Write tests FIRST, must FAIL before implementation
 
 from pathlib import Path
 
-import pytest
-
 
 class TestYamlRoundTrip:
     """Tests for YAML load → save → load round-trip."""
@@ -112,9 +110,7 @@ class TestCrossFormatRoundTrip:
         from dot.io.yaml import load_manifest_yaml
 
         # Load from YAML
-        yaml_path = (
-            Path(__file__).parent.parent / "fixtures" / "valid" / "minimal.yaml"
-        )
+        yaml_path = Path(__file__).parent.parent / "fixtures" / "valid" / "minimal.yaml"
         original = load_manifest_yaml(yaml_path)
 
         # Save as JSON

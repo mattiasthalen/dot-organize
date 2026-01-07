@@ -16,33 +16,29 @@ Implements:
 
 from __future__ import annotations
 
-import json
 import signal
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 import typer
+import yaml
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
 from rich.syntax import Syntax
 from rich.table import Table
-import yaml
 
+from dot.io.json import dump_manifest_json
+from dot.io.yaml import dump_manifest_yaml
 from dot.models import (
     Frame,
     Hook,
     HookRole,
     Manifest,
-    Metadata,
-    Settings,
     Source,
 )
-from dot.io.yaml import dump_manifest_yaml
-from dot.io.json import dump_manifest_json
 
 if TYPE_CHECKING:
     from types import FrameType
@@ -79,10 +75,7 @@ class WizardState:
 
     def has_meaningful_data(self) -> bool:
         """Check if there's at least one complete frame worth saving."""
-        return any(
-            f.name and f.source_value and f.hooks
-            for f in self.frames
-        )
+        return any(f.name and f.source_value and f.hooks for f in self.frames)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for YAML serialization."""
@@ -107,10 +100,12 @@ class WizardState:
         }
 
 
-def generate_hook_name(concept: str, source: str, qualifier: str | None = None, tenant: str | None = None) -> str:
+def generate_hook_name(
+    concept: str, source: str, qualifier: str | None = None, tenant: str | None = None
+) -> str:
     """
     Generate hook name following CONCEPT[~QUALIFIER]@SOURCE[~TENANT] recipe (T078).
-    
+
     Examples:
         - customer@CRM -> _hk__customer__crm
         - customer~manager@CRM -> _hk__customer__manager__crm
@@ -209,7 +204,10 @@ def validate_frame_name(name: str) -> tuple[bool, str]:
 
     # Check for schema.table pattern
     if "." not in name:
-        return False, "Frame name must follow schema.table pattern (e.g., 'frame.customers')"
+        return (
+            False,
+            "Frame name must follow schema.table pattern (e.g., 'frame.customers')",
+        )
 
     parts = name.split(".")
     if len(parts) != 2:
@@ -222,7 +220,10 @@ def validate_frame_name(name: str) -> tuple[bool, str]:
     # Validate characters (alphanumeric + underscore)
     for part in parts:
         if not all(c.isalnum() or c == "_" for c in part):
-            return False, f"Invalid characters in '{part}'. Use only letters, numbers, underscores."
+            return (
+                False,
+                f"Invalid characters in '{part}'. Use only letters, numbers, underscores.",
+            )
 
     return True, ""
 
@@ -250,10 +251,9 @@ def validate_source_value(value: str, source_type: str) -> tuple[bool, str]:
         # Relation should be schema.table format
         if not all(c.isalnum() or c in "._" for c in value):
             return False, "Relation must be alphanumeric with dots and underscores."
-    elif source_type == "path":
+    elif source_type == "path" and not value.strip():
         # Path can be more flexible but shouldn't be empty
-        if not value.strip():
-            return False, "Path cannot be empty"
+        return False, "Path cannot be empty"
 
     return True, ""
 
@@ -271,10 +271,11 @@ def prompt_with_validation(
     validator_args: tuple[Any, ...] = (),
 ) -> str:
     """Prompt for input with validation loop."""
+    value: str = ""
     while True:
         value = Prompt.ask(
             message,
-            default=default or None,
+            default=default if default else "",
             console=console,
         )
 
@@ -303,7 +304,9 @@ def prompt_choice(message: str, choices: list[str]) -> str:
                 return choices[idx]
         except ValueError:
             pass
-        err_console.print(f"[red]✗[/red] Please enter a number between 1 and {len(choices)}")
+        err_console.print(
+            f"[red]✗[/red] Please enter a number between 1 and {len(choices)}"
+        )
 
 
 # =============================================================================
@@ -385,18 +388,24 @@ def wizard_add_frame(state: WizardState, frame_number: int) -> WizardFrame | Non
         )
 
         # Ask for qualifier (optional)
-        qualifier = Prompt.ask(
-            "Qualifier [dim](optional, e.g., manager, billing)[/dim]",
-            default="",
-            console=console,
-        ) or None
+        qualifier = (
+            Prompt.ask(
+                "Qualifier [dim](optional, e.g., manager, billing)[/dim]",
+                default="",
+                console=console,
+            )
+            or None
+        )
 
         # Ask for tenant (optional)
-        tenant = Prompt.ask(
-            "Tenant [dim](optional, e.g., AU, US)[/dim]",
-            default="",
-            console=console,
-        ) or None
+        tenant = (
+            Prompt.ask(
+                "Tenant [dim](optional, e.g., AU, US)[/dim]",
+                default="",
+                console=console,
+            )
+            or None
+        )
 
         # Generate hook name
         hook_name = generate_hook_name(concept, hook_source, qualifier, tenant)
@@ -410,15 +419,17 @@ def wizard_add_frame(state: WizardState, frame_number: int) -> WizardFrame | Non
             console=console,
         )
 
-        frame.hooks.append({
-            "name": hook_name,
-            "role": "primary",
-            "concept": concept,
-            "qualifier": qualifier,
-            "source": hook_source,
-            "tenant": tenant,
-            "expr": expr,
-        })
+        frame.hooks.append(
+            {
+                "name": hook_name,
+                "role": "primary",
+                "concept": concept,
+                "qualifier": qualifier,
+                "source": hook_source,
+                "tenant": tenant,
+                "expr": expr,
+            }
+        )
 
         # Ask if they want to add another hook (for composite grain)
         if not Confirm.ask(
@@ -494,28 +505,30 @@ def build_manifest(state: WizardState) -> Manifest:
         for h in wf.hooks:
             role_str = h.get("role", "primary")
             role = HookRole.PRIMARY if role_str == "primary" else HookRole.FOREIGN
-            hooks.append(Hook(
-                name=h["name"],
-                role=role,
-                concept=h["concept"],
-                qualifier=h.get("qualifier"),
-                source=h["source"],
-                tenant=h.get("tenant"),
-                expr=h["expr"],
-            ))
+            hooks.append(
+                Hook(
+                    name=h["name"],
+                    role=role,
+                    concept=h["concept"],
+                    qualifier=h.get("qualifier"),
+                    source=h["source"],
+                    tenant=h.get("tenant"),
+                    expr=h["expr"],
+                )
+            )
 
         # Build frame
         frame = Frame(
             name=wf.name,
             source=source,
-            hooks=tuple(hooks),
+            hooks=list(hooks),
         )
         frames.append(frame)
 
     return Manifest(
         manifest_version="1.0.0",
         schema_version="1.0.0",
-        frames=tuple(frames),
+        frames=list(frames),
     )
 
 
@@ -566,10 +579,10 @@ def write_manifest(
 
 def load_seed_config(path: Path) -> dict[str, Any]:
     """Load and validate seed config from YAML file.
-    
+
     Returns:
         Parsed seed config dictionary.
-        
+
     Raises:
         FileNotFoundError: If file doesn't exist.
         ParseError: If YAML is invalid.
@@ -577,46 +590,46 @@ def load_seed_config(path: Path) -> dict[str, Any]:
     """
     if not path.exists():
         raise FileNotFoundError(f"Seed file not found: {path}")
-    
+
     try:
         with path.open("r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
+            data: dict[str, Any] = yaml.safe_load(f)
     except yaml.YAMLError as e:
         raise ValueError(f"Invalid YAML in seed file: {e}") from e
-    
+
     if not data:
         raise ValueError("Seed file is empty")
-    
+
     if "frames" not in data:
         raise ValueError("Seed file must contain 'frames' list")
-    
+
     if not data["frames"]:
         raise ValueError("Seed file must contain at least one frame")
-    
+
     return data
 
 
 def validate_seed_frames(frames: list[dict[str, Any]]) -> list[str]:
     """Validate seed frame definitions.
-    
+
     Returns:
         List of error messages (empty if valid).
     """
     errors = []
-    
+
     for i, frame in enumerate(frames):
         prefix = f"frames[{i}]"
-        
+
         if "name" not in frame:
             errors.append(f"{prefix}: missing 'name'")
-        
+
         if "source" not in frame:
             errors.append(f"{prefix}: missing 'source'")
         elif not isinstance(frame["source"], dict):
             errors.append(f"{prefix}.source: must be an object")
         elif "relation" not in frame["source"] and "path" not in frame["source"]:
             errors.append(f"{prefix}.source: must contain 'relation' or 'path'")
-        
+
         if "hooks" not in frame:
             errors.append(f"{prefix}: missing 'hooks'")
         elif not frame["hooks"]:
@@ -630,14 +643,14 @@ def validate_seed_frames(frames: list[dict[str, Any]]) -> list[str]:
                     errors.append(f"{hook_prefix}: missing 'source'")
                 if "expr" not in hook:
                     errors.append(f"{hook_prefix}: missing 'expr'")
-    
+
     return errors
 
 
 def build_manifest_from_seed(seed: dict[str, Any]) -> Manifest:
     """Build manifest from seed config."""
     frames = []
-    
+
     for seed_frame in seed.get("frames", []):
         # Build source
         source_dict = seed_frame.get("source", {})
@@ -645,7 +658,7 @@ def build_manifest_from_seed(seed: dict[str, Any]) -> Manifest:
             source = Source(relation=source_dict["relation"])
         else:
             source = Source(path=source_dict.get("path"))
-        
+
         # Build hooks with auto-generated names
         hooks = []
         for h in seed_frame.get("hooks", []):
@@ -654,31 +667,35 @@ def build_manifest_from_seed(seed: dict[str, Any]) -> Manifest:
             qualifier = h.get("qualifier")
             tenant = h.get("tenant")
             expr = h["expr"]
-            
+
             # Auto-generate hook name if not provided
-            name = h.get("name") or generate_hook_name(concept, hook_source, qualifier, tenant)
-            
-            hooks.append(Hook(
-                name=name,
-                role=HookRole.PRIMARY,  # Default to primary
-                concept=concept,
-                qualifier=qualifier,
-                source=hook_source,
-                tenant=tenant,
-                expr=expr,
-            ))
-        
+            name = h.get("name") or generate_hook_name(
+                concept, hook_source, qualifier, tenant
+            )
+
+            hooks.append(
+                Hook(
+                    name=name,
+                    role=HookRole.PRIMARY,  # Default to primary
+                    concept=concept,
+                    qualifier=qualifier,
+                    source=hook_source,
+                    tenant=tenant,
+                    expr=expr,
+                )
+            )
+
         frame = Frame(
             name=seed_frame["name"],
             source=source,
-            hooks=tuple(hooks),
+            hooks=list(hooks),
         )
         frames.append(frame)
-    
+
     return Manifest(
         manifest_version="1.0.0",
         schema_version="1.0.0",
-        frames=tuple(frames),
+        frames=list(frames),
     )
 
 
@@ -686,14 +703,14 @@ def build_manifest_from_flags(concept: str, source: str) -> Manifest:
     """Build minimal manifest from --concept and --source flags."""
     # Auto-derive frame name
     frame_name = f"frame.{concept}s"  # Simple pluralization
-    
+
     # Auto-derive relation
     relation = f"raw.{concept}s"
-    
+
     # Auto-generate hook
     hook_name = generate_hook_name(concept, source)
     expr = f"{concept}_id"
-    
+
     hook = Hook(
         name=hook_name,
         role=HookRole.PRIMARY,
@@ -701,17 +718,17 @@ def build_manifest_from_flags(concept: str, source: str) -> Manifest:
         source=source,
         expr=expr,
     )
-    
+
     frame = Frame(
         name=frame_name,
         source=Source(relation=relation),
-        hooks=(hook,),
+        hooks=[hook],
     )
-    
+
     return Manifest(
         manifest_version="1.0.0",
         schema_version="1.0.0",
-        frames=(frame,),
+        frames=[frame],
     )
 
 
@@ -768,18 +785,20 @@ def init_command(
         try:
             seed = load_seed_config(from_config)
             errors = validate_seed_frames(seed.get("frames", []))
-            
+
             if errors:
                 err_console.print("[bold red]Error:[/bold red] Invalid seed config:")
                 for error in errors:
                     err_console.print(f"  • {error}")
                 raise typer.Exit(1)
-            
+
             manifest = build_manifest_from_seed(seed)
             write_manifest(manifest, output_path, output_format)
-            console.print(f"[green]✓[/green] Manifest written to [cyan]{output_path}[/cyan]")
+            console.print(
+                f"[green]✓[/green] Manifest written to [cyan]{output_path}[/cyan]"
+            )
             return
-            
+
         except FileNotFoundError as e:
             err_console.print(f"[bold red]Error:[/bold red] {e}")
             raise typer.Exit(1)
@@ -792,21 +811,27 @@ def init_command(
     # ==========================================================================
     if concept is not None or source is not None:
         if concept is None:
-            err_console.print("[bold red]Error:[/bold red] --concept is required when using --source")
+            err_console.print(
+                "[bold red]Error:[/bold red] --concept is required when using --source"
+            )
             raise typer.Exit(1)
         if source is None:
-            err_console.print("[bold red]Error:[/bold red] --source is required when using --concept")
+            err_console.print(
+                "[bold red]Error:[/bold red] --source is required when using --concept"
+            )
             raise typer.Exit(1)
-        
+
         manifest = build_manifest_from_flags(concept, source)
         write_manifest(manifest, output_path, output_format)
-        console.print(f"[green]✓[/green] Manifest written to [cyan]{output_path}[/cyan]")
+        console.print(
+            f"[green]✓[/green] Manifest written to [cyan]{output_path}[/cyan]"
+        )
         return
 
     # ==========================================================================
     # Interactive wizard mode
     # ==========================================================================
-    
+
     # TTY check
     if check_tty and not sys.stdin.isatty():
         err_console.print(

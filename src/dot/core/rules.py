@@ -22,7 +22,6 @@ from dot.models.frame import Frame, Hook, HookRole
 from dot.models.manifest import Manifest
 from dot.models.settings import Settings
 
-
 # =============================================================================
 # MANIFEST Rules
 # =============================================================================
@@ -330,8 +329,7 @@ def validate_hook_source(hook: Hook, path: str) -> list[Diagnostic]:
             Diagnostic(
                 rule_id="HOOK-005",
                 severity=Severity.ERROR,
-                message=f"Invalid source: '{hook.source}'. "
-                f"Must be UPPER_SNAKE_CASE",
+                message=f"Invalid source: '{hook.source}'. Must be UPPER_SNAKE_CASE",
                 path=f"{path}.source",
                 fix="Use format like 'CRM', 'SAP', 'SAP_FIN'",
             )
@@ -343,8 +341,7 @@ def validate_hook_source(hook: Hook, path: str) -> list[Diagnostic]:
             Diagnostic(
                 rule_id="HOOK-005",
                 severity=Severity.ERROR,
-                message=f"Invalid tenant: '{hook.tenant}'. "
-                f"Must be UPPER_SNAKE_CASE",
+                message=f"Invalid tenant: '{hook.tenant}'. Must be UPPER_SNAKE_CASE",
                 path=f"{path}.tenant",
                 fix="Use format like 'AU', 'US', 'EU_WEST'",
             )
@@ -502,9 +499,7 @@ def warn_weak_hook_mismatch(
     uses_weak_prefix = hook.name.startswith("_wk__")
 
     # Find matching concept
-    matching_concept = next(
-        (c for c in concepts if c.name == hook.concept), None
-    )
+    matching_concept = next((c for c in concepts if c.name == hook.concept), None)
 
     if uses_weak_prefix and matching_concept and not matching_concept.is_weak:
         diagnostics.append(

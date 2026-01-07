@@ -5,8 +5,6 @@ T019: Tests for all ERROR rules (FRAME-001 to 006, HOOK-001 to 007, CONCEPT-001/
 
 from datetime import datetime, timezone
 
-import pytest
-
 from dot.models.diagnostic import Severity
 
 
@@ -787,4 +785,143 @@ class TestManifestRules:
             ],
         )
         diagnostics = validate_schema_version(manifest)
+        assert diagnostics == []
+
+
+class TestEdgeCaseCoverage:
+    """Additional edge case tests for 100% coverage."""
+
+    def test_frame_005_source_is_none(self) -> None:
+        """FRAME-005: Early return when source is None."""
+        from dot.core.rules import validate_frame_source_exclusivity
+        from dot.models.frame import Frame, Hook, HookRole
+
+        frame = Frame.model_construct(
+            name="frame.customer",
+            source=None,  # Source is None - early return
+            hooks=[
+                Hook(
+                    name="_hk__customer",
+                    role=HookRole.PRIMARY,
+                    concept="customer",
+                    source="CRM",
+                    expr="customer_id",
+                )
+            ],
+        )
+        diagnostics = validate_frame_source_exclusivity(frame, "frames[0]")
+        assert diagnostics == []
+
+    def test_frame_005_neither_relation_nor_path(self) -> None:
+        """FRAME-005: Source has neither relation nor path."""
+        from dot.core.rules import validate_frame_source_exclusivity
+        from dot.models.frame import Frame, Hook, HookRole, Source
+
+        source = Source.model_construct(relation=None, path=None)
+        frame = Frame.model_construct(
+            name="frame.customer",
+            source=source,
+            hooks=[
+                Hook(
+                    name="_hk__customer",
+                    role=HookRole.PRIMARY,
+                    concept="customer",
+                    source="CRM",
+                    expr="customer_id",
+                )
+            ],
+        )
+        diagnostics = validate_frame_source_exclusivity(frame, "frames[0]")
+
+        assert len(diagnostics) == 1
+        assert diagnostics[0].rule_id == "FRAME-005"
+        assert "neither relation nor path" in diagnostics[0].message
+
+    def test_frame_006_source_is_none(self) -> None:
+        """FRAME-006: Early return when source is None."""
+        from dot.core.rules import validate_frame_source_nonempty
+        from dot.models.frame import Frame, Hook, HookRole
+
+        frame = Frame.model_construct(
+            name="frame.customer",
+            source=None,
+            hooks=[
+                Hook(
+                    name="_hk__customer",
+                    role=HookRole.PRIMARY,
+                    concept="customer",
+                    source="CRM",
+                    expr="customer_id",
+                )
+            ],
+        )
+        diagnostics = validate_frame_source_nonempty(frame, "frames[0]")
+        assert diagnostics == []
+
+    def test_hook_004_invalid_qualifier(self) -> None:
+        """HOOK-004: Invalid qualifier format."""
+        from dot.core.rules import validate_hook_concept
+        from dot.models.frame import Hook, HookRole
+
+        hook = Hook.model_construct(
+            name="_hk__customer",
+            role=HookRole.PRIMARY,
+            concept="customer",
+            source="CRM",
+            expr="customer_id",
+            qualifier="INVALID_QUALIFIER",  # Should be lower_snake_case
+        )
+        diagnostics = validate_hook_concept(hook, "frames[0].hooks[0]")
+
+        # Should have error for invalid qualifier
+        qualifier_error = [d for d in diagnostics if "qualifier" in d.message.lower()]
+        assert len(qualifier_error) == 1
+        assert "HOOK-004" in qualifier_error[0].rule_id
+
+    def test_hook_005_invalid_tenant(self) -> None:
+        """HOOK-005: Invalid tenant format."""
+        from dot.core.rules import validate_hook_source
+        from dot.models.frame import Hook, HookRole
+
+        hook = Hook.model_construct(
+            name="_hk__customer",
+            role=HookRole.PRIMARY,
+            concept="customer",
+            source="CRM",
+            expr="customer_id",
+            tenant="invalid_tenant",  # Should be UPPER_SNAKE_CASE
+        )
+        diagnostics = validate_hook_source(hook, "frames[0].hooks[0]")
+
+        # Should have error for invalid tenant
+        tenant_error = [d for d in diagnostics if "tenant" in d.message.lower()]
+        assert len(tenant_error) == 1
+        assert "HOOK-005" in tenant_error[0].rule_id
+
+    def test_concept_002_description_too_short(self) -> None:
+        """CONCEPT-002: Description too short (< 10 chars)."""
+        from dot.core.rules import validate_concept_description
+        from dot.models.concept import Concept
+
+        concept = Concept.model_construct(
+            name="customer",
+            description="Short",  # Less than 10 characters
+        )
+        diagnostics = validate_concept_description(concept, "concepts[0]")
+
+        assert len(diagnostics) == 1
+        assert diagnostics[0].rule_id == "CONCEPT-002"
+        assert "too short" in diagnostics[0].message
+
+    def test_frame_w01_no_hooks_early_return(self) -> None:
+        """FRAME-W01: Early return when frame has no hooks."""
+        from dot.core.rules import warn_no_primary_only_foreign
+        from dot.models.frame import Frame, Source
+
+        frame = Frame.model_construct(
+            name="frame.customer",
+            source=Source(relation="psa.customer"),
+            hooks=None,  # No hooks - early return
+        )
+        diagnostics = warn_no_primary_only_foreign(frame, "frames[0]")
         assert diagnostics == []

@@ -29,6 +29,14 @@ class ParseError(Exception):
         line: int | None = None,
         column: int | None = None,
     ) -> None:
+        """Initialize a ParseError with optional location information.
+
+        Args:
+            message: Description of the parsing error.
+            file_path: Path to the file being parsed.
+            line: Line number where the error occurred (1-indexed).
+            column: Column number where the error occurred (1-indexed).
+        """
         self.message = message
         self.file_path = file_path
         self.line = line
@@ -36,6 +44,7 @@ class ParseError(Exception):
         super().__init__(self._format_message())
 
     def _format_message(self) -> str:
+        """Format error message with location information."""
         parts = []
         if self.file_path:
             parts.append(str(self.file_path))
@@ -52,7 +61,7 @@ class ParseError(Exception):
 
 def _create_yaml() -> YAML:
     """Create configured YAML instance.
-    
+
     Configures ruamel.yaml to:
     - Preserve key order (default mapping)
     - Use block style (not flow style)
@@ -66,21 +75,16 @@ def _create_yaml() -> YAML:
 
 def _convert_ordered_dict_to_dict(data: Any) -> Any:
     """Recursively convert OrderedDict to regular dict for serialization.
-    
+
     This ensures ruamel.yaml outputs regular mappings without !!omap tags.
     """
     from collections import OrderedDict
-    
+
     if isinstance(data, (dict, OrderedDict)):
         return {k: _convert_ordered_dict_to_dict(v) for k, v in data.items()}
-    elif isinstance(data, list):
-        return [_convert_ordered_dict_to_dict(item) for item in data]
-    elif isinstance(data, tuple):
+    elif isinstance(data, (list, tuple)):
         return [_convert_ordered_dict_to_dict(item) for item in data]
     return data
-    yaml.preserve_quotes = True
-    yaml.default_flow_style = False
-    return yaml
 
 
 def parse_yaml(path: Path) -> dict[str, Any]:
@@ -134,7 +138,9 @@ def load_manifest_yaml(
     path: Path,
     *,
     return_raw: Literal[False] = False,
-) -> Manifest: ...
+) -> Manifest:
+    """Overload: Load manifest only."""
+    ...
 
 
 @overload
@@ -142,7 +148,9 @@ def load_manifest_yaml(
     path: Path,
     *,
     return_raw: Literal[True],
-) -> tuple[Manifest, dict[str, Any]]: ...
+) -> tuple[Manifest, dict[str, Any]]:
+    """Overload: Load manifest and return raw data."""
+    ...
 
 
 def load_manifest_yaml(
@@ -207,7 +215,7 @@ def _manifest_to_ordered_dict(manifest: Manifest) -> dict[str, Any]:
     """
     from collections import OrderedDict
 
-    result = OrderedDict()
+    result: dict[str, Any] = OrderedDict()
 
     # Top-level fields in order
     result["manifest_version"] = manifest.manifest_version

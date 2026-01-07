@@ -32,7 +32,7 @@ def parse_json(path: Path) -> dict[str, Any]:
         raise FileNotFoundError(f"File not found: {path}")
 
     with path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
+        data: dict[str, Any] = json.load(f)
 
     return data
 
@@ -42,7 +42,9 @@ def load_manifest_json(
     path: Path,
     *,
     return_raw: Literal[False] = False,
-) -> Manifest: ...
+) -> Manifest:
+    """Overload: Load manifest only."""
+    ...
 
 
 @overload
@@ -50,7 +52,9 @@ def load_manifest_json(
     path: Path,
     *,
     return_raw: Literal[True],
-) -> tuple[Manifest, dict[str, Any]]: ...
+) -> tuple[Manifest, dict[str, Any]]:
+    """Overload: Load manifest and return raw data."""
+    ...
 
 
 def load_manifest_json(

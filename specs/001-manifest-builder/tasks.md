@@ -254,17 +254,17 @@ Based on plan.md structure:
 
 **Purpose**: Documentation, CI, release preparation
 
-- [ ] T099 [P] Write README.md with installation, quickstart, CLI reference
-- [ ] T100 [P] Complete pyproject.toml metadata (classifiers, URLs, license)
-- [ ] T101 Add GitHub Actions CI workflow in .github/workflows/ci.yml (uv sync, pytest, mypy --strict, ruff)
-- [ ] T102 Run mypy --strict and fix all type errors
-- [ ] T103 Run ruff check and ruff format, fix all issues
-- [ ] T104 [P] Ensure test coverage ≥80% for cli/, 100% for core/
-- [ ] T105 [P] Add docstrings to all public functions
-- [ ] T106 Test PyPI release with `uv build` and verify installable package
-- [ ] T107 Run spec.md quickstart validation scenarios end-to-end
-- [ ] T108 [P] Create tests/performance/test_validation_benchmarks.py - verify NFR-001/002/003 (validation <1s for 1000 lines, <5s for 10000 lines, <100MB memory)
-- [ ] T109 [P] Verify functional paradigm compliance (NFR-050 to NFR-056): no stateful classes in core/, pure functions only, frozen models, composition over inheritance
+- [x] T099 [P] Write README.md with installation, quickstart, CLI reference
+- [x] T100 [P] Complete pyproject.toml metadata (classifiers, URLs, license)
+- [x] T101 Add GitHub Actions CI workflow in .github/workflows/ci.yml (uv sync, pytest, mypy --strict, ruff)
+- [x] T102 Run mypy --strict and fix all type errors
+- [x] T103 Run ruff check and ruff format, fix all issues
+- [x] T104 [P] Ensure test coverage ≥80% for cli/, 100% for core/
+- [x] T105 [P] Add docstrings to all public functions
+- [x] T106 Test PyPI release with `uv build` and verify installable package
+- [x] T107 Run spec.md quickstart validation scenarios end-to-end
+- [x] T108 [P] Create tests/performance/test_validation_benchmarks.py - verify NFR-001/002/003 (validation <1s for 1000 lines, <5s for 10000 lines, <100MB memory)
+- [x] T109 [P] Verify functional paradigm compliance (NFR-050 to NFR-056): no stateful classes in core/, pure functions only, frozen models, composition over inheritance
 
 ---
 

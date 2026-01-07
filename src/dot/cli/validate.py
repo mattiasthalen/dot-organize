@@ -7,13 +7,17 @@ T069-T072a: Implement validate command with diagnostic output,
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 
-from dot.core.validation import filter_errors, filter_warnings, has_errors, validate_manifest
+from dot.core.validation import (
+    filter_errors,
+    filter_warnings,
+    has_errors,
+    validate_manifest,
+)
 from dot.io.yaml import ParseError, load_manifest_yaml
 from dot.models.diagnostic import Diagnostic, Severity
 
@@ -62,12 +66,14 @@ def validate(
         manifest, raw_data = load_manifest_yaml(manifest_path, return_raw=True)
     except ParseError as e:
         if json_output:
-            _output_json({
-                "valid": False,
-                "error": str(e),
-                "line": e.line,
-                "column": e.column,
-            })
+            _output_json(
+                {
+                    "valid": False,
+                    "error": str(e),
+                    "line": e.line,
+                    "column": e.column,
+                }
+            )
         else:
             typer.echo(f"Parse error: {e}", err=True)
         raise typer.Exit(code=1)
@@ -97,7 +103,7 @@ def validate(
     raise typer.Exit(code=0)
 
 
-def _output_json(data: dict) -> None:
+def _output_json(data: dict[str, Any]) -> None:
     """Output JSON data to stdout."""
     typer.echo(json.dumps(data, indent=2))
 
@@ -119,9 +125,9 @@ def _output_json_diagnostics(
     _output_json(result)
 
 
-def _diagnostic_to_dict(d: Diagnostic) -> dict:
+def _diagnostic_to_dict(d: Diagnostic) -> dict[str, Any]:
     """Convert Diagnostic to JSON-serializable dict."""
-    result = {
+    result: dict[str, Any] = {
         "rule_id": d.rule_id,
         "severity": d.severity.value,
         "message": d.message,
@@ -158,10 +164,7 @@ def _output_human_diagnostics(
             f"{len(errors)} error(s), {len(warnings)} warning(s)"
         )
     elif warnings:
-        typer.echo(
-            f"Manifest {manifest_path} is valid with "
-            f"{len(warnings)} warning(s)"
-        )
+        typer.echo(f"Manifest {manifest_path} is valid with {len(warnings)} warning(s)")
     else:
         typer.echo(f"Manifest {manifest_path} is valid")
 
