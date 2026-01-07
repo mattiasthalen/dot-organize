@@ -113,7 +113,6 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - **Maximum frames per manifest**: No hard limit, but WARN if >50 frames (performance advisory)
 - **Maximum hooks per frame**: No hard limit, but WARN if >20 hooks per frame
 - **Maximum concepts**: WARN if >100 concepts (Dunbar guidance, CONCEPT-W01)
-- **Maximum manifest file size**: 1MB (larger files may cause slow validation)
 - **Concurrent wizard sessions**: Not supported. Wizard uses stdin/stdout; multiple terminals may conflict.
 
 ---
@@ -282,7 +281,7 @@ frames:
 
 concepts:                          # Optional: definitions for auto-derived concepts
   - name: string                   # Concept name (must match a concept used in frames)
-    description: string            # 1-2 sentence definition
+    description: string            # 10-200 characters (1-2 sentence definition)
     examples:                      # Real-world examples
       - string
     is_weak: boolean               # True for reference/time/system concepts (default: false)
@@ -315,7 +314,7 @@ The tool automatically derives from frames:
 | HOOK-003 | Hook role must be "primary" or "foreign" | Principle VI |
 | HOOK-004 | Hook concept must be lower_snake_case | Principle III |
 | HOOK-005 | Hook source must be UPPER_SNAKE_CASE | Principle IV |
-| HOOK-006 | Hook expr must be non-empty and valid SQL expression (Manifest SQL subset) | Principle II |
+| HOOK-006 | Hook expr must be non-empty and valid SQL expression (Manifest SQL subset; see [data-model.md §Expression Validation](data-model.md#expression-validation)) | Principle II |
 | HOOK-007 | Hook names must be unique within the same frame | Principle V |
 | CONCEPT-001 | Concept in `concepts` section must match a concept used in at least one hook | Principle III |
 | CONCEPT-002 | Concept description must be 10-200 characters (1-2 sentences) | Principle III |

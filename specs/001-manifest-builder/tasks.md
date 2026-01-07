@@ -135,6 +135,8 @@ Based on plan.md structure:
   - --json flag → JSON output format
   - File not found → exit 2, clear error message
   - Parse error → exit 1, line/column in message
+  - Default output contains no ANSI escape codes (NFR-010 screen reader compatibility)
+  - Default output contains no ANSI escape codes (NFR-010 screen reader compatibility)
 
 ### Implementation for User Story 1
 

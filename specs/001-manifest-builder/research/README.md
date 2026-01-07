@@ -13,6 +13,7 @@ This folder contains research documents and working examples for implementing th
 | **YAML I/O** | [ruamel-yaml-research.md](ruamel-yaml-research.md) | — | ✅ Complete |
 | **Property Testing** | [hypothesis-testing-research.md](hypothesis-testing-research.md) | — | ✅ Complete |
 | **Schema Validation** | [json-schema-validation-research.md](json-schema-validation-research.md) | [json-schema-validation-test.py](json-schema-validation-test.py), [json-schema-integration-test.py](json-schema-integration-test.py) | ✅ Complete |
+| **Expression Validation** | [sqlglot-expression-validation-research.md](sqlglot-expression-validation-research.md) | — | ✅ Complete |
 
 ## Quick Reference by Milestone
 
