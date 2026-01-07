@@ -173,7 +173,7 @@ class TestNFR003MemoryUnder100MB:
 
             # Load and validate
             loaded_manifest, raw_data = load_manifest_yaml(temp_path, return_raw=True)
-            diagnostics = validate_manifest(loaded_manifest, raw_data=raw_data)
+            _diagnostics = validate_manifest(loaded_manifest, raw_data=raw_data)
 
             # Get peak memory
             peak_mb = get_memory_usage_mb()
@@ -200,7 +200,7 @@ class TestQuickValidationBenchmarks:
         manifest = generate_large_manifest(num_frames, hooks_per_frame=3)
 
         start = time.perf_counter()
-        diagnostics = validate_manifest(manifest, include_warnings=True)
+        _diagnostics = validate_manifest(manifest, include_warnings=True)
         elapsed = time.perf_counter() - start
 
         # Should be very fast
@@ -212,7 +212,7 @@ class TestQuickValidationBenchmarks:
         manifest = generate_large_manifest(num_frames, hooks_per_frame=5)
 
         start = time.perf_counter()
-        diagnostics = validate_manifest(manifest, include_warnings=True)
+        _diagnostics = validate_manifest(manifest, include_warnings=True)
         elapsed = time.perf_counter() - start
 
         # Should complete quickly

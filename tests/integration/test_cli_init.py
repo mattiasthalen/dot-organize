@@ -357,7 +357,7 @@ class TestWizardOverwrite:
             "n",  # Decline overwrite
         ]
 
-        result = runner.invoke(
+        _result = runner.invoke(
             app,
             ["init"],
             input="\n".join(input_lines) + "\n",
@@ -394,7 +394,7 @@ class TestWizardCtrlC:
             mock_save.return_value = True
 
             # Simulate the wizard being interrupted
-            result = runner.invoke(
+            _result = runner.invoke(
                 app,
                 ["init"],
                 input="\n".join(input_lines) + "\n",
@@ -412,14 +412,14 @@ class TestWizardCtrlC:
             # Interrupted before completing frame
         ]
 
-        result = runner.invoke(
+        _result = runner.invoke(
             app,
             ["init"],
             input="\n".join(input_lines),  # No trailing newline = incomplete
         )
 
         # No draft should exist
-        draft_path = temp_cwd / ".manifest-draft.yaml"
+        _draft_path = temp_cwd / ".manifest-draft.yaml"
         # The draft should only be saved if at least one frame is complete
         # With incomplete input, no draft should be saved
 
