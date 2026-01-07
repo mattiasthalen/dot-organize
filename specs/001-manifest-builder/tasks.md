@@ -296,7 +296,7 @@ Based on plan.md structure:
 
 ### Feature Additions
 
-- [ ] T122 [US2] Add foreign hook support to wizard (FR-028): After primary hooks are complete, prompt "Add foreign hooks?" to define relationships to other concepts within the same frame.
+- [x] T122 [US2] Add foreign hook support to wizard (FR-028): After primary hooks are complete, prompt \"Add foreign hooks?\" to define relationships to other concepts within the same frame.
   - Prompt for concept, qualifier, tenant, hook_name (with `_hk__` prefix suggestion), and expr
   - Set role to "foreign" instead of "primary"
   - Update make_wizard_input helper and add tests for foreign hook wizard flow

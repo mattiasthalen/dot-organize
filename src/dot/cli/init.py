@@ -525,6 +525,78 @@ def wizard_add_frame(frame_number: int) -> WizardFrame | None:
         ):
             break
 
+    # Foreign hooks - optional, for relationships to other concepts (FR-028)
+    if Confirm.ask(
+        "Add foreign hooks? [dim](relationships to other concepts)[/dim]",
+        default=False,
+        console=console,
+    ):
+        console.print("\n[bold]Foreign Hook(s)[/bold] [dim](references to other concepts)[/dim]")
+
+        while True:
+            # Ask for concept
+            concept = Prompt.ask(
+                "Business concept [dim](e.g., customer, order)[/dim]",
+                console=console,
+            )
+
+            # Ask for qualifier (optional)
+            qualifier = (
+                Prompt.ask(
+                    "Qualifier [dim](optional, e.g., manager, billing)[/dim]",
+                    default="",
+                    console=console,
+                )
+                or None
+            )
+
+            # Ask for tenant (optional)
+            tenant = (
+                Prompt.ask(
+                    "Tenant [dim](optional, e.g., AU, US)[/dim]",
+                    default="",
+                    console=console,
+                )
+                or None
+            )
+
+            # Generate suggested hook name and prompt user (FR-026: auto-suggest)
+            suggested_hook_name = generate_hook_name(concept, qualifier)
+            hook_name = Prompt.ask(
+                "Hook name",
+                default=suggested_hook_name,
+                console=console,
+            )
+
+            # Ask for SQL expression (key column by default)
+            default_expr = f"{concept}_id"
+            expr = Prompt.ask(
+                "SQL expression [dim](source column or expression)[/dim]",
+                default=default_expr,
+                console=console,
+            )
+
+            frame = wizard_frame_add_hook(
+                frame,
+                {
+                    "name": hook_name,
+                    "role": "foreign",
+                    "concept": concept,
+                    "qualifier": qualifier,
+                    "source": hook_source,
+                    "tenant": tenant,
+                    "expr": expr,
+                },
+            )
+
+            # Ask if they want to add another foreign hook
+            if not Confirm.ask(
+                "Add another foreign hook?",
+                default=False,
+                console=console,
+            ):
+                break
+
     return frame
 
 

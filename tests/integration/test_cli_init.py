@@ -56,6 +56,7 @@ def make_wizard_input(
     add_more_frames: bool = False,
     confirm_write: bool = True,
     composite_hooks: list[dict[str, str]] | None = None,
+    foreign_hooks: list[dict[str, str]] | None = None,
 ) -> str:
     """
     Build input string to feed to the wizard.
@@ -70,9 +71,10 @@ def make_wizard_input(
     7. Tenant (optional)
     8. Hook name (with default suggestion per FR-051)
     9. SQL expression
-    10. Add another hook? (for composite grain)
-    11. Add another frame?
-    12. Confirm write?
+    10. Add another primary hook? (for composite grain)
+    11. Add foreign hooks? (FR-028)
+    12. Add another frame?
+    13. Confirm write?
     """
     lines = [
         frame_name,  # Frame name
@@ -86,17 +88,34 @@ def make_wizard_input(
         expr,  # SQL expression
     ]
 
-    # Add additional hooks for composite grain if specified
+    # Add additional primary hooks for composite grain if specified
     if composite_hooks:
         for hook in composite_hooks:
-            lines.append("y")  # Add another hook
+            lines.append("y")  # Add another primary hook
             lines.append(hook.get("concept", "item"))
             lines.append(hook.get("qualifier", ""))
             lines.append(hook.get("tenant", ""))
             lines.append(hook.get("hook_name", ""))  # Hook name (empty = accept default)
             lines.append(hook.get("expr", "item_id"))
 
-    lines.append("n")  # Done adding hooks
+    lines.append("n")  # Done adding primary hooks
+
+    # Add foreign hooks if specified (FR-028)
+    if foreign_hooks:
+        lines.append("y")  # Yes, add foreign hooks
+        for i, hook in enumerate(foreign_hooks):
+            lines.append(hook.get("concept", "related"))
+            lines.append(hook.get("qualifier", ""))
+            lines.append(hook.get("tenant", ""))
+            lines.append(hook.get("hook_name", ""))  # Hook name (empty = accept default)
+            lines.append(hook.get("expr", "related_id"))
+            # Add another foreign hook?
+            if i < len(foreign_hooks) - 1:
+                lines.append("y")  # More foreign hooks to add
+            else:
+                lines.append("n")  # Done adding foreign hooks
+    else:
+        lines.append("n")  # No foreign hooks
 
     if add_more_frames:
         lines.append("y")  # Add another frame?
@@ -226,7 +245,8 @@ class TestWizardInputValidation:
             "",  # Tenant (empty)
             "",  # Hook name (accept default)
             "customer_id",  # SQL expression
-            "n",  # Done adding hooks
+            "n",  # Done adding primary hooks
+            "n",  # No foreign hooks
             "n",  # No more frames
             "y",  # Confirm write
         ]
@@ -255,7 +275,8 @@ class TestWizardInputValidation:
             "",  # Tenant
             "",  # Hook name (accept default)
             "customer_id",  # Expression
-            "n",  # Done adding hooks
+            "n",  # Done adding primary hooks
+            "n",  # No foreign hooks
             "n",  # No more frames
             "y",  # Confirm write
         ]
@@ -295,8 +316,9 @@ class TestWizardOverwrite:
             "",  # tenant
             "",  # hook_name (accept default)
             "customer_id",
-            "n",
-            "n",
+            "n",  # Done adding primary hooks
+            "n",  # No foreign hooks
+            "n",  # No more frames
             "y",  # Confirm overwrite
         ]
 
@@ -327,8 +349,9 @@ class TestWizardOverwrite:
             "",  # tenant
             "",  # hook_name (accept default)
             "customer_id",
-            "n",
-            "n",
+            "n",  # Done adding primary hooks
+            "n",  # No foreign hooks
+            "n",  # No more frames
             "n",  # Decline overwrite
         ]
 
@@ -491,7 +514,8 @@ class TestMultipleFrames:
             "",  # tenant
             "",  # hook_name (accept default)
             "customer_id",  # expr
-            "n",  # done with hooks
+            "n",  # done with primary hooks
+            "n",  # no foreign hooks
             "y",  # add another frame
             # Second frame
             "frame.orders",
@@ -503,7 +527,8 @@ class TestMultipleFrames:
             "",  # tenant
             "",  # hook_name (accept default)
             "order_id",  # expr
-            "n",  # done with hooks
+            "n",  # done with primary hooks
+            "n",  # no foreign hooks
             "n",  # no more frames
             "y",  # confirm write
         ]
@@ -532,13 +557,14 @@ class TestMultipleFrames:
             "",  # tenant
             "",  # hook_name (accept default: _hk__order)
             "order_id",  # expr
-            "y",  # add another hook
+            "y",  # add another primary hook
             "item",  # second concept
             "",  # qualifier
             "",  # tenant
             "",  # hook_name (accept default: _hk__item)
             "item_id",  # expr
-            "n",  # done with hooks
+            "n",  # done with primary hooks
+            "n",  # no foreign hooks
             "n",  # no more frames
             "y",  # confirm write
         ]
@@ -578,7 +604,8 @@ class TestFileBasedSource:
             "",  # tenant
             "",  # hook_name (accept default)
             "customer_id",  # expr
-            "n",  # done with hooks
+            "n",  # done with primary hooks
+            "n",  # no foreign hooks
             "n",  # no more frames
             "y",  # confirm write
         ]
@@ -594,3 +621,104 @@ class TestFileBasedSource:
         manifest_path = temp_cwd / ".dot-organize.yaml"
         content = yaml.safe_load(manifest_path.read_text())
         assert content["frames"][0]["source"]["path"] == "/data/customers.csv"
+
+
+# =============================================================================
+# Test: Foreign Hooks (FR-028)
+# =============================================================================
+
+
+class TestForeignHooks:
+    """Test wizard foreign hook support (FR-028)."""
+
+    def test_wizard_with_foreign_hooks(self, temp_cwd: Path) -> None:
+        """Wizard supports adding foreign hooks after primary hooks."""
+        input_text = make_wizard_input(
+            frame_name="frame.orders",
+            relation="raw.orders",
+            source_system="CRM",
+            concept="order",
+            expr="order_id",
+            foreign_hooks=[
+                {"concept": "customer", "expr": "customer_id"},
+            ],
+        )
+
+        result = runner.invoke(
+            app,
+            ["init"],
+            input=input_text,
+        )
+
+        assert result.exit_code == 0, f"Failed: {result.output}"
+
+        manifest_path = temp_cwd / ".dot-organize.yaml"
+        content = yaml.safe_load(manifest_path.read_text())
+        hooks = content["frames"][0]["hooks"]
+
+        # Should have 1 primary + 1 foreign hook
+        primary_hooks = [h for h in hooks if h.get("role") == "primary"]
+        foreign_hooks = [h for h in hooks if h.get("role") == "foreign"]
+        assert len(primary_hooks) == 1
+        assert len(foreign_hooks) == 1
+        assert foreign_hooks[0]["concept"] == "customer"
+
+    def test_wizard_with_multiple_foreign_hooks(self, temp_cwd: Path) -> None:
+        """Wizard supports multiple foreign hooks."""
+        input_text = make_wizard_input(
+            frame_name="frame.order_items",
+            relation="raw.order_items",
+            source_system="ERP",
+            concept="order_item",
+            expr="order_item_id",
+            foreign_hooks=[
+                {"concept": "order", "expr": "order_id"},
+                {"concept": "product", "expr": "product_id"},
+            ],
+        )
+
+        result = runner.invoke(
+            app,
+            ["init"],
+            input=input_text,
+        )
+
+        assert result.exit_code == 0, f"Failed: {result.output}"
+
+        manifest_path = temp_cwd / ".dot-organize.yaml"
+        content = yaml.safe_load(manifest_path.read_text())
+        hooks = content["frames"][0]["hooks"]
+
+        foreign_hooks = [h for h in hooks if h.get("role") == "foreign"]
+        assert len(foreign_hooks) == 2
+        assert foreign_hooks[0]["concept"] == "order"
+        assert foreign_hooks[1]["concept"] == "product"
+
+    def test_wizard_foreign_hooks_use_same_source(self, temp_cwd: Path) -> None:
+        """Foreign hooks inherit the same source system as primary hooks."""
+        input_text = make_wizard_input(
+            frame_name="frame.orders",
+            relation="raw.orders",
+            source_system="SAP",
+            concept="order",
+            expr="order_id",
+            foreign_hooks=[
+                {"concept": "customer", "expr": "customer_id"},
+            ],
+        )
+
+        result = runner.invoke(
+            app,
+            ["init"],
+            input=input_text,
+        )
+
+        assert result.exit_code == 0, f"Failed: {result.output}"
+
+        manifest_path = temp_cwd / ".dot-organize.yaml"
+        content = yaml.safe_load(manifest_path.read_text())
+        hooks = content["frames"][0]["hooks"]
+
+        # Both hooks should have the same source
+        for hook in hooks:
+            assert hook["source"] == "SAP"
