@@ -119,19 +119,20 @@ class TestConceptModel:
             name="customer",
             description="Test description",
         )
-        assert concept.examples == []
+        assert concept.examples == ()
+        assert concept.frames == ()
         assert concept.is_weak is False
 
     def test_concept_with_examples(self) -> None:
-        """Concept accepts examples list."""
+        """Concept accepts examples tuple."""
         from dot.models.concept import Concept
 
         concept = Concept(
             name="customer",
             description="Test description",
-            examples=["John Doe", "ACME Corp"],
+            examples=("John Doe", "ACME Corp"),
         )
-        assert concept.examples == ["John Doe", "ACME Corp"]
+        assert concept.examples == ("John Doe", "ACME Corp")
 
     def test_concept_is_weak(self) -> None:
         """Concept is_weak can be set to True."""

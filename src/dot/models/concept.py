@@ -7,16 +7,18 @@ from pydantic import BaseModel
 
 
 class Concept(BaseModel, frozen=True):
-    """Business concept definition for enrichment.
+    """Business concept definition with frame references.
 
     Attributes:
-        name: Concept name (must match a concept used in frames)
-        description: 1-2 sentence definition
+        name: Concept name (derived from hooks)
+        frames: Tuple of frame names where this concept appears
+        description: Optional enrichment text
         examples: Real-world examples
-        is_weak: True for reference/time concepts
+        is_weak: True if derived from _wk__ hook prefix
     """
 
     name: str
-    description: str
-    examples: list[str] = []
+    frames: tuple[str, ...] = ()
+    description: str = ""
+    examples: tuple[str, ...] = ()
     is_weak: bool = False
