@@ -262,6 +262,13 @@ examples/
 - `io/` — YAML/JSON serialization (thin boundary layer)
 - `cli/` — typer commands (thin wrapper over core, framework-mandated pattern)
 
+**Functional Paradigm Enforcement (Constitution v1.1.0)**:
+- **CLI state containers** (e.g., wizard state) MUST use frozen dataclasses with immutable collections (tuple instead of list)
+- **Helper functions** for state (e.g., `has_meaningful_data`, `to_dict`) MUST be standalone pure functions, NOT methods on state classes
+- **State transitions** MUST return new instances; in-place mutation is FORBIDDEN
+- **Exception classes** are permitted but MUST NOT contain business logic beyond message formatting
+- **Methods on data classes** are limited to: `__str__`, `__repr__`, `__hash__`, `__eq__`, property accessors, and Pydantic validators (framework-mandated)
+
 ---
 
 ## Milestones

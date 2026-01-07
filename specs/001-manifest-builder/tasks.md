@@ -264,7 +264,10 @@ Based on plan.md structure:
 - [x] T106 Test PyPI release with `uv build` and verify installable package
 - [x] T107 Run spec.md quickstart validation scenarios end-to-end
 - [x] T108 [P] Create tests/performance/test_validation_benchmarks.py - verify NFR-001/002/003 (validation <1s for 1000 lines, <5s for 10000 lines, <100MB memory)
-- [x] T109 [P] Verify functional paradigm compliance (NFR-050 to NFR-056): no stateful classes in core/, pure functions only, frozen models, composition over inheritance
+- [x] T109 [P] Verify functional paradigm compliance (NFR-050 to NFR-058): no stateful classes in core/, pure functions only, frozen models, composition over inheritance
+- [ ] T110 [P] Refactor WizardFrame and WizardState in src/dot/cli/init.py to use frozen dataclasses with tuple[WizardFrame, ...] instead of list[WizardFrame]
+- [ ] T111 [P] Extract `has_meaningful_data()` and `to_dict()` methods from WizardState to standalone pure functions: `wizard_state_has_meaningful_data(state: WizardState) -> bool` and `wizard_state_to_dict(state: WizardState) -> dict[str, Any]`
+- [ ] T112 [P] Update wizard flow to use immutable state transitions (return new WizardState instances instead of mutating)
 
 ---
 
@@ -386,7 +389,7 @@ Each User Story is complete when:
 | US2: Wizard | T073-T083 | 1 | `dot init` interactive |
 | US3: Non-Interactive | T084-T089 | 1 | `dot init --from-config` |
 | US4: Examples | T090-T098 | 5 | `dot examples` command |
-| Polish | T099-T109 | 6 | README, CI, release, benchmarks, paradigm verification |
+| Polish | T099-T112 | 9 | README, CI, release, benchmarks, paradigm verification, FP refactoring |
 
-**Total Tasks**: 115 (107 base + 8 additions: T039a, T039b, T055a, T057a, T072a, T108, T109)
+**Total Tasks**: 118 (107 base + 11 additions: T039a, T039b, T055a, T057a, T072a, T108, T109, T110, T111, T112)
 **MVP Scope**: Phases 1-3 (T001-T072a) = 78 tasks

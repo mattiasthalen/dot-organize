@@ -243,6 +243,8 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - **NFR-054**: Classes are PERMITTED only for: frozen data containers, Protocol/ABC type contracts, framework-mandated patterns (Typer commands, Pydantic models).
 - **NFR-055**: Inheritance MUST NOT be used for code reuse; use composition or higher-order functions instead.
 - **NFR-056**: Methods on data classes MUST be limited to `__str__`, `__repr__`, `__hash__`, `__eq__`, and property accessors. Business logic MUST NOT reside in methods.
+- **NFR-057**: Wizard/CLI state containers MUST use frozen dataclasses. State transitions MUST return new instances rather than mutating existing ones. Helper functions (e.g., `has_meaningful_data`, `to_dict`) MUST be standalone pure functions, not methods on state classes.
+- **NFR-058**: Exception classes are PERMITTED as a Python idiom but MUST NOT contain business logic beyond message formatting.
 
 ---
 
@@ -533,4 +535,4 @@ Customer, Order, Product from multiple sources with region traversal capability.
 | VII. Implied Relationships | Relationships derived from shared concept names across hooks |
 | VIII. Manifest as SSOT | Versioned schema with extension points |
 | X. Simplicity | Minimal viable schema; no speculative features |
-| Functional Paradigm | Pure functions in core/, frozen Pydantic models, no stateful classes, composition over inheritance (NFR-050 to NFR-056) |
+| Functional Paradigm | Pure functions in core/, frozen Pydantic models, frozen dataclasses for CLI state, no mutable stateful classes, composition over inheritance (NFR-050 to NFR-058) |
