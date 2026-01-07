@@ -25,20 +25,20 @@ Based on plan.md structure:
 
 **Purpose**: Project initialization with uv package manager
 
-- [ ] T001 Initialize project with `uv init --package dot-organize` in repository root
-- [ ] T002 Configure pyproject.toml with dependencies: pydantic, typer, ruamel.yaml, questionary
-- [ ] T003 [P] Add dev dependencies: ruff, mypy, pre-commit
-- [ ] T004 [P] Add test dependencies: pytest, hypothesis, pytest-cov
-- [ ] T005 Configure pre-commit hooks for ruff and mypy in .pre-commit-config.yaml
-- [ ] T006 [P] Create src/dot/__init__.py with package exports and __version__
-- [ ] T007 [P] Create src/dot/py.typed (PEP 561 marker)
-- [ ] T008 [P] Create src/dot/models/__init__.py
-- [ ] T009 [P] Create src/dot/core/__init__.py
-- [ ] T010 [P] Create src/dot/io/__init__.py
-- [ ] T011 [P] Create src/dot/cli/__init__.py
-- [ ] T012 [P] Create tests/conftest.py with shared pytest fixtures
-- [ ] T013 Create tests/fixtures/valid/ directory structure
-- [ ] T014 Create tests/fixtures/invalid/ directory structure
+- [X] T001 Initialize project with `uv init --package dot-organize` in repository root
+- [X] T002 Configure pyproject.toml with dependencies: pydantic, typer, ruamel.yaml, questionary
+- [X] T003 [P] Add dev dependencies: ruff, mypy, pre-commit
+- [X] T004 [P] Add test dependencies: pytest, hypothesis, pytest-cov
+- [X] T005 Configure pre-commit hooks for ruff and mypy in .pre-commit-config.yaml
+- [X] T006 [P] Create src/dot/__init__.py with package exports and __version__
+- [X] T007 [P] Create src/dot/py.typed (PEP 561 marker)
+- [X] T008 [P] Create src/dot/models/__init__.py
+- [X] T009 [P] Create src/dot/core/__init__.py
+- [X] T010 [P] Create src/dot/io/__init__.py
+- [X] T011 [P] Create src/dot/cli/__init__.py
+- [X] T012 [P] Create tests/conftest.py with shared pytest fixtures
+- [X] T013 Create tests/fixtures/valid/ directory structure
+- [X] T014 Create tests/fixtures/invalid/ directory structure
 
 **Note**: `tests/fixtures/` are minimal test fixtures for unit/integration tests. `examples/` are complete, documented examples for end users. They serve different purposes and may differ in content.
 
