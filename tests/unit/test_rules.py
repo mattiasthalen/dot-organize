@@ -567,44 +567,51 @@ class TestConceptRules:
         )
         assert diagnostics == []
 
-    def test_concept_002_short_description(self) -> None:
-        """CONCEPT-002: Concept description must be 10-200 characters."""
+    def test_concept_002_description_type_check_only(self) -> None:
+        """CONCEPT-002: Concept description is type-checked (string, not nested)."""
+        from dot.core.rules import validate_concept_description
+        from dot.models.concept import Concept
+
+        # Short descriptions are now valid (type check only, no length validation)
+        concept = Concept.model_construct(
+            name="customer",
+            description="Short",  # Any string is valid
+        )
+        diagnostics = validate_concept_description(concept, "concepts[0]")
+        assert diagnostics == []
+
+    def test_concept_002_empty_description_passes(self) -> None:
+        """CONCEPT-002: Empty description passes (type check only)."""
         from dot.core.rules import validate_concept_description
         from dot.models.concept import Concept
 
         concept = Concept.model_construct(
             name="customer",
-            description="Short",  # Less than 10 characters
+            description="",  # Empty string is valid
         )
         diagnostics = validate_concept_description(concept, "concepts[0]")
+        assert diagnostics == []
 
-        assert len(diagnostics) == 1
-        assert diagnostics[0].rule_id == "CONCEPT-002"
-        assert diagnostics[0].severity == Severity.ERROR
-
-    def test_concept_002_long_description(self) -> None:
-        """CONCEPT-002: Concept description over 200 characters fails."""
+    def test_concept_002_long_description_passes(self) -> None:
+        """CONCEPT-002: Long descriptions pass (no length validation)."""
         from dot.core.rules import validate_concept_description
         from dot.models.concept import Concept
 
         concept = Concept.model_construct(
             name="customer",
-            description="x" * 201,  # More than 200 characters
+            description="x" * 500,  # Any length is valid
         )
         diagnostics = validate_concept_description(concept, "concepts[0]")
-
-        assert len(diagnostics) == 1
-        assert diagnostics[0].rule_id == "CONCEPT-002"
-        assert diagnostics[0].severity == Severity.ERROR
+        assert diagnostics == []
 
     def test_concept_002_valid_description_passes(self) -> None:
-        """CONCEPT-002: Description between 10-200 characters passes."""
+        """CONCEPT-002: Any valid string description passes."""
         from dot.core.rules import validate_concept_description
         from dot.models.concept import Concept
 
         concept = Concept(
             name="customer",
-            description="A person or organization that purchases goods.",  # Valid length
+            description="A person or organization that purchases goods.",
         )
         diagnostics = validate_concept_description(concept, "concepts[0]")
         assert diagnostics == []
@@ -898,20 +905,26 @@ class TestEdgeCaseCoverage:
         assert len(tenant_error) == 1
         assert "HOOK-005" in tenant_error[0].rule_id
 
-    def test_concept_002_description_too_short(self) -> None:
-        """CONCEPT-002: Description too short (< 10 chars)."""
+    def test_concept_002_description_type_check_only(self) -> None:
+        """CONCEPT-002: Description is type-check only (short/empty descriptions are valid)."""
         from dot.core.rules import validate_concept_description
         from dot.models.concept import Concept
 
+        # Short description should be valid (no length check)
         concept = Concept.model_construct(
             name="customer",
-            description="Short",  # Less than 10 characters
+            description="Short",  # Previously too short, now valid
         )
         diagnostics = validate_concept_description(concept, "concepts[0]")
+        assert len(diagnostics) == 0  # No errors for short descriptions
 
-        assert len(diagnostics) == 1
-        assert diagnostics[0].rule_id == "CONCEPT-002"
-        assert "too short" in diagnostics[0].message
+        # Empty description should also be valid
+        concept_empty = Concept.model_construct(
+            name="customer",
+            description="",
+        )
+        diagnostics_empty = validate_concept_description(concept_empty, "concepts[0]")
+        assert len(diagnostics_empty) == 0  # No errors for empty descriptions
 
     def test_frame_w01_no_hooks_early_return(self) -> None:
         """FRAME-W01: Early return when frame has no hooks."""

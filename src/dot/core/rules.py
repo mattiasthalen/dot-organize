@@ -406,38 +406,15 @@ def validate_concept_in_frames(
 
 
 def validate_concept_description(concept: Concept, path: str) -> list[Diagnostic]:
-    """CONCEPT-002: Concept description must be 10-200 characters."""
-    diagnostics: list[Diagnostic] = []
+    """CONCEPT-002: Concept description must be a string (type validation only).
 
-    if concept.description is None:
-        return diagnostics
-
-    desc_len = len(concept.description)
-
-    if desc_len < 10:
-        diagnostics.append(
-            Diagnostic(
-                rule_id="CONCEPT-002",
-                severity=Severity.ERROR,
-                message=f"Concept '{concept.name}' description is too short "
-                f"({desc_len} chars, minimum 10)",
-                path=f"{path}.description",
-                fix="Provide a more detailed description (10-200 characters)",
-            )
-        )
-    elif desc_len > 200:
-        diagnostics.append(
-            Diagnostic(
-                rule_id="CONCEPT-002",
-                severity=Severity.ERROR,
-                message=f"Concept '{concept.name}' description is too long "
-                f"({desc_len} chars, maximum 200)",
-                path=f"{path}.description",
-                fix="Shorten the description to 200 characters or less",
-            )
-        )
-
-    return diagnostics
+    Note: Length validation removed per spec update. Empty descriptions are valid
+    since wizard auto-populates with empty strings for user enrichment.
+    Pydantic handles type validation, so this function now returns empty list.
+    """
+    # Type validation is handled by Pydantic model
+    # No length constraints per updated CONCEPT-002 spec
+    return []
 
 
 def validate_no_duplicate_concepts(manifest: Manifest) -> list[Diagnostic]:
