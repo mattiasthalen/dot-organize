@@ -147,9 +147,12 @@ As a learner, I want to view bundled example manifests so that I can understand 
 - **FR-023**: Wizard MUST display a summary preview before writing the manifest.
 - **FR-024**: Wizard MUST support YAML (default) and JSON (`--format json`) output.
 - **FR-025**: Wizard MUST prompt before overwriting existing files.
-- **FR-026**: Wizard MUST auto-suggest valid names based on naming conventions.
+- **FR-026**: Wizard MUST auto-suggest valid names based on naming conventions:
+  - Relation suggestion: Use table name from frame name (e.g., `frame.nw__customers` → `raw.nw__customers`)
+  - Concept suggestion: Use last element after splitting table name by `__` (e.g., `nw__customers` → `customers`)
 - **FR-027**: Wizard MUST auto-generate key set values using the recipe: `CONCEPT[~QUALIFIER]@SOURCE[~TENANT]`.
 - **FR-028**: Wizard MUST prompt for foreign hooks after primary hooks are complete, allowing users to define relationships to other concepts within the same frame.
+- **FR-029**: Wizard MUST prompt for source system on EACH hook individually. Hooks within the same frame MAY reference different source systems.
 
 #### Manifest Structure
 
