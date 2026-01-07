@@ -1,4 +1,4 @@
-# Tasks: HOOK Manifest Builder
+# Tasks: Manifest Builder (dot CLI)
 
 **Input**: Design documents from `/specs/001-manifest-builder/`
 **Prerequisites**: plan.md ✅, spec.md ✅, data-model.md ✅, contracts/manifest-schema.json ✅
@@ -269,6 +269,23 @@ Based on plan.md structure:
 - [x] T111 [P] Extract `has_meaningful_data()` and `to_dict()` methods from WizardState to standalone pure functions: `wizard_state_has_meaningful_data(state: WizardState) -> bool` and `wizard_state_to_dict(state: WizardState) -> dict[str, Any]`
 - [x] T112 [P] Update wizard flow to use immutable state transitions (return new WizardState instances instead of mutating)
 
+### Branding Refactor (dot vs HOOK clarification)
+
+**Purpose**: Clarify that `dot` is the CLI tool/package, while HOOK is the methodology it implements. Avoid branding confusion.
+
+- [ ] T113 [P] Refactor src/dot/ docstrings and help text: Replace "HOOK Manifest Builder" with "dot" or "dot manifest" terminology. HOOK should describe the methodology, not the tool name.
+  - src/dot/__init__.py: "Validate and create HOOK manifests" → "dot - Data Organize Tool for HOOK methodology manifests"
+  - src/dot/cli/main.py: "HOOK Manifest Builder" → "dot - Data Organize Tool"
+  - src/dot/cli/validate.py: "Validate a HOOK manifest" → "Validate a manifest file"
+  - src/dot/cli/examples.py: "HOOK Manifest Builder" → "dot CLI"
+  - src/dot/core/__init__.py, src/dot/models/__init__.py, src/dot/io/*.py: "HOOK manifests" → "manifests" or "dot manifests"
+- [ ] T114 [P] Refactor pyproject.toml description: "Validate and create HOOK manifests" → "dot - Data Organize Tool implementing the HOOK methodology"
+- [ ] T115 [P] Refactor README.md branding: Clarify dot is the tool, HOOK is the methodology. Update tagline and descriptions.
+- [ ] T116 [P] Refactor examples/*.yaml comments: "HOOK Manifest Example" → "dot Manifest Example" or just "Manifest Example"
+- [ ] T117 [P] Refactor specs/001-manifest-builder/ documentation: Update spec.md, plan.md, tasks.md, data-model.md titles from "HOOK Manifest Builder" to "Manifest Builder" or "dot Manifest Builder". Clarify HOOK is methodology, dot is tool.
+- [ ] T118 [P] Refactor contracts/manifest-schema.json: Update title/description to clarify dot vs HOOK terminology
+- [ ] T119 [P] Refactor research/ documents: Update references from "HOOK Manifest Builder" to clarify dot is the tool implementing HOOK methodology
+
 ---
 
 ## Dependencies & Execution Order
@@ -389,7 +406,7 @@ Each User Story is complete when:
 | US2: Wizard | T073-T083 | 1 | `dot init` interactive |
 | US3: Non-Interactive | T084-T089 | 1 | `dot init --from-config` |
 | US4: Examples | T090-T098 | 5 | `dot examples` command |
-| Polish | T099-T112 | 9 | README, CI, release, benchmarks, paradigm verification, FP refactoring |
+| Polish | T099-T119 | 16 | README, CI, release, benchmarks, paradigm verification, FP refactoring, branding refactor |
 
-**Total Tasks**: 118 (107 base + 11 additions: T039a, T039b, T055a, T057a, T072a, T108, T109, T110, T111, T112)
+**Total Tasks**: 125 (118 previous + 7 branding refactor: T113-T119)
 **MVP Scope**: Phases 1-3 (T001-T072a) = 78 tasks

@@ -1,9 +1,9 @@
-# Feature Specification: HOOK Manifest Builder
+# Feature Specification: Manifest Builder
 
 **Feature Branch**: `001-manifest-builder`  
 **Created**: 2026-01-04  
 **Status**: Draft  
-**Input**: Build HOOK Manifest Builder Python package (`dot-organize`) and CLI (`dot`) for guided manifest creation, validation, and output
+**Input**: Build `dot` (Data Organize Tool) — a Python package (`dot-organize`) and CLI (`dot`) for guided manifest creation, validation, and output using the HOOK methodology
 
 ---
 
@@ -11,7 +11,7 @@
 
 Data warehouse practitioners adopting the HOOK methodology need a reliable way to declare and validate their semantic model—business concepts, hooks, key sets, and frames—before generating any SQL, USS, or Qlik outputs. Currently, there is no tooling to:
 
-1. Guide users through creating a constitution-compliant HOOK manifest
+1. Guide users through creating a constitution-compliant manifest
 2. Validate manifests against HOOK semantic rules and prohibited patterns
 3. Produce stable, versioned manifest files that can later be extended with generator overlays
 
@@ -23,7 +23,7 @@ Without such tooling, users risk creating invalid manifests that violate HOOK pr
 
 ### User Story 1 - Validate Existing Manifest (Priority: P1)
 
-As a data engineer, I want to validate an existing HOOK manifest file so that I can ensure it complies with all constitutional constraints before using it for downstream generation.
+As a data engineer, I want to validate an existing manifest file so that I can ensure it complies with all HOOK constitutional constraints before using it for downstream generation.
 
 **Why this priority**: Validation is the foundation—users need confidence their manifest is correct before any other operation. This also enables CI integration from day one.
 

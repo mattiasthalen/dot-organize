@@ -1,4 +1,4 @@
-# Implementation Plan: HOOK Manifest Builder (dot CLI)
+# Implementation Plan: Manifest Builder (dot CLI)
 
 **Branch**: `001-manifest-builder` | **Date**: 2026-01-04 | **Spec**: [spec.md](spec.md)
 **Input**: Feature specification from `/specs/001-manifest-builder/spec.md`
@@ -7,7 +7,7 @@
 
 ## Summary
 
-Build a Python package + CLI for HOOK manifest authoring and validation. The manifest is the single source of truth for business concepts, hooks, key sets, and frames. This feature delivers:
+Build `dot` (Data Organize Tool) — a Python package + CLI for manifest authoring and validation using the HOOK methodology. The manifest is the single source of truth for business concepts, hooks, key sets, and frames. This feature delivers:
 
 1. **Manifest schema** with typed data model (Pydantic/dataclasses)
 2. **Validation engine** as pure functions (schema + constitutional rules)
