@@ -21,7 +21,7 @@
 
 **Purpose**: Project structure preparation for release engineering
 
-- [ ] T001 Create scripts directory at `scripts/`
+- [X] T001 Create scripts directory at `scripts/`
 
 ---
 
@@ -31,12 +31,12 @@
 
 **⚠️ CRITICAL**: User story verification depends on hatch-vcs being configured
 
-- [ ] T002 Add hatch-vcs to build requirements in `pyproject.toml` (lines 42-44)
-- [ ] T003 Add version source configuration to `pyproject.toml` ([tool.hatch.version] and [tool.hatch.build.hooks.vcs] sections)
-- [ ] T004 Remove static version line from `pyproject.toml` (line 3: version = "0.1.0")
-- [ ] T005 Update version import in `src/dot/__init__.py` to import from `_version.py` with fallback
-- [ ] T006 Add `src/dot/_version.py` to `.gitignore`
-- [ ] T007 Reinstall package to generate `_version.py`: `uv pip install -e . --force-reinstall`
+- [X] T002 Add hatch-vcs to build requirements in `pyproject.toml` (lines 42-44)
+- [X] T003 Add version source configuration to `pyproject.toml` ([tool.hatch.version] and [tool.hatch.build.hooks.vcs] sections)
+- [X] T004 Remove static version line from `pyproject.toml` (line 3: version = "0.1.0")
+- [X] T005 Update version import in `src/dot/__init__.py` to import from `_version.py` with fallback
+- [X] T006 Add `src/dot/_version.py` to `.gitignore`
+- [X] T007 Reinstall package to generate `_version.py`: `uv pip install -e . --force-reinstall`
 
 **Checkpoint**: Foundation ready - `dot --version` returns dev version, user story implementation can begin
 
@@ -52,9 +52,9 @@
 
 ### Verification for User Story 3
 
-- [ ] T008 [US3] Verify tagged commit resolves to exact version: create `v0.1.0-test` tag, reinstall, check `dot --version` shows `0.1.0.test`
-- [ ] T009 [US3] Verify non-tagged commit produces dev version: delete test tag, reinstall, check version shows `0.0.0.devN+gXXX` format
-- [ ] T010 [US3] Clean up test tag: `git tag -d v0.1.0-test`
+- [X] T008 [US3] Verify tagged commit resolves to exact version: create `v0.1.0-test` tag, reinstall, check `dot --version` shows `0.1.0.test`
+- [X] T009 [US3] Verify non-tagged commit produces dev version: delete test tag, reinstall, check version shows `0.0.0.devN+gXXX` format
+- [X] T010 [US3] Clean up test tag: `git tag -d v0.1.0-test`
 
 **Checkpoint**: SC-001 (tagged → exact version) and SC-002 (non-tagged → dev version) verified
 
@@ -68,9 +68,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Create bump script at `scripts/bump.sh` with version parsing, bump logic, and tag creation
-- [ ] T012 [US1] Make bump script executable: `chmod +x scripts/bump.sh`
-- [ ] T013 [US1] Create Makefile with bump targets (`bump-patch`, `bump-minor`, `bump-major`, `bump-version`) at `Makefile`
+- [X] T011 [US1] Create bump script at `scripts/bump.sh` with version parsing, bump logic, and tag creation
+- [X] T012 [US1] Make bump script executable: `chmod +x scripts/bump.sh`
+- [X] T013 [US1] Create Makefile with bump targets (`bump-patch`, `bump-minor`, `bump-major`, `bump-version`) at `Makefile`
 
 ### Verification for User Story 1
 
