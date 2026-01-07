@@ -81,7 +81,8 @@
 - [ ] T018 [US1] Verify dirty tree rejection: create temp file, run `make bump-patch`, confirm error message
 - [ ] T019 [US1] Verify existing tag rejection: run `make bump-version VERSION=1.0.0`, confirm error message
 - [ ] T020 [US1] Verify explicit version: clean tree, run `make bump-version VERSION=2.0.0`, confirm v2.0.0 created
-- [ ] T021 [US1] Clean up test tags: `git tag -d v0.0.1 v0.1.0 v1.0.0 v2.0.0`
+- [ ] T021 [US1] Verify detached HEAD: `git checkout --detach`, run `make bump-patch`, confirm tag created at detached commit (edge case from spec.md)
+- [ ] T022 [US1] Clean up test tags: `git tag -d v0.0.1 v0.1.0 v1.0.0 v2.0.0` and `git checkout 002-release-engineering`
 
 **Checkpoint**: FR-004 through FR-014 verified, SC-003 (< 5 seconds) confirmed
 
@@ -95,14 +96,14 @@
 
 ### Implementation for User Story 4
 
-- [ ] T022 [US4] Add `check` target to `Makefile` that runs `pre-commit run --all-files`
-- [ ] T023 [US4] Add `test` target to `Makefile` that runs `pytest`
-- [ ] T024 [US4] Add `help` target to `Makefile` with command documentation
+- [ ] T023 [US4] Add `check` target to `Makefile` that runs `pre-commit run --all-files`
+- [ ] T024 [US4] Add `test` target to `Makefile` that runs `pytest`
+- [ ] T025 [US4] Add `help` target to `Makefile` with command documentation
 
 ### Verification for User Story 4
 
-- [ ] T025 [US4] Verify make check: run `make check`, confirm all hooks execute
-- [ ] T026 [US4] Verify make help: run `make help`, confirm all commands documented
+- [ ] T026 [US4] Verify make check: run `make check`, confirm all hooks execute
+- [ ] T027 [US4] Verify make help: run `make help`, confirm all commands documented
 
 **Checkpoint**: FR-020 (manual checks) and SC-007 (single command) verified
 
@@ -118,20 +119,21 @@
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] Create bootstrap script at `scripts/bootstrap.sh` with uv install and pre-commit setup
-- [ ] T028 [US2] Make bootstrap script executable: `chmod +x scripts/bootstrap.sh`
-- [ ] T029 [US2] Add `bootstrap` target to `Makefile` that runs `./scripts/bootstrap.sh`
-- [ ] T030 [US2] Add `install` and `dev` targets to `Makefile` for manual installation
-- [ ] T031 [US2] Update `.devcontainer/devcontainer.json` postCreateCommand to call bootstrap script
+- [ ] T028 [US2] Create bootstrap script at `scripts/bootstrap.sh` with uv install and pre-commit setup (uses `--overwrite` flag for idempotent reinstall)
+- [ ] T029 [US2] Make bootstrap script executable: `chmod +x scripts/bootstrap.sh`
+- [ ] T030 [US2] Add `bootstrap` target to `Makefile` that runs `./scripts/bootstrap.sh`
+- [ ] T031 [US2] Add `install` and `dev` targets to `Makefile` for manual installation
+- [ ] T032 [US2] Update `.devcontainer/devcontainer.json` postCreateCommand to call bootstrap script
 
 ### Verification for User Story 2
 
-- [ ] T032 [US2] Verify bootstrap script: run `./scripts/bootstrap.sh`, confirm all steps show success
-- [ ] T033 [US2] Verify idempotency: run `./scripts/bootstrap.sh` twice, confirm no errors second run
-- [ ] T034 [US2] Verify pre-commit hooks installed: check `.git/hooks/pre-commit` exists
-- [ ] T035 [US2] Verify package importable: run `python -c "import dot; print(dot.__version__)"`
+- [ ] T033 [US2] Verify bootstrap script: run `./scripts/bootstrap.sh`, confirm all steps show success
+- [ ] T034 [US2] Verify idempotency: run `./scripts/bootstrap.sh` twice, confirm no errors second run
+- [ ] T035 [US2] Verify pre-commit hooks reinstall with overwrite: manually modify `.git/hooks/pre-commit`, run bootstrap, confirm hooks restored to project config (edge case from spec.md)
+- [ ] T036 [US2] Verify pre-commit hooks installed: check `.git/hooks/pre-commit` exists and matches project
+- [ ] T037 [US2] Verify package importable: run `python -c "import dot; print(dot.__version__)"`
 
-**Checkpoint**: FR-015 through FR-018 verified, SC-004 (zero manual commands) and SC-005 (idempotent) confirmed
+**Checkpoint**: FR-015 through FR-018 verified, SC-004 (zero manual commands) and SC-005 (idempotent) confirmed, edge case (existing hooks overwrite) verified
 
 ---
 
@@ -143,18 +145,19 @@
 
 ### Implementation for User Story 5
 
-- [ ] T036 [US5] Create `docs/CONTRIBUTING.md` with devcontainer and manual setup instructions
-- [ ] T037 [US5] Document tag format and version resolution behavior in CONTRIBUTING.md (FR-022)
-- [ ] T038 [US5] Document bump workflow in CONTRIBUTING.md (FR-023)
-- [ ] T039 [US5] Document bootstrap process in CONTRIBUTING.md (FR-024)
-- [ ] T040 [US5] Document pre-commit hooks and manual execution in CONTRIBUTING.md (FR-025)
+- [ ] T038 [US5] Create `docs/CONTRIBUTING.md` with devcontainer and manual setup instructions
+- [ ] T039 [US5] Document tag format and version resolution behavior in CONTRIBUTING.md (FR-022)
+- [ ] T040 [US5] Document bump workflow in CONTRIBUTING.md (FR-023)
+- [ ] T041 [US5] Document bootstrap process in CONTRIBUTING.md (FR-024)
+- [ ] T042 [US5] Document pre-commit hooks and manual execution in CONTRIBUTING.md (FR-025)
+- [ ] T043 [US5] Add note about CI environment: bootstrap skips interactive prompts; CI systems should use `uv pip install -e .` directly
 
 ### Verification for User Story 5
 
-- [ ] T041 [US5] Verify devcontainer section exists: grep "Using Devcontainer" docs/CONTRIBUTING.md
-- [ ] T042 [US5] Verify manual setup section exists: grep "Manual Setup" docs/CONTRIBUTING.md
-- [ ] T043 [US5] Verify tag format documented: grep "Tag Format" docs/CONTRIBUTING.md
-- [ ] T044 [US5] Verify bump commands documented: grep "Bumping Versions" docs/CONTRIBUTING.md
+- [ ] T044 [US5] Verify devcontainer section exists: grep "Using Devcontainer" docs/CONTRIBUTING.md
+- [ ] T045 [US5] Verify manual setup section exists: grep "Manual Setup" docs/CONTRIBUTING.md
+- [ ] T046 [US5] Verify tag format documented: grep "Tag Format" docs/CONTRIBUTING.md
+- [ ] T047 [US5] Verify bump commands documented: grep "Bumping Versions" docs/CONTRIBUTING.md
 
 **Checkpoint**: FR-022 through FR-025 verified, SC-006 (self-service docs) confirmed
 
@@ -164,10 +167,10 @@
 
 **Purpose**: Final cleanup and integration verification
 
-- [ ] T045 Add `clean` target to Makefile for build artifact cleanup
-- [ ] T046 Update README.md with brief development section pointing to CONTRIBUTING.md
-- [ ] T047 Verify complete workflow: bump version, verify resolution, run checks
-- [ ] T048 Run quickstart.md validation steps as final integration check
+- [ ] T048 Add `clean` target to Makefile for build artifact cleanup
+- [ ] T049 Update README.md with brief development section pointing to CONTRIBUTING.md
+- [ ] T050 Verify complete workflow: bump version, verify resolution, run checks
+- [ ] T051 Run quickstart.md validation steps as final integration check
 
 ---
 
@@ -202,7 +205,7 @@ Phase 1 (Setup) ─► Phase 2 (Foundational) ─► Phase 3 (US3) ─► Phase 
 - T011 and T013 (bump.sh and Makefile) can be created in parallel
 
 **Within Phase 7 (US5 Implementation)**:
-- T037, T038, T039, T040 are sections of same file - apply sequentially
+- T039, T040, T041, T042, T043 are sections of same file - apply sequentially
 
 ---
 
@@ -239,6 +242,7 @@ Phase 1 (Setup) ─► Phase 2 (Foundational) ─► Phase 3 (US3) ─► Phase 
 | FR-005 (bump minor) | T011, T013, T015 | US1 |
 | FR-006 (bump major) | T011, T013, T016 | US1 |
 | FR-007 (explicit version) | T011, T013, T020 | US1 |
+| Edge: Detached HEAD | T021 | US1 |
 | FR-008 (find latest tag) | T011 | US1 |
 | FR-009 (default v0.0.0) | T011, T014 | US1 |
 | FR-010 (annotated tags) | T011, T017 | US1 |
@@ -246,17 +250,19 @@ Phase 1 (Setup) ─► Phase 2 (Foundational) ─► Phase 3 (US3) ─► Phase 
 | FR-012 (no overwrite) | T011, T019 | US1 |
 | FR-013 (clear messages) | T011 | US1 |
 | FR-014 (ignore non-SemVer) | T011 | US1 |
-| FR-015 (bootstrap) | T027 | US2 |
-| FR-016 (devcontainer) | T031 | US2 |
-| FR-017 (idempotent) | T027, T033 | US2 |
-| FR-018 (pre-commit) | T027, T034 | US2 |
-| FR-019 (reinstall docs) | T040 | US5 |
-| FR-020 (manual checks) | T022, T025 | US4 |
-| FR-021 (outside container) | T027, T036 | US2, US5 |
-| FR-022 (tag format docs) | T037 | US5 |
-| FR-023 (bump docs) | T038 | US5 |
-| FR-024 (bootstrap docs) | T039 | US5 |
-| FR-025 (pre-commit docs) | T040 | US5 |
+| FR-015 (bootstrap) | T028 | US2 |
+| FR-016 (devcontainer) | T032 | US2 |
+| FR-017 (idempotent) | T028, T034 | US2 |
+| FR-018 (pre-commit) | T028, T035, T036 | US2 |
+| Edge: Existing hooks overwrite | T035 | US2 |
+| FR-019 (reinstall docs) | T042 | US5 |
+| FR-020 (manual checks) | T023, T026 | US4 |
+| FR-021 (outside container) | T028, T038 | US2, US5 |
+| FR-022 (tag format docs) | T039 | US5 |
+| FR-023 (bump docs) | T040 | US5 |
+| FR-024 (bootstrap docs) | T041 | US5 |
+| FR-025 (pre-commit docs) | T042 | US5 |
+| Edge: CI environment | T043 | US5 |
 
 ---
 
@@ -266,11 +272,11 @@ Phase 1 (Setup) ─► Phase 2 (Foundational) ─► Phase 3 (US3) ─► Phase 
 |-----------|---------|--------------|
 | SC-001 (tagged → exact) | T008 | Manual verification |
 | SC-002 (non-tagged → dev) | T009 | Manual verification |
-| SC-003 (< 5 seconds) | T014-T020 | Time bump commands |
-| SC-004 (zero manual) | T031, T035 | Rebuild devcontainer |
-| SC-005 (idempotent) | T033 | Run bootstrap twice |
-| SC-006 (self-service docs) | T041-T044 | Documentation review |
-| SC-007 (single check cmd) | T025 | `make check` works |
+| SC-003 (< 5 seconds) | T014-T021 | Time bump commands |
+| SC-004 (zero manual) | T032, T037 | Rebuild devcontainer |
+| SC-005 (idempotent) | T034 | Run bootstrap twice |
+| SC-006 (self-service docs) | T044-T047 | Documentation review |
+| SC-007 (single check cmd) | T026 | `make check` works |
 
 ---
 
