@@ -74,15 +74,15 @@
 
 ### Verification for User Story 1
 
-- [ ] T014 [US1] Verify bump-patch: run `make bump-patch`, confirm tag v0.0.1 created with no prior tags
-- [ ] T015 [US1] Verify bump-minor: run `make bump-minor`, confirm tag v0.1.0 created
-- [ ] T016 [US1] Verify bump-major: run `make bump-major`, confirm tag v1.0.0 created
-- [ ] T017 [US1] Verify annotated tag message: `git show v1.0.0` shows "Release v1.0.0"
-- [ ] T018 [US1] Verify dirty tree rejection: create temp file, run `make bump-patch`, confirm error message
-- [ ] T019 [US1] Verify existing tag rejection: run `make bump-version VERSION=1.0.0`, confirm error message
-- [ ] T020 [US1] Verify explicit version: clean tree, run `make bump-version VERSION=2.0.0`, confirm v2.0.0 created
-- [ ] T021 [US1] Verify detached HEAD: `git checkout --detach`, run `make bump-patch`, confirm tag created at detached commit (edge case from spec.md)
-- [ ] T022 [US1] Clean up test tags: `git tag -d v0.0.1 v0.1.0 v1.0.0 v2.0.0` and `git checkout 002-release-engineering`
+- [X] T014 [US1] Verify bump-patch: run `make bump-patch`, confirm tag v0.0.1 created with no prior tags
+- [X] T015 [US1] Verify bump-minor: run `make bump-minor`, confirm tag v0.1.0 created
+- [X] T016 [US1] Verify bump-major: run `make bump-major`, confirm tag v1.0.0 created
+- [X] T017 [US1] Verify annotated tag message: `git show v1.0.0` shows "Release v1.0.0"
+- [X] T018 [US1] Verify dirty tree rejection: create temp file, run `make bump-patch`, confirm error message
+- [X] T019 [US1] Verify existing tag rejection: run `make bump-version VERSION=1.0.0`, confirm error message
+- [X] T020 [US1] Verify explicit version: clean tree, run `make bump-version VERSION=2.0.0`, confirm v2.0.0 created
+- [X] T021 [US1] Verify detached HEAD: `git checkout --detach`, run `make bump-patch`, confirm tag created at detached commit (edge case from spec.md)
+- [X] T022 [US1] Clean up test tags: `git tag -d v0.0.1 v0.1.0 v1.0.0 v2.0.0` and `git checkout 002-release-engineering`
 
 **Checkpoint**: FR-004 through FR-014 verified, SC-003 (< 5 seconds) confirmed
 
@@ -96,14 +96,14 @@
 
 ### Implementation for User Story 4
 
-- [ ] T023 [US4] Add `check` target to `Makefile` that runs `pre-commit run --all-files`
-- [ ] T024 [US4] Add `test` target to `Makefile` that runs `pytest`
-- [ ] T025 [US4] Add `help` target to `Makefile` with command documentation
+- [X] T023 [US4] Add `check` target to `Makefile` that runs `pre-commit run --all-files`
+- [X] T024 [US4] Add `test` target to `Makefile` that runs `pytest`
+- [X] T025 [US4] Add `help` target to `Makefile` with command documentation
 
 ### Verification for User Story 4
 
-- [ ] T026 [US4] Verify make check: run `make check`, confirm all hooks execute
-- [ ] T027 [US4] Verify make help: run `make help`, confirm all commands documented
+- [X] T026 [US4] Verify make check: run `make check`, confirm all hooks execute
+- [X] T027 [US4] Verify make help: run `make help`, confirm all commands documented
 
 **Checkpoint**: FR-020 (manual checks) and SC-007 (single command) verified
 
@@ -119,19 +119,19 @@
 
 ### Implementation for User Story 2
 
-- [ ] T028 [US2] Create bootstrap script at `scripts/bootstrap.sh` with uv install and pre-commit setup (uses `--overwrite` flag for idempotent reinstall)
-- [ ] T029 [US2] Make bootstrap script executable: `chmod +x scripts/bootstrap.sh`
-- [ ] T030 [US2] Add `bootstrap` target to `Makefile` that runs `./scripts/bootstrap.sh`
-- [ ] T031 [US2] Add `install` and `dev` targets to `Makefile` for manual installation
-- [ ] T032 [US2] Update `.devcontainer/devcontainer.json` postCreateCommand to call bootstrap script
+- [X] T028 [US2] Create bootstrap script at `scripts/bootstrap.sh` with uv install and pre-commit setup (uses `--overwrite` flag for idempotent reinstall)
+- [X] T029 [US2] Make bootstrap script executable: `chmod +x scripts/bootstrap.sh`
+- [X] T030 [US2] Add `bootstrap` target to `Makefile` that runs `./scripts/bootstrap.sh`
+- [X] T031 [US2] Add `install` and `dev` targets to `Makefile` for manual installation
+- [X] T032 [US2] Update `.devcontainer/devcontainer.json` postCreateCommand to call bootstrap script
 
 ### Verification for User Story 2
 
-- [ ] T033 [US2] Verify bootstrap script: run `./scripts/bootstrap.sh`, confirm all steps show success
-- [ ] T034 [US2] Verify idempotency: run `./scripts/bootstrap.sh` twice, confirm no errors second run
-- [ ] T035 [US2] Verify pre-commit hooks reinstall with overwrite: manually modify `.git/hooks/pre-commit`, run bootstrap, confirm hooks restored to project config (edge case from spec.md)
-- [ ] T036 [US2] Verify pre-commit hooks installed: check `.git/hooks/pre-commit` exists and matches project
-- [ ] T037 [US2] Verify package importable: run `python -c "import dot; print(dot.__version__)"`
+- [X] T033 [US2] Verify bootstrap script: run `./scripts/bootstrap.sh`, confirm all steps show success
+- [X] T034 [US2] Verify idempotency: run `./scripts/bootstrap.sh` twice, confirm no errors second run
+- [X] T035 [US2] Verify pre-commit hooks reinstall with overwrite: manually modify `.git/hooks/pre-commit`, run bootstrap, confirm hooks restored to project config (edge case from spec.md)
+- [X] T036 [US2] Verify pre-commit hooks installed: check `.git/hooks/pre-commit` exists and matches project
+- [X] T037 [US2] Verify package importable: run `python -c "import dot; print(dot.__version__)"`
 
 **Checkpoint**: FR-015 through FR-018 verified, SC-004 (zero manual commands) and SC-005 (idempotent) confirmed, edge case (existing hooks overwrite) verified
 
@@ -167,7 +167,7 @@
 
 **Purpose**: Final cleanup and integration verification
 
-- [ ] T048 Add `clean` target to Makefile for build artifact cleanup
+- [X] T048 Add `clean` target to Makefile for build artifact cleanup
 - [ ] T049 Update README.md with brief development section pointing to CONTRIBUTING.md
 - [ ] T050 Verify complete workflow: bump version, verify resolution, run checks
 - [ ] T051 Run quickstart.md validation steps as final integration check
