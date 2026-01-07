@@ -1,6 +1,6 @@
 [project]
 name = "dot-organize"
-version = "0.1.0"
+dynamic = ["version"]
 description = "dot - Data Organize Tool for validating and creating manifests using the HOOK methodology"
 authors = [
     { name = "Mattias Thalén", email = "bitter-polders0x@icloud.com" }
@@ -39,8 +39,15 @@ Repository = "https://github.com/mattiasthalen/dot-organize"
 Issues = "https://github.com/mattiasthalen/dot-organize/issues"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+raw-options = { version_scheme = "guess-next-dev" }
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/dot/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/dot"]
