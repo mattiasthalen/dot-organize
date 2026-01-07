@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/mattiasthalen/dot-organize/manifest-schema-v1.json",
-  "title": "HOOK Manifest Schema v1",
-  "description": "Schema for HOOK manifest files that declare business concepts, hooks, key sets, and frames.",
+  "title": "dot Manifest Schema v1",
+  "description": "Schema for manifest files that declare business concepts, hooks, key sets, and frames using the HOOK methodology.",
   "type": "object",
   "required": ["manifest_version", "schema_version", "metadata", "settings", "frames"],
   "additionalProperties": false,

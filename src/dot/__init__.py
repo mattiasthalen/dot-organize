@@ -1,4 +1,4 @@
-"""dot-organize - Validate and create HOOK manifests for data modeling."""
+"""dot - Data Organize Tool for validating and creating manifests using the HOOK methodology."""
 
 __version__ = "0.1.0"
 

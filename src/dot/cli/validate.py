@@ -46,7 +46,7 @@ def validate(
         ),
     ] = False,
 ) -> None:
-    """Validate a HOOK manifest file.
+    """Validate a manifest file.
 
     Exit codes:
     - 0: Manifest is valid (may have warnings)

@@ -1,4 +1,4 @@
-"""YAML I/O for HOOK manifests.
+"""YAML I/O for manifests.
 
 T062-T064: Implement YAML reader, parse error handling, and writer
 

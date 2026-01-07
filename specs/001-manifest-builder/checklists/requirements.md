@@ -1,4 +1,4 @@
-# Specification Quality Checklist: HOOK Manifest Builder
+# Specification Quality Checklist: Manifest Builder
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning  
 **Created**: 2026-01-04  

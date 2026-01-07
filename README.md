@@ -4,7 +4,7 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Validate and create HOOK manifests for data modeling. A lightweight CLI tool for managing data transformation manifests that define how business concepts flow between source systems.
+**dot** (Data Organize Tool) is a CLI for creating and validating manifests using the HOOK methodology. Define how business concepts flow between source systems with type-safe, declarative manifests.
 
 ## Features
 
@@ -78,7 +78,7 @@ dot examples show typical --output ./my-manifest.yaml
 
 ## Manifest Structure
 
-A HOOK manifest defines **frames** (data tables) with **hooks** (business key derivations):
+A manifest defines **frames** (data tables) with **hooks** (business key derivations):
 
 ```yaml
 manifest_version: "1.0.0"

@@ -273,18 +273,18 @@ Based on plan.md structure:
 
 **Purpose**: Clarify that `dot` is the CLI tool/package, while HOOK is the methodology it implements. Avoid branding confusion.
 
-- [ ] T113 [P] Refactor src/dot/ docstrings and help text: Replace "HOOK Manifest Builder" with "dot" or "dot manifest" terminology. HOOK should describe the methodology, not the tool name.
+- [x] T113 [P] Refactor src/dot/ docstrings and help text: Replace "HOOK Manifest Builder" with "dot" or "dot manifest" terminology. HOOK should describe the methodology, not the tool name.
   - src/dot/__init__.py: "Validate and create HOOK manifests" → "dot - Data Organize Tool for HOOK methodology manifests"
   - src/dot/cli/main.py: "HOOK Manifest Builder" → "dot - Data Organize Tool"
   - src/dot/cli/validate.py: "Validate a HOOK manifest" → "Validate a manifest file"
   - src/dot/cli/examples.py: "HOOK Manifest Builder" → "dot CLI"
   - src/dot/core/__init__.py, src/dot/models/__init__.py, src/dot/io/*.py: "HOOK manifests" → "manifests" or "dot manifests"
-- [ ] T114 [P] Refactor pyproject.toml description: "Validate and create HOOK manifests" → "dot - Data Organize Tool implementing the HOOK methodology"
-- [ ] T115 [P] Refactor README.md branding: Clarify dot is the tool, HOOK is the methodology. Update tagline and descriptions.
-- [ ] T116 [P] Refactor examples/*.yaml comments: "HOOK Manifest Example" → "dot Manifest Example" or just "Manifest Example"
-- [ ] T117 [P] Refactor specs/001-manifest-builder/ documentation: Update spec.md, plan.md, tasks.md, data-model.md titles from "HOOK Manifest Builder" to "Manifest Builder" or "dot Manifest Builder". Clarify HOOK is methodology, dot is tool.
-- [ ] T118 [P] Refactor contracts/manifest-schema.json: Update title/description to clarify dot vs HOOK terminology
-- [ ] T119 [P] Refactor research/ documents: Update references from "HOOK Manifest Builder" to clarify dot is the tool implementing HOOK methodology
+- [x] T114 [P] Refactor pyproject.toml description: "Validate and create HOOK manifests" → "dot - Data Organize Tool implementing the HOOK methodology"
+- [x] T115 [P] Refactor README.md branding: Clarify dot is the tool, HOOK is the methodology. Update tagline and descriptions.
+- [x] T116 [P] Refactor examples/*.yaml comments: "HOOK Manifest Example" → "dot Manifest Example" or just "Manifest Example"
+- [x] T117 [P] Refactor specs/001-manifest-builder/ documentation: Update spec.md, plan.md, tasks.md, data-model.md titles from "HOOK Manifest Builder" to "Manifest Builder" or "dot Manifest Builder". Clarify HOOK is methodology, dot is tool.
+- [x] T118 [P] Refactor contracts/manifest-schema.json: Update title/description to clarify dot vs HOOK terminology
+- [x] T119 [P] Refactor research/ documents: Update references from "HOOK Manifest Builder" to clarify dot is the tool implementing HOOK methodology
 
 ---
 

@@ -1,4 +1,4 @@
-"""Immutable Pydantic models for HOOK manifests."""
+"""Immutable Pydantic models for manifests."""
 
 from dot.models.concept import Concept
 from dot.models.diagnostic import Diagnostic, Severity

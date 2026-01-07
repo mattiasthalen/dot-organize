@@ -1,4 +1,4 @@
-"""Examples command for HOOK Manifest Builder (T095-T096).
+"""Examples command for dot CLI (T095-T096).
 
 Provides built-in example manifests for users to learn from.
 

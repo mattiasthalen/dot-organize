@@ -1,4 +1,4 @@
-# Constraints Checklist: HOOK Manifest Builder
+# Constraints Checklist: Manifest Builder
 
 **Purpose**: Validate that all constraints in the 001-manifest-builder feature are completely specified, clearly defined, measurable, and consistent across spec, plan, and data-model documents.
 **Created**: 2026-01-07

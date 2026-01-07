@@ -1,4 +1,4 @@
-"""Pure validation functions for HOOK manifests."""
+"""Pure validation functions for manifests."""
 
 from dot.core.expression import validate_expr
 from dot.core.normalization import (

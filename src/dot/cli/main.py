@@ -12,7 +12,7 @@ from dot import __version__
 
 app = typer.Typer(
     name="dot",
-    help="HOOK Manifest Builder - Create and validate data modeling manifests",
+    help="dot - Data Organize Tool for creating and validating manifests",
     no_args_is_help=True,
     pretty_exceptions_enable=False,  # Cleaner error output
 )
@@ -38,7 +38,7 @@ def main(
         ),
     ] = None,
 ) -> None:
-    """HOOK Manifest Builder - Create and validate data modeling manifests."""
+    """dot - Data Organize Tool for creating and validating manifests."""
     pass
 
 

@@ -1,4 +1,4 @@
-# Data Model: HOOK Manifest Builder
+# Data Model: Manifest Builder
 
 **Feature**: 001-manifest-builder  
 **Created**: 2026-01-04  
@@ -8,7 +8,7 @@
 
 ## Overview
 
-This document defines the complete data model for the HOOK manifest. All models use Pydantic v2 with `frozen=True` for immutability.
+This document defines the complete data model for the manifest. All models use Pydantic v2 with `frozen=True` for immutability.
 
 **Design Principles**:
 - Immutable data structures (frozen Pydantic models)

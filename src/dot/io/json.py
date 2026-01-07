@@ -1,4 +1,4 @@
-"""JSON I/O for HOOK manifests.
+"""JSON I/O for manifests.
 
 T065-T066: Implement JSON reader and writer
 """

@@ -1,6 +1,6 @@
 # Implementation Research
 
-This folder contains research documents and working examples for implementing the HOOK Manifest Builder.
+This folder contains research documents and working examples for implementing the Manifest Builder (dot CLI).
 
 ## Research Documents
 
