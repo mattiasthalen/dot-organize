@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 
 from dot.models.concept import Concept
 from dot.models.frame import Frame
+from dot.models.keyset import KeySet
 from dot.models.settings import Settings
 
 
@@ -43,7 +44,8 @@ class Manifest(BaseModel, frozen=True):
         metadata: Name, description, timestamps (optional)
         settings: Hook prefixes, delimiter (uses defaults if not specified)
         frames: List of frames (at least one)
-        concepts: Optional enrichment definitions
+        concepts: Auto-populated concepts with frame references (FR-037)
+        keysets: Auto-populated key sets with frame references (FR-039)
     """
 
     manifest_version: str
@@ -52,3 +54,4 @@ class Manifest(BaseModel, frozen=True):
     settings: Settings = Field(default_factory=Settings)
     frames: list[Frame]
     concepts: list[Concept] = Field(default_factory=list)
+    keysets: list[KeySet] = Field(default_factory=list)
