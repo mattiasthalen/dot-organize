@@ -1,5 +1,5 @@
 """CLI commands for dot-organize."""
 
-# CLI commands will be exported after implementation
+from dot.cli.main import app
 
-__all__: list[str] = []
+__all__ = ["app"]

@@ -125,10 +125,10 @@ Based on plan.md structure:
 
 ### Tests for User Story 1 (TDD - Write FIRST, must FAIL) ⚠️
 
-- [ ] T058 [P] [US1] Create tests/unit/test_yaml_io.py with tests for YAML reader (parse valid, parse errors with line/column)
-- [ ] T059 [P] [US1] Create tests/unit/test_json_io.py with tests for JSON reader/writer
-- [ ] T060 [P] [US1] Create tests/integration/test_io_roundtrip.py with round-trip tests (load → save → load)
-- [ ] T061 [P] [US1] Create tests/integration/test_cli_validate.py with CLI integration tests:
+- [X] T058 [P] [US1] Create tests/unit/test_yaml_io.py with tests for YAML reader (parse valid, parse errors with line/column)
+- [X] T059 [P] [US1] Create tests/unit/test_json_io.py with tests for JSON reader/writer
+- [X] T060 [P] [US1] Create tests/integration/test_io_roundtrip.py with round-trip tests (load → save → load)
+- [X] T061 [P] [US1] Create tests/integration/test_cli_validate.py with CLI integration tests:
   - Valid manifest → exit 0, "Manifest is valid"
   - Invalid manifest → exit 1, ERROR with rule ID and path
   - Manifest with warnings → exit 0, WARN messages printed
@@ -142,21 +142,21 @@ Based on plan.md structure:
 
 #### I/O Layer (src/dot/io/)
 
-- [ ] T062 [US1] Implement YAML reader in src/dot/io/yaml.py (parse with ruamel.yaml, return Manifest or ParseError)
-- [ ] T063 [US1] Implement parse error handling in src/dot/io/yaml.py (line/column extraction)
-- [ ] T064 [US1] Implement YAML writer in src/dot/io/yaml.py (serialize with ordered keys per data-model.md)
-- [ ] T065 [P] [US1] Implement JSON reader in src/dot/io/json.py
-- [ ] T066 [P] [US1] Implement JSON writer in src/dot/io/json.py
+- [X] T062 [US1] Implement YAML reader in src/dot/io/yaml.py (parse with ruamel.yaml, return Manifest or ParseError)
+- [X] T063 [US1] Implement parse error handling in src/dot/io/yaml.py (line/column extraction)
+- [X] T064 [US1] Implement YAML writer in src/dot/io/yaml.py (serialize with ordered keys per data-model.md)
+- [X] T065 [P] [US1] Implement JSON reader in src/dot/io/json.py
+- [X] T066 [P] [US1] Implement JSON writer in src/dot/io/json.py
 
 #### CLI (src/dot/cli/)
 
-- [ ] T067 [US1] Create typer app skeleton in src/dot/cli/main.py with --version, --help
-- [ ] T068 [US1] Add entry point `dot` in pyproject.toml [project.scripts]
-- [ ] T069 [US1] Implement validate command in src/dot/cli/validate.py (path argument, calls YAML reader + validation)
-- [ ] T070 [US1] Implement human-readable diagnostic output formatting in src/dot/cli/validate.py
-- [ ] T071 [US1] Implement --json flag for machine-readable output in src/dot/cli/validate.py
-- [ ] T072 [US1] Implement exit codes: 0 (valid), 1 (errors), 2 (usage/file errors) in src/dot/cli/validate.py
-- [ ] T072a [P] [US1] Implement --no-color flag to disable ANSI escape codes (NFR-011)
+- [X] T067 [US1] Create typer app skeleton in src/dot/cli/main.py with --version, --help
+- [X] T068 [US1] Add entry point `dot` in pyproject.toml [project.scripts]
+- [X] T069 [US1] Implement validate command in src/dot/cli/validate.py (path argument, calls YAML reader + validation)
+- [X] T070 [US1] Implement human-readable diagnostic output formatting in src/dot/cli/validate.py
+- [X] T071 [US1] Implement --json flag for machine-readable output in src/dot/cli/validate.py
+- [X] T072 [US1] Implement exit codes: 0 (valid), 1 (errors), 2 (usage/file errors) in src/dot/cli/validate.py
+- [X] T072a [P] [US1] Implement --no-color flag to disable ANSI escape codes (NFR-011)
 
 **Checkpoint**: `dot validate manifest.yaml` works correctly with all exit codes - User Story 1 complete and independently testable
 
