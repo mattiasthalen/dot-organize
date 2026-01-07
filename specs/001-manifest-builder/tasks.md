@@ -54,12 +54,12 @@ Based on plan.md structure:
 
 ### Tests for Foundational Phase (TDD - Write FIRST, must FAIL) ⚠️
 
-- [X] T015 [P] Create tests/unit/test_models.py with tests for all models (Settings, Diagnostic, Concept, Hook, Frame, Manifest)
-- [X] T016 [P] Create tests/unit/test_normalization.py with tests for naming validators (lower_snake_case, UPPER_SNAKE_CASE, hook_name, frame_name, semver)
-- [X] T017 [P] Create tests/unit/test_registry.py with tests for key set derivation (including key aliases with qualifiers), concept registry, hook registry
-- [X] T018 [P] Create tests/unit/test_expression.py with tests for expr validation (allowed tokens, forbidden patterns)
-- [X] T019 [P] Create tests/unit/test_rules.py with tests for all ERROR rules (FRAME-001 to 006 including composite grain validation, HOOK-001 to 007 including hook name uniqueness within frame, CONCEPT-001/002/003, MANIFEST-001/002)
-- [X] T020 [P] Create tests/unit/test_rules_warn.py with tests for all WARN rules (CONCEPT-W01, HOOK-W01, FRAME-W01/W02/W03, MANIFEST-W01/W02)
+- [ ] T015 [P] Create tests/unit/test_models.py with tests for all models (Settings, Diagnostic, Concept, Hook, Frame, Manifest)
+- [ ] T016 [P] Create tests/unit/test_normalization.py with tests for naming validators (lower_snake_case, UPPER_SNAKE_CASE, hook_name, frame_name, semver)
+- [ ] T017 [P] Create tests/unit/test_registry.py with tests for key set derivation (including key aliases with qualifiers), concept registry, hook registry
+- [ ] T018 [P] Create tests/unit/test_expression.py with tests for expr validation (allowed tokens, forbidden patterns)
+- [ ] T019 [P] Create tests/unit/test_rules.py with tests for all ERROR rules (FRAME-001 to 006 including composite grain validation, HOOK-001 to 007 including hook name uniqueness within frame, CONCEPT-001/002/003, MANIFEST-001/002)
+- [ ] T020 [P] Create tests/unit/test_rules_warn.py with tests for all WARN rules (CONCEPT-W01, HOOK-W01, FRAME-W01/W02/W03, MANIFEST-W01/W02)
 
 ### Implementation for Foundational Phase
 
@@ -73,45 +73,45 @@ Based on plan.md structure:
 
 #### Core Validation (src/dot/core/)
 
-- [X] T026 [P] Implement naming validators in src/dot/core/normalization.py (is_lower_snake_case, is_upper_snake_case, is_valid_hook_name, is_valid_frame_name, is_valid_semver)
-- [X] T027 Implement key set derivation in src/dot/core/registry.py (derive_key_sets, _build_key_set)
-- [X] T028 Implement concept registry in src/dot/core/registry.py (derive_concepts)
-- [X] T029 Implement hook registry in src/dot/core/registry.py (derive_hook_registry)
-- [X] T030 Implement expr validation in src/dot/core/expression.py (allowed tokens, forbidden patterns regex)
-- [X] T031 Implement MANIFEST rules in src/dot/core/rules.py (MANIFEST-001, MANIFEST-002)
-- [X] T032 Implement FRAME rules in src/dot/core/rules.py (FRAME-001 to FRAME-006)
-- [X] T033 Implement HOOK rules in src/dot/core/rules.py (HOOK-001 to HOOK-006, uses expr validation)
-- [X] T034 Implement HOOK-007 rule in src/dot/core/rules.py (hook name uniqueness within frame)
-- [X] T035 Implement CONCEPT rules in src/dot/core/rules.py (CONCEPT-001, CONCEPT-002, CONCEPT-003)
-- [X] T036 Implement WARN rules in src/dot/core/rules.py (all 7 warning rules: CONCEPT-W01, HOOK-W01, FRAME-W01/W02/W03, MANIFEST-W01/W02)
-- [X] T037 Implement composite validate_manifest function in src/dot/core/validation.py
+- [ ] T026 [P] Implement naming validators in src/dot/core/normalization.py (is_lower_snake_case, is_upper_snake_case, is_valid_hook_name, is_valid_frame_name, is_valid_semver)
+- [ ] T027 Implement key set derivation in src/dot/core/registry.py (derive_key_sets, _build_key_set)
+- [ ] T028 Implement concept registry in src/dot/core/registry.py (derive_concepts)
+- [ ] T029 Implement hook registry in src/dot/core/registry.py (derive_hook_registry)
+- [ ] T030 Implement expr validation in src/dot/core/expression.py (allowed tokens, forbidden patterns regex)
+- [ ] T031 Implement MANIFEST rules in src/dot/core/rules.py (MANIFEST-001, MANIFEST-002)
+- [ ] T032 Implement FRAME rules in src/dot/core/rules.py (FRAME-001 to FRAME-006)
+- [ ] T033 Implement HOOK rules in src/dot/core/rules.py (HOOK-001 to HOOK-006, uses expr validation)
+- [ ] T034 Implement HOOK-007 rule in src/dot/core/rules.py (hook name uniqueness within frame)
+- [ ] T035 Implement CONCEPT rules in src/dot/core/rules.py (CONCEPT-001, CONCEPT-002, CONCEPT-003)
+- [ ] T036 Implement WARN rules in src/dot/core/rules.py (all 7 warning rules: CONCEPT-W01, HOOK-W01, FRAME-W01/W02/W03, MANIFEST-W01/W02)
+- [ ] T037 Implement composite validate_manifest function in src/dot/core/validation.py
 
 #### Fixtures
 
-- [X] T038 [P] Create tests/fixtures/valid/minimal.yaml (single concept, single hook, relation source)
-- [X] T039 [P] Create tests/fixtures/valid/file_based.yaml (path source instead of relation)
-- [X] T039a [P] Create tests/fixtures/valid/composite_grain.yaml (frame with multiple primary hooks for composite grain, e.g., order_lines with _hk__order + _hk__product)
-- [X] T039b [P] Create tests/fixtures/valid/key_alias.yaml (same concept with different qualifiers, e.g., _hk__order__number and _hk__order__id producing ORDER~NUMBER@ERP and ORDER~ID@ERP)
-- [X] T040 [P] Create tests/fixtures/invalid/missing_hooks.yaml (triggers FRAME-001)
-- [X] T041 [P] Create tests/fixtures/invalid/invalid_frame_name.yaml (triggers FRAME-002)
-- [X] T042 [P] Create tests/fixtures/invalid/missing_primary_hook.yaml (triggers FRAME-003)
-- [X] T043 [P] Create tests/fixtures/invalid/missing_source.yaml (triggers FRAME-004)
-- [X] T044 [P] Create tests/fixtures/invalid/both_relation_and_path.yaml (triggers FRAME-005)
-- [X] T045 [P] Create tests/fixtures/invalid/empty_relation.yaml (triggers FRAME-006)
-- [X] T046 [P] Create tests/fixtures/invalid/missing_hook_fields.yaml (triggers HOOK-001)
-- [X] T047 [P] Create tests/fixtures/invalid/invalid_hook_name.yaml (triggers HOOK-002)
-- [X] T048 [P] Create tests/fixtures/invalid/invalid_hook_role.yaml (triggers HOOK-003)
-- [X] T049 [P] Create tests/fixtures/invalid/invalid_concept_name.yaml (triggers HOOK-004)
-- [X] T050 [P] Create tests/fixtures/invalid/invalid_source_case.yaml (triggers HOOK-005)
-- [X] T051 [P] Create tests/fixtures/invalid/empty_expr.yaml (triggers HOOK-006)
-- [X] T052 [P] Create tests/fixtures/invalid/forbidden_expr_select.yaml (triggers HOOK-006 forbidden pattern)
-- [X] T053 [P] Create tests/fixtures/invalid/duplicate_hook_name.yaml (triggers HOOK-007)
-- [X] T054 [P] Create tests/fixtures/invalid/unused_concept.yaml (triggers CONCEPT-001)
-- [X] T055 [P] Create tests/fixtures/invalid/short_concept_description.yaml (triggers CONCEPT-002)
-- [X] T055a [P] Create tests/fixtures/invalid/duplicate_concept_name.yaml (triggers CONCEPT-003)
-- [X] T056 [P] Create tests/fixtures/invalid/invalid_manifest_version.yaml (triggers MANIFEST-001)
-- [X] T057 [P] Create tests/fixtures/invalid/invalid_schema_version.yaml (triggers MANIFEST-002)
-- [X] T057a [P] Create tests/fixtures/warn/unknown_fields.yaml (triggers MANIFEST-W02)
+- [ ] T038 [P] Create tests/fixtures/valid/minimal.yaml (single concept, single hook, relation source)
+- [ ] T039 [P] Create tests/fixtures/valid/file_based.yaml (path source instead of relation)
+- [ ] T039a [P] Create tests/fixtures/valid/composite_grain.yaml (frame with multiple primary hooks for composite grain, e.g., order_lines with _hk__order + _hk__product)
+- [ ] T039b [P] Create tests/fixtures/valid/key_alias.yaml (same concept with different qualifiers, e.g., _hk__order__number and _hk__order__id producing ORDER~NUMBER@ERP and ORDER~ID@ERP)
+- [ ] T040 [P] Create tests/fixtures/invalid/missing_hooks.yaml (triggers FRAME-001)
+- [ ] T041 [P] Create tests/fixtures/invalid/invalid_frame_name.yaml (triggers FRAME-002)
+- [ ] T042 [P] Create tests/fixtures/invalid/missing_primary_hook.yaml (triggers FRAME-003)
+- [ ] T043 [P] Create tests/fixtures/invalid/missing_source.yaml (triggers FRAME-004)
+- [ ] T044 [P] Create tests/fixtures/invalid/both_relation_and_path.yaml (triggers FRAME-005)
+- [ ] T045 [P] Create tests/fixtures/invalid/empty_relation.yaml (triggers FRAME-006)
+- [ ] T046 [P] Create tests/fixtures/invalid/missing_hook_fields.yaml (triggers HOOK-001)
+- [ ] T047 [P] Create tests/fixtures/invalid/invalid_hook_name.yaml (triggers HOOK-002)
+- [ ] T048 [P] Create tests/fixtures/invalid/invalid_hook_role.yaml (triggers HOOK-003)
+- [ ] T049 [P] Create tests/fixtures/invalid/invalid_concept_name.yaml (triggers HOOK-004)
+- [ ] T050 [P] Create tests/fixtures/invalid/invalid_source_case.yaml (triggers HOOK-005)
+- [ ] T051 [P] Create tests/fixtures/invalid/empty_expr.yaml (triggers HOOK-006)
+- [ ] T052 [P] Create tests/fixtures/invalid/forbidden_expr_select.yaml (triggers HOOK-006 forbidden pattern)
+- [ ] T053 [P] Create tests/fixtures/invalid/duplicate_hook_name.yaml (triggers HOOK-007)
+- [ ] T054 [P] Create tests/fixtures/invalid/unused_concept.yaml (triggers CONCEPT-001)
+- [ ] T055 [P] Create tests/fixtures/invalid/short_concept_description.yaml (triggers CONCEPT-002)
+- [ ] T055a [P] Create tests/fixtures/invalid/duplicate_concept_name.yaml (triggers CONCEPT-003)
+- [ ] T056 [P] Create tests/fixtures/invalid/invalid_manifest_version.yaml (triggers MANIFEST-001)
+- [ ] T057 [P] Create tests/fixtures/invalid/invalid_schema_version.yaml (triggers MANIFEST-002)
+- [ ] T057a [P] Create tests/fixtures/warn/unknown_fields.yaml (triggers MANIFEST-W02)
 
 **Checkpoint**: All foundation tests pass - models, validators, rules implemented
 
