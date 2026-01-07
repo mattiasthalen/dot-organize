@@ -265,9 +265,9 @@ Based on plan.md structure:
 - [x] T107 Run spec.md quickstart validation scenarios end-to-end
 - [x] T108 [P] Create tests/performance/test_validation_benchmarks.py - verify NFR-001/002/003 (validation <1s for 1000 lines, <5s for 10000 lines, <100MB memory)
 - [x] T109 [P] Verify functional paradigm compliance (NFR-050 to NFR-058): no stateful classes in core/, pure functions only, frozen models, composition over inheritance
-- [ ] T110 [P] Refactor WizardFrame and WizardState in src/dot/cli/init.py to use frozen dataclasses with tuple[WizardFrame, ...] instead of list[WizardFrame]
-- [ ] T111 [P] Extract `has_meaningful_data()` and `to_dict()` methods from WizardState to standalone pure functions: `wizard_state_has_meaningful_data(state: WizardState) -> bool` and `wizard_state_to_dict(state: WizardState) -> dict[str, Any]`
-- [ ] T112 [P] Update wizard flow to use immutable state transitions (return new WizardState instances instead of mutating)
+- [x] T110 [P] Refactor WizardFrame and WizardState in src/dot/cli/init.py to use frozen dataclasses with tuple[WizardFrame, ...] instead of list[WizardFrame]
+- [x] T111 [P] Extract `has_meaningful_data()` and `to_dict()` methods from WizardState to standalone pure functions: `wizard_state_has_meaningful_data(state: WizardState) -> bool` and `wizard_state_to_dict(state: WizardState) -> dict[str, Any]`
+- [x] T112 [P] Update wizard flow to use immutable state transitions (return new WizardState instances instead of mutating)
 
 ---
 

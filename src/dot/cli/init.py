@@ -1,5 +1,5 @@
 """
-Init command - Interactive manifest builder wizard (T074-T083).
+Init command - Interactive manifest builder wizard (T074-T083, T110-T112).
 
 Implements:
 - T074: Command skeleton with --output, --format flags
@@ -12,13 +12,16 @@ Implements:
 - T081: Save with YAML/JSON format
 - T082: Ctrl+C handler for .dot-draft.yaml
 - T083: TTY detection with helpful error
+- T110: Frozen dataclasses for WizardFrame/WizardState (NFR-057)
+- T111: Pure functions for state operations (NFR-057)
+- T112: Immutable state transitions (NFR-057)
 """
 
 from __future__ import annotations
 
 import signal
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -51,53 +54,124 @@ console = Console()
 err_console = Console(stderr=True)
 
 # =============================================================================
-# Data Classes for Wizard State
+# Data Classes for Wizard State (Frozen per NFR-057)
 # =============================================================================
 
 
-@dataclass
+@dataclass(frozen=True)
 class WizardFrame:
-    """Mutable frame data collected during wizard flow."""
+    """Immutable frame data collected during wizard flow."""
 
     name: str = ""
     source_type: Literal["relation", "path"] = "relation"
     source_value: str = ""
-    hooks: list[dict[str, Any]] = field(default_factory=list)
+    hooks: tuple[dict[str, Any], ...] = ()
 
 
-@dataclass
+@dataclass(frozen=True)
 class WizardState:
-    """Mutable state for the wizard - enables draft saving on interrupt."""
+    """Immutable state for the wizard - enables draft saving on interrupt."""
 
-    frames: list[WizardFrame] = field(default_factory=list)
+    frames: tuple[WizardFrame, ...] = ()
     current_step: str = "start"
     is_complete: bool = False
 
-    def has_meaningful_data(self) -> bool:
-        """Check if there's at least one complete frame worth saving."""
-        return any(f.name and f.source_value and f.hooks for f in self.frames)
 
-    def to_dict(self) -> dict[str, Any]:
-        """Convert to dictionary for YAML serialization."""
-        return {
-            "manifest_version": "1.0.0",
-            "schema_version": "1.0.0",
-            "frames": [
-                {
-                    "name": f.name,
-                    "source": {
-                        f.source_type: f.source_value,
-                    },
-                    "hooks": f.hooks,
-                }
-                for f in self.frames
-                if f.name and f.source_value and f.hooks
-            ],
-            "_wizard_meta": {
-                "current_step": self.current_step,
-                "is_complete": self.is_complete,
-            },
-        }
+# =============================================================================
+# Pure Functions for Wizard State (NFR-057)
+# =============================================================================
+
+
+def wizard_state_has_meaningful_data(state: WizardState) -> bool:
+    """Check if there's at least one complete frame worth saving.
+
+    A frame is considered complete if it has a name, source value, and at least one hook.
+    """
+    return any(f.name and f.source_value and f.hooks for f in state.frames)
+
+
+def wizard_state_to_dict(state: WizardState) -> dict[str, Any]:
+    """Convert wizard state to dictionary for YAML serialization."""
+    return {
+        "manifest_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "frames": [
+            {
+                "name": f.name,
+                "source": {
+                    f.source_type: f.source_value,
+                },
+                "hooks": list(f.hooks),
+            }
+            for f in state.frames
+            if f.name and f.source_value and f.hooks
+        ],
+        "_wizard_meta": {
+            "current_step": state.current_step,
+            "is_complete": state.is_complete,
+        },
+    }
+
+
+def wizard_state_with_step(state: WizardState, step: str) -> WizardState:
+    """Return new WizardState with updated current_step."""
+    return WizardState(
+        frames=state.frames,
+        current_step=step,
+        is_complete=state.is_complete,
+    )
+
+
+def wizard_state_add_frame(state: WizardState, frame: WizardFrame) -> WizardState:
+    """Return new WizardState with frame appended."""
+    return WizardState(
+        frames=state.frames + (frame,),
+        current_step=state.current_step,
+        is_complete=state.is_complete,
+    )
+
+
+def wizard_state_mark_complete(state: WizardState) -> WizardState:
+    """Return new WizardState marked as complete."""
+    return WizardState(
+        frames=state.frames,
+        current_step=state.current_step,
+        is_complete=True,
+    )
+
+
+def wizard_frame_with_name(frame: WizardFrame, name: str) -> WizardFrame:
+    """Return new WizardFrame with updated name."""
+    return WizardFrame(
+        name=name,
+        source_type=frame.source_type,
+        source_value=frame.source_value,
+        hooks=frame.hooks,
+    )
+
+
+def wizard_frame_with_source(
+    frame: WizardFrame,
+    source_type: Literal["relation", "path"],
+    source_value: str,
+) -> WizardFrame:
+    """Return new WizardFrame with updated source."""
+    return WizardFrame(
+        name=frame.name,
+        source_type=source_type,
+        source_value=source_value,
+        hooks=frame.hooks,
+    )
+
+
+def wizard_frame_add_hook(frame: WizardFrame, hook: dict[str, Any]) -> WizardFrame:
+    """Return new WizardFrame with hook appended."""
+    return WizardFrame(
+        name=frame.name,
+        source_type=frame.source_type,
+        source_value=frame.source_value,
+        hooks=frame.hooks + (hook,),
+    )
 
 
 def generate_hook_name(
@@ -142,12 +216,12 @@ def save_draft() -> bool:
     if _wizard_state is None:
         return False
 
-    if not _wizard_state.has_meaningful_data():
+    if not wizard_state_has_meaningful_data(_wizard_state):
         return False
 
     try:
         content = yaml.dump(
-            _wizard_state.to_dict(),
+            wizard_state_to_dict(_wizard_state),
             default_flow_style=False,
             sort_keys=False,
             allow_unicode=True,
@@ -304,9 +378,7 @@ def prompt_choice(message: str, choices: list[str]) -> str:
                 return choices[idx]
         except ValueError:
             pass
-        err_console.print(
-            f"[red]✗[/red] Please enter a number between 1 and {len(choices)}"
-        )
+        err_console.print(f"[red]✗[/red] Please enter a number between 1 and {len(choices)}")
 
 
 # =============================================================================
@@ -330,27 +402,30 @@ def wizard_intro() -> None:
     console.print()
 
 
-def wizard_add_frame(state: WizardState, frame_number: int) -> WizardFrame | None:
-    """Collect information for one frame."""
-    state.current_step = f"frame_{frame_number}"
-
+def wizard_add_frame(frame_number: int) -> WizardFrame | None:
+    """Collect information for one frame using immutable state transitions."""
     console.print(f"\n[bold cyan]Frame {frame_number}[/bold cyan]")
     console.print("[dim]─" * 40 + "[/dim]")
 
+    # Start with empty frame
     frame = WizardFrame()
 
     # Frame name
-    frame.name = prompt_with_validation(
+    name = prompt_with_validation(
         "Frame name [dim](e.g., frame.customers)[/dim]",
         validate_frame_name,
     )
+    frame = wizard_frame_with_name(frame, name)
 
     # Source type
-    source_type = prompt_choice(
+    source_type_str = prompt_choice(
         "Source type:",
         ["relation", "path"],
     )
-    frame.source_type = source_type  # type: ignore[assignment]
+    # Cast to Literal type - prompt_choice guarantees one of these values
+    source_type: Literal["relation", "path"] = (
+        "relation" if source_type_str == "relation" else "path"
+    )
 
     # Source value
     if source_type == "relation":
@@ -358,10 +433,15 @@ def wizard_add_frame(state: WizardState, frame_number: int) -> WizardFrame | Non
     else:
         prompt_msg = "File path [dim](e.g., /data/customers.csv)[/dim]"
 
-    frame.source_value = prompt_with_validation(
+    source_value = prompt_with_validation(
         prompt_msg,
         validate_source_value,
         validator_args=(source_type,),
+    )
+    frame = wizard_frame_with_source(
+        frame,
+        source_type,
+        source_value,
     )
 
     # Hooks - at least one primary hook required
@@ -419,7 +499,8 @@ def wizard_add_frame(state: WizardState, frame_number: int) -> WizardFrame | Non
             console=console,
         )
 
-        frame.hooks.append(
+        frame = wizard_frame_add_hook(
+            frame,
             {
                 "name": hook_name,
                 "role": "primary",
@@ -428,7 +509,7 @@ def wizard_add_frame(state: WizardState, frame_number: int) -> WizardFrame | Non
                 "source": hook_source,
                 "tenant": tenant,
                 "expr": expr,
-            }
+            },
         )
 
         # Ask if they want to add another hook (for composite grain)
@@ -447,7 +528,7 @@ def wizard_preview(state: WizardState) -> None:
     console.print("\n[bold cyan]Preview[/bold cyan]")
     console.print("[dim]─" * 40 + "[/dim]")
 
-    data = state.to_dict()
+    data = wizard_state_to_dict(state)
     # Remove wizard meta for preview
     data.pop("_wizard_meta", None)
 
@@ -669,9 +750,7 @@ def build_manifest_from_seed(seed: dict[str, Any]) -> Manifest:
             expr = h["expr"]
 
             # Auto-generate hook name if not provided
-            name = h.get("name") or generate_hook_name(
-                concept, hook_source, qualifier, tenant
-            )
+            name = h.get("name") or generate_hook_name(concept, hook_source, qualifier, tenant)
 
             hooks.append(
                 Hook(
@@ -794,9 +873,7 @@ def init_command(
 
             manifest = build_manifest_from_seed(seed)
             write_manifest(manifest, output_path, output_format)
-            console.print(
-                f"[green]✓[/green] Manifest written to [cyan]{output_path}[/cyan]"
-            )
+            console.print(f"[green]✓[/green] Manifest written to [cyan]{output_path}[/cyan]")
             return
 
         except FileNotFoundError as e:
@@ -823,9 +900,7 @@ def init_command(
 
         manifest = build_manifest_from_flags(concept, source)
         write_manifest(manifest, output_path, output_format)
-        console.print(
-            f"[green]✓[/green] Manifest written to [cyan]{output_path}[/cyan]"
-        )
+        console.print(f"[green]✓[/green] Manifest written to [cyan]{output_path}[/cyan]")
         return
 
     # ==========================================================================
@@ -849,19 +924,22 @@ def init_command(
     # Set up signal handler for Ctrl+C
     setup_signal_handlers()
 
-    # Initialize wizard state
+    # Initialize wizard state (immutable - reassigned on each transition)
     _wizard_state = WizardState()
 
     # Show intro
     wizard_intro()
 
     try:
-        # Collect frames
+        # Collect frames using immutable state transitions
         frame_number = 1
         while True:
-            frame = wizard_add_frame(_wizard_state, frame_number)
+            # Update current step
+            _wizard_state = wizard_state_with_step(_wizard_state, f"frame_{frame_number}")
+
+            frame = wizard_add_frame(frame_number)
             if frame:
-                _wizard_state.frames.append(frame)
+                _wizard_state = wizard_state_add_frame(_wizard_state, frame)
 
             # Ask if they want to add another frame
             if not Confirm.ask(
@@ -897,12 +975,10 @@ def init_command(
         manifest = build_manifest(_wizard_state)
         write_manifest(manifest, output_path, output_format)
 
-        console.print(
-            f"\n[green]✓[/green] Manifest written to [cyan]{output_path}[/cyan]"
-        )
+        console.print(f"\n[green]✓[/green] Manifest written to [cyan]{output_path}[/cyan]")
 
-        # Mark complete (so draft won't be saved if interrupted now)
-        _wizard_state.is_complete = True
+        # Mark complete using immutable transition
+        _wizard_state = wizard_state_mark_complete(_wizard_state)
 
     except KeyboardInterrupt:
         # Handled by signal handler
