@@ -350,7 +350,7 @@ The tool automatically derives from frames and populates manifest sections:
 | FRAME-W02 | Multiple frames share same source field value | Principle V |
 | FRAME-W03 | Frame has more than 20 hooks (complexity advisory) | Principle X |
 | MANIFEST-W01 | Manifest has more than 50 frames (performance advisory) | Principle X |
-| MANIFEST-W02 | Unknown fields in manifest (forward compatibility warning) | Principle VIII |
+| MANIFEST-W02 | Unknown fields in manifest root (forward compatibility warning). Known fields: `manifest_version`, `schema_version`, `metadata`, `settings`, `frames`, `concepts`, `keysets` | Principle VIII |
 
 ---
 
