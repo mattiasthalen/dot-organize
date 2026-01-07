@@ -51,8 +51,33 @@ class ParseError(Exception):
 
 
 def _create_yaml() -> YAML:
-    """Create configured YAML instance."""
+    """Create configured YAML instance.
+    
+    Configures ruamel.yaml to:
+    - Preserve key order (default mapping)
+    - Use block style (not flow style)
+    - No !!omap tags (standard dict output)
+    """
     yaml = YAML()
+    yaml.default_flow_style = False
+    # Use default_style=None to avoid !omap tags
+    return yaml
+
+
+def _convert_ordered_dict_to_dict(data: Any) -> Any:
+    """Recursively convert OrderedDict to regular dict for serialization.
+    
+    This ensures ruamel.yaml outputs regular mappings without !!omap tags.
+    """
+    from collections import OrderedDict
+    
+    if isinstance(data, (dict, OrderedDict)):
+        return {k: _convert_ordered_dict_to_dict(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [_convert_ordered_dict_to_dict(item) for item in data]
+    elif isinstance(data, tuple):
+        return [_convert_ordered_dict_to_dict(item) for item in data]
+    return data
     yaml.preserve_quotes = True
     yaml.default_flow_style = False
     return yaml
@@ -159,8 +184,9 @@ def dump_manifest_yaml(manifest: Manifest, path: Path | None = None) -> str | No
     """
     yaml = _create_yaml()
 
-    # Convert to dict with proper key order
-    data = _manifest_to_ordered_dict(manifest)
+    # Convert to dict with proper key order, then to regular dicts to avoid !!omap
+    ordered_data = _manifest_to_ordered_dict(manifest)
+    data = _convert_ordered_dict_to_dict(ordered_data)
 
     if path is None:
         from io import StringIO

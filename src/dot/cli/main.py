@@ -44,8 +44,10 @@ def main(
 
 # Import and register subcommands
 from dot.cli.validate import validate  # noqa: E402
+from dot.cli.init import init_command  # noqa: E402
 
 app.command("validate")(validate)
+app.command("init")(init_command)
 
 
 if __name__ == "__main__":

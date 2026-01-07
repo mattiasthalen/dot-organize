@@ -170,7 +170,7 @@ Based on plan.md structure:
 
 ### Tests for User Story 2 (TDD - Write FIRST, must FAIL) ⚠️
 
-- [ ] T073 [P] [US2] Create tests/integration/test_cli_init.py with wizard integration tests:
+- [X] T073 [P] [US2] Create tests/integration/test_cli_init.py with wizard integration tests:
   - Complete wizard flow → valid manifest created
   - Invalid input → rejection with re-prompt
   - Summary preview before write
@@ -181,16 +181,16 @@ Based on plan.md structure:
 
 ### Implementation for User Story 2
 
-- [ ] T074 [US2] Implement init command skeleton in src/dot/cli/init.py (--output, --format flags)
-- [ ] T075 [US2] Implement frame-first wizard workflow in src/dot/cli/init.py using questionary
-- [ ] T076 [US2] Implement input validation in wizard (reject invalid names with actionable errors)
-- [ ] T077 [US2] Implement auto-suggest for valid names based on naming conventions
-- [ ] T078 [US2] Implement auto-generate key set values using CONCEPT[~QUALIFIER]@SOURCE[~TENANT] recipe
-- [ ] T079 [US2] Implement summary preview display before writing manifest
-- [ ] T080 [US2] Implement overwrite confirmation prompt for existing files
-- [ ] T081 [US2] Implement manifest save with YAML/JSON format based on --format flag
-- [ ] T082 [US2] Implement Ctrl+C handler to save .dot-draft.yaml if ≥1 frame entered
-- [ ] T083 [US2] Implement TTY detection with helpful error for non-interactive mode
+- [X] T074 [US2] Implement init command skeleton in src/dot/cli/init.py (--output, --format flags)
+- [X] T075 [US2] Implement frame-first wizard workflow in src/dot/cli/init.py using questionary
+- [X] T076 [US2] Implement input validation in wizard (reject invalid names with actionable errors)
+- [X] T077 [US2] Implement auto-suggest for valid names based on naming conventions
+- [X] T078 [US2] Implement auto-generate key set values using CONCEPT[~QUALIFIER]@SOURCE[~TENANT] recipe
+- [X] T079 [US2] Implement summary preview display before writing manifest
+- [X] T080 [US2] Implement overwrite confirmation prompt for existing files
+- [X] T081 [US2] Implement manifest save with YAML/JSON format based on --format flag
+- [X] T082 [US2] Implement Ctrl+C handler to save .dot-draft.yaml if ≥1 frame entered
+- [X] T083 [US2] Implement TTY detection with helpful error for non-interactive mode
 
 **Checkpoint**: `dot init` wizard creates valid manifests - User Story 2 complete and independently testable
 
