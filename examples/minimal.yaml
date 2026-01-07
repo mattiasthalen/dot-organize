@@ -1,0 +1,33 @@
+# Manifest Example: Minimal
+#
+# This is the simplest possible valid manifest with a single frame
+# using a relational database source.
+#
+# Use case: Single table exposure for analytics
+
+manifest_version: "1.0.0"
+schema_version: "1.0.0"
+
+frames:
+  - name: frame.customer
+    source:
+      relation: "warehouse.public.customers"
+    hooks:
+      - name: _hk__customer
+        role: primary
+        concept: customer
+        source: CRM
+        expr: "id"
+
+# Auto-populated concepts (FR-037)
+concepts:
+  - name: customer
+    frames:
+      - frame.customer
+
+# Auto-populated keysets (FR-039)
+keysets:
+  - name: CUSTOMER@CRM
+    concept: customer
+    frames:
+      - frame.customer

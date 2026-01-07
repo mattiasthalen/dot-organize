@@ -1,0 +1,45 @@
+# T039b: Key alias manifest - same concept with different qualifiers
+# Demonstrates key aliases: ORDER~NUMBER@ERP and ORDER~ID@ERP
+manifest_version: "1.0.0"
+schema_version: "1.0.0"
+
+metadata:
+  name: "key-alias-manifest"
+  description: "Manifest demonstrating key aliases with qualifiers"
+
+settings:
+  hook_prefix: "_hk__"
+  weak_key_prefix: "_wk__"
+  key_separator: "|"
+
+frames:
+  - name: "psa.order"
+    source:
+      relation: "psa.order"
+    hooks:
+      # Primary hook with qualifier 'number' -> ORDER~NUMBER@ERP
+      - name: "_hk__order__number"
+        role: "primary"
+        concept: "order"
+        qualifier: "number"
+        source: "ERP"
+        expr: "order_number"
+      # Alternate key with qualifier 'id' -> ORDER~ID@ERP
+      - name: "_hk__order__id"
+        role: "primary"
+        concept: "order"
+        qualifier: "id"
+        source: "ERP"
+        expr: "order_id"
+      # Foreign hook to customer
+      - name: "_hk__customer"
+        role: "foreign"
+        concept: "customer"
+        source: "CRM"
+        expr: "customer_id"
+
+concepts:
+  - name: "order"
+    description: "A sales order with multiple identification methods"
+  - name: "customer"
+    description: "A customer entity who places orders"

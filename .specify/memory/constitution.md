@@ -1,28 +1,29 @@
 <!--
   SYNC IMPACT REPORT
-  Version change: N/A → 1.0.0 (initial ratification)
+  Version change: 1.1.0 → 1.2.0
+  Bump rationale: MINOR — new mandatory Spec-First Change Management guidance added
   
   Added Sections:
-  - Core Principles (10 principles)
-  - HOOK Semantic Definitions
-  - Prohibited Patterns
-  - Relationship and Traversal Rules
-  - Manifest and Governance Rules
-  - Generator Constraints
-  - Project-Level Constraints
-  - Governance
+  - Project-Level Constraints > Spec-First Change Management
+  
+  Modified Sections:
+  - None
+  
+  Removed Sections:
+  - None
   
   Templates requiring updates:
-  - .specify/templates/plan-template.md ✅ (no HOOK-specific updates required)
-  - .specify/templates/spec-template.md ✅ (no HOOK-specific updates required)
-  - .specify/templates/tasks-template.md ✅ (no HOOK-specific updates required)
+  - .specify/templates/plan-template.md ✅ (no updates required)
+  - .specify/templates/spec-template.md ✅ (no updates required)
+  - .specify/templates/tasks-template.md ✅ (no updates required)
   
-  Follow-up TODOs: None
+  Follow-up TODOs:
+  - None
 -->
 
-# HOOK Python Library Constitution
+# dot-organize Constitution
 
-This constitution governs the development of an open-source Python CLI and library that implements the HOOK methodology for data warehouse organisation. HOOK is an **organising discipline**, not a data modelling technique.
+This constitution governs the development of `dot-organize`, an open-source Python CLI and library that implements the HOOK methodology for data warehouse organisation. HOOK is an **organising discipline**, not a data modelling technique.
 
 ---
 
@@ -239,7 +240,7 @@ The manifest is a declarative file (YAML, JSON, or equivalent) that defines:
 
 - **Business concepts**: name, definition, examples.
 - **Key sets**: value, owning business concept.
-- **Hooks**: name, business concept, key set, source column(s), treatment rules.
+- **Hooks**: name, business concept, key set, source column(s).
 - **Frames**: name, source table, hooks, grain indicators.
 
 ### Manifest Evolution
@@ -279,6 +280,23 @@ Generators produce output (SQL, USS SQL, Qlik scripts, etc.) from the manifest.
 
 ## Project-Level Constraints
 
+### Programming Paradigm (Functional-First)
+
+The codebase MUST follow a **functional programming paradigm**. Object-oriented patterns (classes with mutable state, inheritance hierarchies, method-heavy objects) are FORBIDDEN except where explicitly permitted below.
+
+- **Data structures** MUST be immutable. Use frozen `dataclasses`, `NamedTuple`, or `TypedDict` for structured data.
+- **Logic** MUST be expressed as pure functions that take inputs and return outputs without side effects.
+- **State** MUST NOT be encapsulated in objects. Stateful operations (I/O, configuration) MUST be isolated at application boundaries.
+- **Composition** MUST favour function composition and pipelines over inheritance and method chaining.
+- **Classes** are PERMITTED only for:
+  - Frozen dataclasses or NamedTuples (data containers with no behaviour).
+  - Protocol/ABC definitions for type contracts (no implementation).
+  - Framework-mandated patterns (e.g., Typer command classes, Pydantic models configured as frozen/immutable).
+- **Inheritance** MUST NOT be used for code reuse; use composition or higher-order functions instead.
+- **Methods** on data classes MUST be limited to `__str__`, `__repr__`, `__hash__`, `__eq__`, and property accessors. Business logic MUST NOT reside in methods.
+
+**Rationale**: Functional programming aligns with HOOK's philosophy of simplicity and entropy resistance. Pure functions are easier to test, reason about, and compose. Immutable data prevents hidden state mutations that cause bugs. This paradigm reduces cognitive load and maintenance burden.
+
 ### Python CLI and Library
 
 - The library MUST be usable as a Python import and as a standalone CLI.
@@ -288,9 +306,27 @@ Generators produce output (SQL, USS SQL, Qlik scripts, etc.) from the manifest.
 
 ### Testing
 
+- Tests SHOULD be written before or alongside implementation (test-driven development is encouraged).
 - Every principle in this constitution MUST have corresponding tests.
 - Prohibited patterns MUST have negative tests (tests that verify rejection).
 - Integration tests MUST validate end-to-end flows: manifest → validation → generation.
+
+### Spec-First Change Management
+
+When bugs, behavioral changes, or new requirements are identified:
+
+1. **Spec First**: The specification (spec.md) MUST be updated first to clarify the correct/intended behavior.
+2. **Plan Alignment**: The implementation plan (plan.md) MUST be reviewed for any required updates.
+3. **Task Creation**: Refactoring or fix tasks MUST be added to tasks.md before implementation begins.
+4. **Implementation Last**: Code changes MUST follow the updated specification, not precede it.
+
+This ensures:
+- The spec remains the **single source of truth** for intended behavior.
+- Changes are **traceable**: spec change → task → implementation.
+- Future developers understand the *intended* behavior, not just the current implementation.
+- **No silent fixes**: All behavioral changes are documented and discoverable.
+
+**Rationale**: Specifications rot when implementation diverges without updates. Spec-first discipline prevents documentation drift and maintains alignment between intent and reality.
 
 ### Versioning
 
@@ -298,6 +334,27 @@ Generators produce output (SQL, USS SQL, Qlik scripts, etc.) from the manifest.
 - MAJOR: breaking API or manifest schema changes.
 - MINOR: new features, backward-compatible.
 - PATCH: bug fixes, documentation, refactoring.
+
+### Commit Message Standards
+
+Commit messages MUST use the following prefixes to indicate the type of change:
+
+| Prefix | Usage |
+|--------|-------|
+| `spec:` | Specification changes (specs/, clarifications, requirements) |
+| `impl:` | Implementation changes (source code, tests) |
+| `docs:` | Documentation only (README, user guides, API docs) |
+| `fix:` | Bug fixes |
+| `refactor:` | Code restructuring without behavior change |
+| `chore:` | Tooling, CI, dependencies |
+
+**Format**: `<prefix> <short description>` (lowercase prefix, imperative mood)
+
+**Examples**:
+- `spec: add manifest builder feature specification`
+- `impl: add YAML validation for manifest schema`
+- `fix: handle null business keys correctly`
+- `docs: update README with installation instructions`
 
 ### Open Source
 
@@ -335,4 +392,4 @@ This constitution supersedes all other practices, conventions, and informal agre
 
 ---
 
-**Version**: 1.0.0 | **Ratified**: 2026-01-04 | **Last Amended**: 2026-01-04
+**Version**: 1.2.0 | **Ratified**: 2026-01-04 | **Last Amended**: 2026-01-07

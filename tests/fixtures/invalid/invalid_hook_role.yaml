@@ -1,0 +1,19 @@
+# T048: Triggers HOOK-003 - Hook role must be 'primary' or 'foreign'
+# Note: This is validated by Pydantic enum, so use invalid string value
+manifest_version: "1.0.0"
+schema_version: "1.0.0"
+
+frames:
+  - name: "psa.customer"
+    source:
+      relation: "psa.customer"
+    hooks:
+      - name: "_hk__customer"
+        role: "main"  # Invalid role value -> HOOK-003 (or Pydantic validation error)
+        concept: "customer"
+        source: "CRM"
+        expr: "customer_id"
+
+concepts:
+  - name: "customer"
+    description: "A customer entity for testing"

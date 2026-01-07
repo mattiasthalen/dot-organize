@@ -1,0 +1,18 @@
+# T042: Triggers FRAME-003 - Frame must have at least one primary hook
+manifest_version: "1.0.0"
+schema_version: "1.0.0"
+
+frames:
+  - name: "psa.order"
+    source:
+      relation: "psa.order"
+    hooks:
+      - name: "_hk__customer"
+        role: "foreign"  # Only foreign, no primary -> FRAME-003
+        concept: "customer"
+        source: "CRM"
+        expr: "customer_id"
+
+concepts:
+  - name: "customer"
+    description: "A customer entity for testing"

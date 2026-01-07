@@ -1,0 +1,194 @@
+# Manifest Example: Complex
+#
+# Demonstrates advanced features:
+# - Multiple source systems
+# - Qualified hooks (_hk__customer__premium)
+# - Tenant isolation (UPPER_SNAKE_CASE)
+# - Multiple hook types per frame
+# - Mixed source types (relation + path)
+#
+# Use case: Enterprise data mesh with multiple bounded contexts
+
+manifest_version: "1.0.0"
+schema_version: "1.0.0"
+
+frames:
+  # CRM Domain - Customer data with tenant isolation
+  - name: crm.customer
+    source:
+      relation: "crm_postgres.public.customers"
+    hooks:
+      # Primary customer hook with tenant isolation
+      - name: _hk__customer
+        role: primary
+        concept: customer
+        source: CRM
+        tenant: ACME
+        expr: "customer_uuid"
+
+      # Qualified hook for premium customers only
+      - name: _hk__customer__premium
+        role: primary
+        concept: customer
+        qualifier: premium
+        source: CRM
+        tenant: ACME
+        expr: "CASE WHEN tier = 'premium' THEN customer_uuid END"
+
+      # Foreign hook for account manager
+      - name: _hk__employee
+        role: foreign
+        concept: employee
+        source: CRM
+        tenant: ACME
+        expr: "account_manager_id"
+
+  # Finance Domain - Transaction data from Snowflake
+  - name: finance.transaction
+    source:
+      relation: "snowflake_warehouse.finance.transactions"
+    hooks:
+      - name: _hk__transaction
+        role: primary
+        concept: transaction
+        source: FINANCE
+        expr: "txn_id"
+
+      # Cross-system customer reference
+      - name: _hk__customer
+        role: foreign
+        concept: customer
+        source: FINANCE
+        expr: "customer_id"
+
+      - name: _hk__merchant
+        role: foreign
+        concept: merchant
+        source: FINANCE
+        expr: "merchant_id"
+
+  # Analytics Domain - Aggregated metrics from parquet files
+  - name: analytics.customer_metrics
+    source:
+      path: "s3://analytics-lake/customer_metrics/dt=*/*.parquet"
+    hooks:
+      - name: _hk__customer
+        role: primary
+        concept: customer
+        source: ANALYTICS
+        expr: "customer_id"
+
+  # Product Domain - Catalog with categories
+  - name: erp.product
+    source:
+      relation: "erp_mysql.inventory.products"
+    hooks:
+      - name: _hk__product
+        role: primary
+        concept: product
+        source: ERP
+        expr: "product_id"
+
+      # Alternative hook using SKU
+      - name: _hk__product__sku
+        role: primary
+        concept: product
+        qualifier: sku
+        source: ERP
+        expr: "sku"
+
+      - name: _hk__category
+        role: foreign
+        concept: category
+        source: ERP
+        expr: "category_id"
+
+  - name: erp.category
+    source:
+      relation: "erp_mysql.inventory.categories"
+    hooks:
+      - name: _hk__category
+        role: primary
+        concept: category
+        source: ERP
+        expr: "category_id"
+
+      # Self-referential hook for parent
+      - name: _hk__category__parent
+        role: foreign
+        concept: category
+        qualifier: parent
+        source: ERP
+        expr: "parent_category_id"
+
+# Auto-populated concepts (FR-037)
+concepts:
+  - name: category
+    frames:
+      - erp.category
+      - erp.product
+  - name: customer
+    frames:
+      - analytics.customer_metrics
+      - crm.customer
+      - finance.transaction
+  - name: employee
+    frames:
+      - crm.customer
+  - name: merchant
+    frames:
+      - finance.transaction
+  - name: product
+    frames:
+      - erp.product
+  - name: transaction
+    frames:
+      - finance.transaction
+
+# Auto-populated keysets (FR-039)
+keysets:
+  - name: CATEGORY@ERP
+    concept: category
+    frames:
+      - erp.category
+      - erp.product
+  - name: CATEGORY~PARENT@ERP
+    concept: category
+    frames:
+      - erp.category
+  - name: CUSTOMER@ANALYTICS
+    concept: customer
+    frames:
+      - analytics.customer_metrics
+  - name: CUSTOMER@CRM~ACME
+    concept: customer
+    frames:
+      - crm.customer
+  - name: CUSTOMER@FINANCE
+    concept: customer
+    frames:
+      - finance.transaction
+  - name: CUSTOMER~PREMIUM@CRM~ACME
+    concept: customer
+    frames:
+      - crm.customer
+  - name: EMPLOYEE@CRM~ACME
+    concept: employee
+    frames:
+      - crm.customer
+  - name: MERCHANT@FINANCE
+    concept: merchant
+    frames:
+      - finance.transaction
+  - name: PRODUCT@ERP
+    concept: product
+    frames:
+      - erp.product
+  - name: PRODUCT~SKU@ERP
+    concept: product
+    frames:
+      - erp.product
+  - name: TRANSACTION@FINANCE
+    concept: transaction
+    frames:
+      - finance.transaction
