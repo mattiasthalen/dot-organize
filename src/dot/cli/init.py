@@ -175,23 +175,24 @@ def wizard_frame_add_hook(frame: WizardFrame, hook: dict[str, Any]) -> WizardFra
 
 
 def generate_hook_name(
-    concept: str, source: str, qualifier: str | None = None, tenant: str | None = None
+    concept: str, qualifier: str | None = None, is_weak: bool = False
 ) -> str:
     """
-    Generate hook name following CONCEPT[~QUALIFIER]@SOURCE[~TENANT] recipe (T078).
+    Generate hook name following FR-051 pattern: <prefix><concept>[__<qualifier>].
+
+    Source and tenant are NOT part of the hook name - they belong in the
+    auto-derived key set per FR-054.
 
     Examples:
-        - customer@CRM -> _hk__customer__crm
-        - customer~manager@CRM -> _hk__customer__manager__crm
-        - customer@CRM~AU -> _hk__customer__crm__au
+        - customer -> _hk__customer
+        - customer + manager -> _hk__customer__manager
+        - customer (weak) -> _wk__customer
     """
-    parts = ["_hk"]
+    prefix = "_wk" if is_weak else "_hk"
+    parts = [prefix]
     parts.append(concept.lower())
     if qualifier:
         parts.append(qualifier.lower())
-    parts.append(source.lower())
-    if tenant:
-        parts.append(tenant.lower())
     return "__".join(parts)
 
 
@@ -487,9 +488,13 @@ def wizard_add_frame(frame_number: int) -> WizardFrame | None:
             or None
         )
 
-        # Generate hook name
-        hook_name = generate_hook_name(concept, hook_source, qualifier, tenant)
-        console.print(f"[dim]Generated hook name: [cyan]{hook_name}[/cyan][/dim]")
+        # Generate suggested hook name and prompt user (FR-026: auto-suggest, not auto-generate)
+        suggested_hook_name = generate_hook_name(concept, qualifier)
+        hook_name = Prompt.ask(
+            "Hook name",
+            default=suggested_hook_name,
+            console=console,
+        )
 
         # Ask for SQL expression (key column by default)
         default_expr = f"{concept}_id"
@@ -750,7 +755,7 @@ def build_manifest_from_seed(seed: dict[str, Any]) -> Manifest:
             expr = h["expr"]
 
             # Auto-generate hook name if not provided
-            name = h.get("name") or generate_hook_name(concept, hook_source, qualifier, tenant)
+            name = h.get("name") or generate_hook_name(concept, qualifier)
 
             hooks.append(
                 Hook(
@@ -787,7 +792,7 @@ def build_manifest_from_flags(concept: str, source: str) -> Manifest:
     relation = f"raw.{concept}s"
 
     # Auto-generate hook
-    hook_name = generate_hook_name(concept, source)
+    hook_name = generate_hook_name(concept)
     expr = f"{concept}_id"
 
     hook = Hook(

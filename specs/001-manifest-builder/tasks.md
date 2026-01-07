@@ -288,11 +288,11 @@ Based on plan.md structure:
 
 ### Bug Fixes
 
-- [ ] T120 Fix generate_hook_name to follow FR-051: Hook names MUST use `<prefix><concept>[__<qualifier>]` pattern. Source and tenant are NOT part of the hook name (they belong in the auto-derived key set per FR-054).
+- [x] T120 Fix generate_hook_name to follow FR-051: Hook names MUST use `<prefix><concept>[__<qualifier>]` pattern. Source and tenant are NOT part of the hook name (they belong in the auto-derived key set per FR-054).
   - Fix generate_hook_name() signature: remove source/tenant params, add is_weak param
   - Update wizard to prompt user for hook name with suggested default (FR-026: auto-suggest, not auto-generate)
   - Update tests to include hook_name in wizard input sequence
-- [ ] T121 Update test_cli_init.py: Add hook_name to make_wizard_input helper and fix all interactive wizard test inputs
+- [x] T121 Update test_cli_init.py: Add hook_name to make_wizard_input helper and fix all interactive wizard test inputs
 
 ---
 

@@ -51,6 +51,7 @@ def make_wizard_input(
     concept: str = "customer",
     qualifier: str = "",
     tenant: str = "",
+    hook_name: str = "",
     expr: str = "customer_id",
     add_more_frames: bool = False,
     confirm_write: bool = True,
@@ -67,10 +68,11 @@ def make_wizard_input(
     5. Business concept
     6. Qualifier (optional)
     7. Tenant (optional)
-    8. SQL expression
-    9. Add another hook? (for composite grain)
-    10. Add another frame?
-    11. Confirm write?
+    8. Hook name (with default suggestion per FR-051)
+    9. SQL expression
+    10. Add another hook? (for composite grain)
+    11. Add another frame?
+    12. Confirm write?
     """
     lines = [
         frame_name,  # Frame name
@@ -80,6 +82,7 @@ def make_wizard_input(
         concept,  # Business concept
         qualifier,  # Qualifier (empty = skip)
         tenant,  # Tenant (empty = skip)
+        hook_name,  # Hook name (empty = accept default)
         expr,  # SQL expression
     ]
 
@@ -90,6 +93,7 @@ def make_wizard_input(
             lines.append(hook.get("concept", "item"))
             lines.append(hook.get("qualifier", ""))
             lines.append(hook.get("tenant", ""))
+            lines.append(hook.get("hook_name", ""))  # Hook name (empty = accept default)
             lines.append(hook.get("expr", "item_id"))
 
     lines.append("n")  # Done adding hooks
@@ -220,6 +224,7 @@ class TestWizardInputValidation:
             "customer",  # Concept
             "",  # Qualifier (empty)
             "",  # Tenant (empty)
+            "",  # Hook name (accept default)
             "customer_id",  # SQL expression
             "n",  # Done adding hooks
             "n",  # No more frames
@@ -248,6 +253,7 @@ class TestWizardInputValidation:
             "customer",  # Concept
             "",  # Qualifier
             "",  # Tenant
+            "",  # Hook name (accept default)
             "customer_id",  # Expression
             "n",  # Done adding hooks
             "n",  # No more frames
@@ -287,6 +293,7 @@ class TestWizardOverwrite:
             "customer",
             "",  # qualifier
             "",  # tenant
+            "",  # hook_name (accept default)
             "customer_id",
             "n",
             "n",
@@ -318,6 +325,7 @@ class TestWizardOverwrite:
             "customer",
             "",  # qualifier
             "",  # tenant
+            "",  # hook_name (accept default)
             "customer_id",
             "n",
             "n",
@@ -481,6 +489,7 @@ class TestMultipleFrames:
             "customer",  # concept
             "",  # qualifier
             "",  # tenant
+            "",  # hook_name (accept default)
             "customer_id",  # expr
             "n",  # done with hooks
             "y",  # add another frame
@@ -492,6 +501,7 @@ class TestMultipleFrames:
             "order",  # concept
             "",  # qualifier
             "",  # tenant
+            "",  # hook_name (accept default)
             "order_id",  # expr
             "n",  # done with hooks
             "n",  # no more frames
@@ -520,11 +530,13 @@ class TestMultipleFrames:
             "order",  # first concept
             "",  # qualifier
             "",  # tenant
+            "",  # hook_name (accept default: _hk__order)
             "order_id",  # expr
             "y",  # add another hook
             "item",  # second concept
             "",  # qualifier
             "",  # tenant
+            "",  # hook_name (accept default: _hk__item)
             "item_id",  # expr
             "n",  # done with hooks
             "n",  # no more frames
@@ -564,6 +576,7 @@ class TestFileBasedSource:
             "customer",  # concept
             "",  # qualifier
             "",  # tenant
+            "",  # hook_name (accept default)
             "customer_id",  # expr
             "n",  # done with hooks
             "n",  # no more frames
