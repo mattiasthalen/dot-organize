@@ -229,7 +229,7 @@ Based on plan.md structure:
 
 ### Tests for User Story 4 (TDD - Write FIRST, must FAIL) ⚠️
 
-- [ ] T090 [P] [US4] Create tests/integration/test_cli_examples.py with tests:
+- [X] T090 [P] [US4] Create tests/integration/test_cli_examples.py with tests:
   - `dot examples list` → lists available examples
   - `dot examples show minimal` → prints example to stdout
   - `dot examples show typical --output ./my-manifest.yaml` → writes to file
@@ -237,14 +237,14 @@ Based on plan.md structure:
 
 ### Implementation for User Story 4
 
-- [ ] T091 [US4] Create examples/minimal.yaml (relation source, per spec.md Example A)
-- [ ] T092 [P] [US4] Create examples/file_based.yaml (path source, per spec.md Example B)
-- [ ] T093 [P] [US4] Create examples/typical.yaml (header/line pattern, order + order_line)
-- [ ] T094 [P] [US4] Create examples/complex.yaml (multi-source, qualifiers, tenant, weak hooks)
-- [ ] T095 [US4] Implement examples list command in src/dot/cli/examples.py
-- [ ] T096 [US4] Implement examples show command in src/dot/cli/examples.py (--output flag)
-- [ ] T097 [US4] Bundle examples in package data via pyproject.toml [tool.setuptools.package-data]
-- [ ] T098 [P] [US4] Create tests/integration/test_golden.py - golden tests verifying all examples pass validation
+- [X] T091 [US4] Create examples/minimal.yaml (relation source, per spec.md Example A)
+- [X] T092 [P] [US4] Create examples/file_based.yaml (path source, per spec.md Example B)
+- [X] T093 [P] [US4] Create examples/typical.yaml (header/line pattern, order + order_line)
+- [X] T094 [P] [US4] Create examples/complex.yaml (multi-source, qualifiers, tenant, weak hooks)
+- [X] T095 [US4] Implement examples list command in src/dot/cli/examples.py
+- [X] T096 [US4] Implement examples show command in src/dot/cli/examples.py (--output flag)
+- [X] T097 [US4] Bundle examples in package data via pyproject.toml [tool.setuptools.package-data]
+- [X] T098 [P] [US4] Create tests/integration/test_golden.py - golden tests verifying all examples pass validation
 
 **Checkpoint**: `dot examples` commands work - User Story 4 complete and independently testable
 

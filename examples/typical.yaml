@@ -1,0 +1,56 @@
+# HOOK Manifest Example: Typical (Header/Line Pattern)
+#
+# Demonstrates the common header/line pattern with entity relationships.
+# This is how most business data is structured - a header record with
+# related line items.
+#
+# Use case: Order management system with header/line relationships
+
+manifest_version: "1.0.0"
+schema_version: "1.0.0"
+
+frames:
+  - name: staging.order_header
+    source:
+      relation: "orders_db.public.orders"
+    hooks:
+      - name: _hk__order
+        role: primary
+        concept: order
+        source: ECOMMERCE
+        expr: "order_id"
+      - name: _hk__customer
+        role: foreign
+        concept: customer
+        source: ECOMMERCE
+        expr: "customer_id"
+
+  - name: staging.order_line
+    source:
+      relation: "orders_db.public.order_lines"
+    hooks:
+      - name: _hk__order_line
+        role: primary
+        concept: order_line
+        source: ECOMMERCE
+        expr: "line_id"
+      - name: _hk__order
+        role: foreign
+        concept: order
+        source: ECOMMERCE
+        expr: "order_id"
+      - name: _hk__product
+        role: foreign
+        concept: product
+        source: ECOMMERCE
+        expr: "product_sku"
+
+  - name: staging.customer
+    source:
+      relation: "customers_db.public.customers"
+    hooks:
+      - name: _hk__customer
+        role: primary
+        concept: customer
+        source: ECOMMERCE
+        expr: "customer_id"
