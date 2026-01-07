@@ -1,10 +1,10 @@
 <!--
   SYNC IMPACT REPORT
-  Version change: 1.0.0 → 1.1.0
-  Bump rationale: MINOR — new mandatory programming paradigm guidance added
+  Version change: 1.1.0 → 1.2.0
+  Bump rationale: MINOR — new mandatory Spec-First Change Management guidance added
   
   Added Sections:
-  - Project-Level Constraints > Programming Paradigm (Functional-First)
+  - Project-Level Constraints > Spec-First Change Management
   
   Modified Sections:
   - None
@@ -13,13 +13,12 @@
   - None
   
   Templates requiring updates:
-  - .specify/templates/plan-template.md ✅ (no paradigm-specific updates required)
-  - .specify/templates/spec-template.md ✅ (no paradigm-specific updates required)
-  - .specify/templates/tasks-template.md ✅ (no paradigm-specific updates required)
+  - .specify/templates/plan-template.md ✅ (no updates required)
+  - .specify/templates/spec-template.md ✅ (no updates required)
+  - .specify/templates/tasks-template.md ✅ (no updates required)
   
   Follow-up TODOs:
-  - ⚠ REFACTOR REQUIRED: 82 classes in current implementation violate functional-first paradigm.
-    Migrate to frozen dataclasses/NamedTuples for data, pure functions for logic.
+  - None
 -->
 
 # dot-organize Constitution
@@ -312,6 +311,23 @@ The codebase MUST follow a **functional programming paradigm**. Object-oriented 
 - Prohibited patterns MUST have negative tests (tests that verify rejection).
 - Integration tests MUST validate end-to-end flows: manifest → validation → generation.
 
+### Spec-First Change Management
+
+When bugs, behavioral changes, or new requirements are identified:
+
+1. **Spec First**: The specification (spec.md) MUST be updated first to clarify the correct/intended behavior.
+2. **Plan Alignment**: The implementation plan (plan.md) MUST be reviewed for any required updates.
+3. **Task Creation**: Refactoring or fix tasks MUST be added to tasks.md before implementation begins.
+4. **Implementation Last**: Code changes MUST follow the updated specification, not precede it.
+
+This ensures:
+- The spec remains the **single source of truth** for intended behavior.
+- Changes are **traceable**: spec change → task → implementation.
+- Future developers understand the *intended* behavior, not just the current implementation.
+- **No silent fixes**: All behavioral changes are documented and discoverable.
+
+**Rationale**: Specifications rot when implementation diverges without updates. Spec-first discipline prevents documentation drift and maintains alignment between intent and reality.
+
 ### Versioning
 
 - Project versioning MUST follow semantic versioning (MAJOR.MINOR.PATCH).
@@ -376,4 +392,4 @@ This constitution supersedes all other practices, conventions, and informal agre
 
 ---
 
-**Version**: 1.1.0 | **Ratified**: 2026-01-04 | **Last Amended**: 2026-01-07
+**Version**: 1.2.0 | **Ratified**: 2026-01-04 | **Last Amended**: 2026-01-07

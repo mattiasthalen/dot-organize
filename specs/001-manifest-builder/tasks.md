@@ -286,6 +286,14 @@ Based on plan.md structure:
 - [x] T118 [P] Refactor contracts/manifest-schema.json: Update title/description to clarify dot vs HOOK terminology
 - [x] T119 [P] Refactor research/ documents: Update references from "HOOK Manifest Builder" to clarify dot is the tool implementing HOOK methodology
 
+### Bug Fixes
+
+- [ ] T120 Fix generate_hook_name to follow FR-051: Hook names MUST use `<prefix><concept>[__<qualifier>]` pattern. Source and tenant are NOT part of the hook name (they belong in the auto-derived key set per FR-054).
+  - Fix generate_hook_name() signature: remove source/tenant params, add is_weak param
+  - Update wizard to prompt user for hook name with suggested default (FR-026: auto-suggest, not auto-generate)
+  - Update tests to include hook_name in wizard input sequence
+- [ ] T121 Update test_cli_init.py: Add hook_name to make_wizard_input helper and fix all interactive wizard test inputs
+
 ---
 
 ## Dependencies & Execution Order
@@ -406,7 +414,7 @@ Each User Story is complete when:
 | US2: Wizard | T073-T083 | 1 | `dot init` interactive |
 | US3: Non-Interactive | T084-T089 | 1 | `dot init --from-config` |
 | US4: Examples | T090-T098 | 5 | `dot examples` command |
-| Polish | T099-T119 | 16 | README, CI, release, benchmarks, paradigm verification, FP refactoring, branding refactor |
+| Polish | T099-T121 | 16 | README, CI, release, benchmarks, paradigm verification, FP refactoring, branding refactor, bug fixes |
 
-**Total Tasks**: 125 (118 previous + 7 branding refactor: T113-T119)
+**Total Tasks**: 127 (125 previous + 2 bug fixes: T120-T121)
 **MVP Scope**: Phases 1-3 (T001-T072a) = 78 tasks
