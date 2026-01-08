@@ -178,6 +178,14 @@ As a contributor working outside the devcontainer, I can follow documented steps
 
 ---
 
+### Non-Functional Requirements
+
+- **NFR-001**: Helper scripts (bump, bootstrap) MUST be implemented in Python for cross-platform compatibility (Windows, macOS, Linux).
+- **NFR-002**: Scripts MUST be runnable directly via `python scripts/<name>.py` without additional wrappers.
+- **NFR-003**: A Makefile MAY be provided as a convenience wrapper but MUST NOT be required for core functionality.
+
+---
+
 ## Assumptions
 
 - The repository already has a devcontainer configuration that can be extended.
