@@ -194,6 +194,15 @@ tests/
 └── fixtures/     # Test manifests
 ```
 
+## Development
+
+See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for development setup instructions, including:
+
+- Devcontainer and manual setup options
+- Running quality checks and tests
+- Version bumping and release process
+- Commit message conventions
+
 ## License
 
 MIT

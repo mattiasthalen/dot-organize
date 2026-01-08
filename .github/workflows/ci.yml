@@ -28,13 +28,13 @@ jobs:
         run: uv sync --all-groups
 
       - name: Run ruff check
-        run: uv run ruff check src/ tests/
+        run: uv run ruff check
 
       - name: Run ruff format check
-        run: uv run ruff format --check src/ tests/
+        run: uv run ruff format --check
 
       - name: Run mypy
-        run: uv run mypy --strict src/
+        run: uv run mypy src/ tests/ scripts/
 
       - name: Run tests
         run: uv run pytest tests/ -v --tb=short

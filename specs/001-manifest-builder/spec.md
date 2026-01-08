@@ -1,8 +1,8 @@
 # Feature Specification: Manifest Builder
 
-**Feature Branch**: `001-manifest-builder`  
-**Created**: 2026-01-04  
-**Status**: Draft  
+**Feature Branch**: `001-manifest-builder`
+**Created**: 2026-01-04
+**Status**: Draft
 **Input**: Build `dot` (Data Organize Tool) — a Python package (`dot-organize`) and CLI (`dot`) for guided manifest creation, validation, and output using the HOOK methodology
 
 ---

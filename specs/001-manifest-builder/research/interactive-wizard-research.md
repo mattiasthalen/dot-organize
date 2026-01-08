@@ -122,7 +122,7 @@ class WizardState:
     frames: list[Frame] = field(default_factory=list)
     current_step: str = "start"
     is_complete: bool = False
-    
+
     def to_dict(self) -> dict[str, Any]:
         """Convert state to dictionary for YAML serialization."""
         return {
@@ -140,7 +140,7 @@ class WizardState:
                 "is_complete": self.is_complete,
             }
         }
-    
+
     def has_meaningful_data(self) -> bool:
         """Check if there's enough data worth saving as draft."""
         return len(self.frames) > 0
@@ -160,13 +160,13 @@ def save_draft() -> bool:
     Returns True if draft was saved, False otherwise.
     """
     global _wizard_state
-    
+
     if _wizard_state is None:
         return False
-    
+
     if not _wizard_state.has_meaningful_data():
         return False
-    
+
     try:
         draft_content = yaml.dump(
             _wizard_state.to_dict(),
@@ -193,7 +193,7 @@ def sigint_handler(signum: int, frame: Any) -> None:
     - Exit cleanly
     """
     console.print()  # Newline after ^C
-    
+
     if save_draft():
         console.print(
             Panel(
@@ -206,7 +206,7 @@ def sigint_handler(signum: int, frame: Any) -> None:
         )
     else:
         console.print("[dim]Wizard cancelled.[/dim]")
-    
+
     sys.exit(130)  # 128 + SIGINT(2) - standard Unix convention
 
 
@@ -228,13 +228,13 @@ def validate_frame_name(name: str) -> tuple[bool, str]:
     """
     if not name:
         return False, "Frame name cannot be empty"
-    
+
     if not name.replace("-", "").replace("_", "").isalnum():
         return False, "Frame name must be alphanumeric (dashes and underscores allowed)"
-    
+
     if len(name) > 50:
         return False, "Frame name must be 50 characters or less"
-    
+
     return True, ""
 
 
@@ -245,23 +245,23 @@ def validate_extensions(ext_input: str) -> tuple[bool, list[str], str]:
     """
     if not ext_input.strip():
         return False, [], "At least one extension is required"
-    
+
     # Parse comma or space-separated extensions
     raw_exts = ext_input.replace(",", " ").split()
     extensions = []
-    
+
     for ext in raw_exts:
         # Normalize: ensure leading dot
         ext = ext.strip().lower()
         if not ext.startswith("."):
             ext = f".{ext}"
-        
+
         # Validate extension format
         if not ext[1:].isalnum():
             return False, [], f"Invalid extension: {ext}"
-        
+
         extensions.append(ext)
-    
+
     return True, extensions, ""
 
 
@@ -272,12 +272,12 @@ def validate_path(path_str: str) -> tuple[bool, str]:
     """
     if not path_str:
         return False, "Target path cannot be empty"
-    
+
     # Check for invalid characters
     invalid_chars = ['<', '>', '|', '\0']
     if any(c in path_str for c in invalid_chars):
         return False, f"Path contains invalid characters"
-    
+
     return True, ""
 
 
@@ -301,12 +301,12 @@ def prompt_with_validation(
             default=default if default else None,
             show_default=show_default,
         )
-        
+
         is_valid, error = validator(value)
-        
+
         if is_valid:
             return value
-        
+
         err_console.print(f"[red]✗[/red] {error}")
 
 
@@ -316,12 +316,12 @@ def prompt_extensions() -> list[str]:
         ext_input = Prompt.ask(
             "File extensions [dim](comma or space separated, e.g., jpg png gif)[/dim]"
         )
-        
+
         is_valid, extensions, error = validate_extensions(ext_input)
-        
+
         if is_valid:
             return extensions
-        
+
         err_console.print(f"[red]✗[/red] {error}")
 
 
@@ -351,44 +351,44 @@ def wizard_add_frame(state: WizardState, frame_number: int) -> Frame | None:
     Returns the Frame or None if user wants to stop adding.
     """
     state.current_step = f"frame-{frame_number}"
-    
+
     console.print(f"\n[bold blue]━━━ Frame {frame_number} ━━━[/bold blue]\n")
-    
+
     # Frame name
     name = prompt_with_validation(
         "[bold]Frame name[/bold]",
         validate_frame_name,
         default=f"frame-{frame_number:02d}",
     )
-    
+
     # Description (optional)
     description = Prompt.ask(
         "[bold]Description[/bold] [dim](optional)[/dim]",
         default="",
         show_default=False,
     )
-    
+
     # Extensions
     extensions = prompt_extensions()
-    
+
     # Target path
     target_path = prompt_with_validation(
         "[bold]Target path[/bold] [dim](e.g., ~/Photos/{{year}}/{{month}})[/dim]",
         validate_path,
         default=f"~/Organized/{name}",
     )
-    
+
     frame = Frame(
         name=name,
         description=description,
         extensions=extensions,
         target_path=target_path,
     )
-    
+
     # Show frame summary
     console.print()
     display_frame_summary(frame)
-    
+
     return frame
 
 
@@ -397,12 +397,12 @@ def display_frame_summary(frame: Frame) -> None:
     table = Table(show_header=False, box=None, padding=(0, 2))
     table.add_column("Field", style="dim")
     table.add_column("Value")
-    
+
     table.add_row("Name", f"[cyan]{frame.name}[/cyan]")
     table.add_row("Description", frame.description or "[dim]—[/dim]")
     table.add_row("Extensions", ", ".join(frame.extensions))
     table.add_row("Target", frame.target_path)
-    
+
     console.print(Panel(table, title="Frame Added", border_style="green"))
 
 
@@ -412,7 +412,7 @@ def wizard_preview(state: WizardState) -> bool:
     Returns True if user confirms, False to go back.
     """
     console.print("\n[bold blue]━━━ Preview ━━━[/bold blue]\n")
-    
+
     # Generate manifest dict (without wizard_meta)
     manifest = {
         "version": "1.0",
@@ -426,7 +426,7 @@ def wizard_preview(state: WizardState) -> bool:
             for f in state.frames
         ]
     }
-    
+
     # Generate YAML
     yaml_content = yaml.dump(
         manifest,
@@ -434,11 +434,11 @@ def wizard_preview(state: WizardState) -> bool:
         sort_keys=False,
         allow_unicode=True,
     )
-    
+
     # Display with syntax highlighting
     syntax = Syntax(yaml_content, "yaml", theme="monokai", line_numbers=True)
     console.print(Panel(syntax, title=".dot-organize.yaml", border_style="blue"))
-    
+
     return Confirm.ask("\n[bold]Save this manifest?[/bold]", default=True)
 
 
@@ -449,7 +449,7 @@ def check_overwrite(output_path: Path) -> bool:
     """
     if not output_path.exists():
         return True
-    
+
     console.print(
         f"\n[yellow]⚠[/yellow]  File [cyan]{output_path}[/cyan] already exists."
     )
@@ -466,38 +466,38 @@ def run_wizard(output_path: Path = Path(".dot-organize.yaml")) -> bool:
     Returns True if manifest was saved, False otherwise.
     """
     global _wizard_state
-    
+
     # Initialize state and signal handlers
     _wizard_state = WizardState()
     setup_signal_handlers()
-    
+
     try:
         # Intro
         wizard_intro()
-        
+
         # Frame collection loop
         frame_number = 1
         while True:
             frame = wizard_add_frame(_wizard_state, frame_number)
             _wizard_state.frames.append(frame)
-            
+
             # Ask if user wants to add more
             console.print()
             if not Confirm.ask("Add another frame?", default=True):
                 break
-            
+
             frame_number += 1
-        
+
         # Preview
         if not wizard_preview(_wizard_state):
             console.print("[dim]Manifest not saved.[/dim]")
             return False
-        
+
         # Check overwrite
         if not check_overwrite(output_path):
             console.print("[dim]Cancelled.[/dim]")
             return False
-        
+
         # Generate final manifest
         manifest = {
             "version": "1.0",
@@ -511,7 +511,7 @@ def run_wizard(output_path: Path = Path(".dot-organize.yaml")) -> bool:
                 for f in _wizard_state.frames
             ]
         }
-        
+
         # Save
         yaml_content = yaml.dump(
             manifest,
@@ -520,9 +520,9 @@ def run_wizard(output_path: Path = Path(".dot-organize.yaml")) -> bool:
             allow_unicode=True,
         )
         output_path.write_text(yaml_content)
-        
+
         _wizard_state.is_complete = True
-        
+
         console.print(
             Panel(
                 f"[bold green]✓[/bold green] Manifest saved to [cyan]{output_path}[/cyan]",
@@ -530,13 +530,13 @@ def run_wizard(output_path: Path = Path(".dot-organize.yaml")) -> bool:
                 border_style="green",
             )
         )
-        
+
         # Clean up draft if it exists
         if DRAFT_FILE.exists():
             DRAFT_FILE.unlink()
-        
+
         return True
-        
+
     except KeyboardInterrupt:
         # This shouldn't normally be reached due to signal handler,
         # but acts as a fallback
@@ -592,10 +592,10 @@ def save_draft() -> bool:
     """Save only if at least one frame was entered."""
     if _wizard_state is None:
         return False
-    
+
     if not _wizard_state.has_meaningful_data():
         return False
-    
+
     # Save to .dot-draft.yaml
     DRAFT_FILE.write_text(yaml.dump(_wizard_state.to_dict()))
     return True
@@ -621,15 +621,15 @@ def wizard_session():
     """Context manager that ensures draft is saved on interruption."""
     state = WizardState()
     original_handler = signal.getsignal(signal.SIGINT)
-    
+
     def handler(sig, frame):
         if state.has_meaningful_data():
             save_draft(state)
             console.print(f"[yellow]Draft saved to {DRAFT_FILE}[/yellow]")
         sys.exit(130)
-    
+
     signal.signal(signal.SIGINT, handler)
-    
+
     try:
         yield state
     finally:
@@ -719,7 +719,7 @@ def require_interactive_mode() -> None:
             "Hint: Don't pipe input to this command."
         )
         raise typer.Exit(2)
-    
+
     if not sys.stdout.isatty():
         err_console.print(
             "[red]Error:[/red] Cannot display prompts - stdout is not a terminal.\n"
@@ -739,15 +739,15 @@ def init(
     ] = False,
 ) -> None:
     """Initialize a new manifest with interactive wizard."""
-    
+
     if non_interactive:
         # Non-interactive mode - use defaults or config file
         create_default_manifest()
         return
-    
+
     # Interactive mode - require TTY
     require_tty()
-    
+
     # Now safe to run wizard
     run_wizard()
 ```
@@ -769,7 +769,7 @@ def require_interactive() -> None:
         err_console.print("[red]Error:[/red] Interactive wizard cannot run in CI.")
         err_console.print("Use [bold]--non-interactive[/bold] flag or provide config file.")
         raise typer.Exit(2)
-    
+
     if not sys.stdin.isatty():
         # ... TTY error
 ```
@@ -797,7 +797,7 @@ def preview_yaml(data: dict, title: str = "Preview") -> None:
         allow_unicode=True,
         indent=2,
     )
-    
+
     syntax = Syntax(
         yaml_content,
         "yaml",
@@ -805,7 +805,7 @@ def preview_yaml(data: dict, title: str = "Preview") -> None:
         line_numbers=True,
         word_wrap=True,
     )
-    
+
     console.print(Panel(syntax, title=title, border_style="blue"))
 ```
 
@@ -843,19 +843,19 @@ def preview_diff(before: dict, after: dict) -> None:
     """Show before/after YAML preview."""
     before_yaml = yaml.dump(before, default_flow_style=False)
     after_yaml = yaml.dump(after, default_flow_style=False)
-    
+
     before_panel = Panel(
         Syntax(before_yaml, "yaml", theme="monokai"),
         title="[red]Before[/red]",
         border_style="red",
     )
-    
+
     after_panel = Panel(
         Syntax(after_yaml, "yaml", theme="monokai"),
         title="[green]After[/green]",
         border_style="green",
     )
-    
+
     console.print(Columns([before_panel, after_panel]))
 ```
 
@@ -888,16 +888,16 @@ def prompt_with_retry(
     for attempt in range(max_attempts):
         value = Prompt.ask(message)
         is_valid, error = validator(value)
-        
+
         if is_valid:
             return value
-        
+
         remaining = max_attempts - attempt - 1
         if remaining > 0:
             console.print(f"[red]✗[/red] {error} ({remaining} attempts remaining)")
         else:
             console.print(f"[red]✗[/red] {error}")
-    
+
     return None  # Max attempts reached
 ```
 
@@ -916,7 +916,7 @@ def get_input_or_default(
     if not sys.stdin.isatty():
         console.print(f"[dim]Using default: {default}[/dim]")
         return default
-    
+
     return Prompt.ask(message, default=default)
 ```
 
@@ -927,14 +927,14 @@ def load_draft() -> WizardState | None:
     """Load previous draft if it exists."""
     if not DRAFT_FILE.exists():
         return None
-    
+
     try:
         data = yaml.safe_load(DRAFT_FILE.read_text())
         state = WizardState()
-        
+
         for frame_data in data.get("frames", []):
             state.frames.append(Frame(**frame_data))
-        
+
         return state
     except Exception:
         return None
@@ -951,7 +951,7 @@ def run_wizard(resume: bool = False) -> bool:
             state = WizardState()
     else:
         state = WizardState()
-    
+
     # ... continue wizard
 ```
 

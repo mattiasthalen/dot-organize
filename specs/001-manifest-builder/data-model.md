@@ -1,7 +1,7 @@
 # Data Model: Manifest Builder
 
-**Feature**: 001-manifest-builder  
-**Created**: 2026-01-04  
+**Feature**: 001-manifest-builder
+**Created**: 2026-01-04
 **Spec Reference**: [spec.md](spec.md)
 
 ---
@@ -35,7 +35,7 @@ Manifest (root)
 
 ### 1. Manifest (Root)
 
-**File**: `src/dot/models/manifest.py`  
+**File**: `src/dot/models/manifest.py`
 **Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1)
 
 ```python
@@ -63,7 +63,7 @@ class Manifest(BaseModel, frozen=True):
 
 ### 2. Metadata
 
-**File**: `src/dot/models/manifest.py`  
+**File**: `src/dot/models/manifest.py`
 **Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1)
 
 ```python
@@ -85,7 +85,7 @@ class Metadata(BaseModel, frozen=True):
 
 ### 3. Settings
 
-**File**: `src/dot/models/settings.py`  
+**File**: `src/dot/models/settings.py`
 **Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1), FR-038
 
 ```python
@@ -105,7 +105,7 @@ class Settings(BaseModel, frozen=True):
 
 ### 4. Frame
 
-**File**: `src/dot/models/frame.py`  
+**File**: `src/dot/models/frame.py`
 **Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1), FR-032, FR-033
 
 ```python
@@ -113,7 +113,7 @@ class Source(BaseModel, frozen=True):
     """Frame source specification. Exactly one of relation or path must be set."""
     relation: str | None = None    # Relational source (e.g., "db.schema.table")
     path: str | None = None        # File source (e.g., QVD path)
-    
+
     @model_validator(mode="after")
     def validate_exclusivity(self) -> "Source":
         """Ensure exactly one of relation or path is set."""
@@ -142,14 +142,14 @@ class Frame(BaseModel, frozen=True):
 | `relation` | `str \| None` | ❌ | `None` | Non-empty if set; exclusive with path | FRAME-005, FRAME-006 |
 | `path` | `str \| None` | ❌ | `None` | Non-empty if set; exclusive with relation | FRAME-005, FRAME-006 |
 
-**Naming Pattern**: `<schema>.<table>` in lower_snake_case  
+**Naming Pattern**: `<schema>.<table>` in lower_snake_case
 **Examples**: `frame.customer`, `psa.order_header`, `staging.invoice_line`
 
 ---
 
 ### 5. Hook
 
-**File**: `src/dot/models/frame.py`  
+**File**: `src/dot/models/frame.py`
 **Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1), FR-034, FR-035
 
 ```python
@@ -206,7 +206,7 @@ class Hook(BaseModel, frozen=True):
 
 ### 6. Concept
 
-**File**: `src/dot/models/concept.py`  
+**File**: `src/dot/models/concept.py`
 **Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1), FR-037
 
 ```python
@@ -230,7 +230,7 @@ class Concept(BaseModel, frozen=True):
 
 ### 6a. KeySet
 
-**File**: `src/dot/models/keyset.py`  
+**File**: `src/dot/models/keyset.py`
 **Spec Reference**: [spec.md#manifest-schema-v1](spec.md#manifest-schema-v1), FR-039
 
 ```python
@@ -250,7 +250,7 @@ class KeySet(BaseModel, frozen=True):
 
 ### 7. Diagnostic
 
-**File**: `src/dot/models/diagnostic.py`  
+**File**: `src/dot/models/diagnostic.py`
 **Spec Reference**: [spec.md#diagnostic-format](spec.md#diagnostic-format), FR-016
 
 ```python
@@ -288,9 +288,9 @@ These are computed from the manifest, not stored:
 def derive_key_sets(manifest: Manifest) -> set[str]:
     """
     Derive unique key sets from all hooks.
-    
+
     Pattern: CONCEPT[~QUALIFIER]@SOURCE[~TENANT]
-    
+
     Examples:
         - CUSTOMER@CRM
         - EMPLOYEE~MANAGER@CRM
@@ -319,7 +319,7 @@ def derive_concepts(manifest: Manifest) -> set[str]:
 def derive_hook_registry(manifest: Manifest) -> dict[str, list[tuple[str, Hook]]]:
     """
     Index all hooks by name for relationship detection.
-    
+
     Returns: {hook_name: [(frame_name, hook), ...]}
     """
 ```
@@ -354,7 +354,7 @@ def is_valid_semver(s: str) -> bool: ...
 
 ## Expression Validation
 
-**File**: `src/dot/core/expression.py`  
+**File**: `src/dot/core/expression.py`
 **Spec Reference**: FR-034, HOOK-006
 
 ### Allowed Tokens
@@ -390,7 +390,7 @@ def is_valid_semver(s: str) -> bool: ...
 def validate_expr(expr: str) -> list[Diagnostic]:
     """
     Validate that expr is a pure SQL expression (Manifest SQL subset).
-    
+
     Returns empty list if valid, list of diagnostics if invalid.
     """
 ```
@@ -399,7 +399,7 @@ def validate_expr(expr: str) -> list[Diagnostic]:
 
 ## Validation Rules Reference
 
-**File**: `src/dot/core/rules.py`  
+**File**: `src/dot/core/rules.py`
 **Spec Reference**: [spec.md#validation-rules](spec.md#validation-rules)
 
 ### ERROR Rules (exit code 1)
@@ -547,16 +547,16 @@ from dot.models.diagnostic import Diagnostic, Severity
 def validate_<entity>_<aspect>(entity: EntityType, context: Context | None = None) -> list[Diagnostic]:
     """
     Validate a specific aspect of an entity.
-    
+
     Args:
         entity: The model instance to validate
         context: Optional context (e.g., manifest for cross-references)
-    
+
     Returns:
         Empty list if valid, list of Diagnostics if invalid.
     """
     diagnostics: list[Diagnostic] = []
-    
+
     if <condition_violated>:
         diagnostics.append(Diagnostic(
             rule_id="ENTITY-NNN",
@@ -565,7 +565,7 @@ def validate_<entity>_<aspect>(entity: EntityType, context: Context | None = Non
             path="path.to.field",
             fix="How to fix it"
         ))
-    
+
     return diagnostics
 ```
 
@@ -617,11 +617,11 @@ def _build_key_set(hook: Hook) -> str:
     concept_part = hook.concept.upper()
     if hook.qualifier:
         concept_part += f"~{hook.qualifier.upper()}"
-    
+
     source_part = hook.source.upper()
     if hook.tenant:
         source_part += f"~{hook.tenant.upper()}"
-    
+
     return f"{concept_part}@{source_part}"
 ```
 
@@ -633,25 +633,25 @@ Combine all rules into a single entry point:
 def validate_manifest(manifest: Manifest) -> list[Diagnostic]:
     """Run all validation rules and collect diagnostics."""
     diagnostics: list[Diagnostic] = []
-    
+
     # Manifest-level rules
     diagnostics.extend(validate_manifest_version(manifest))
     diagnostics.extend(validate_schema_version(manifest))
-    
+
     # Frame-level rules
     for i, frame in enumerate(manifest.frames):
         ctx = f"frames[{i}]"
         diagnostics.extend(validate_frame(frame, ctx, manifest))
-    
+
     # Concept-level rules
     for i, concept in enumerate(manifest.concepts):
         ctx = f"concepts[{i}]"
         diagnostics.extend(validate_concept(concept, ctx, manifest))
-    
+
     # Global rules (cross-entity)
     diagnostics.extend(warn_concept_count(manifest))
     diagnostics.extend(warn_duplicate_source(manifest))
-    
+
     return diagnostics
 ```
 
@@ -731,7 +731,7 @@ def test_frame_001_missing_hooks():
     """FRAME-001: Frame must have at least one hook."""
     frame = Frame(name="frame.test", source="psa.test", hooks=[])
     diagnostics = validate_frame_has_hooks(frame, "frames[0]")
-    
+
     assert len(diagnostics) == 1
     assert diagnostics[0].rule_id == "FRAME-001"
     assert diagnostics[0].severity == Severity.ERROR
@@ -760,7 +760,7 @@ def test_key_set_format(concept: str, source: str):
         expression="id",
     )
     key_set = _build_key_set(hook)
-    
+
     assert "@" in key_set
     assert key_set == f"{concept.upper()}@{source.upper()}"
 ```
@@ -840,7 +840,7 @@ from dot.models.diagnostic import Diagnostic, Severity
 
 __all__ = [
     "Manifest",
-    "Metadata", 
+    "Metadata",
     "Settings",
     "Frame",
     "Hook",
@@ -865,7 +865,7 @@ from dot.models.diagnostic import Diagnostic, Severity
 __all__ = [
     "Manifest",
     "Metadata",
-    "Settings", 
+    "Settings",
     "Frame",
     "Hook",
     "HookRole",

@@ -1,7 +1,7 @@
 # Research: Using `uv` for Python Package Management
 
-**Date**: January 6, 2026  
-**Project**: dot-organize (package: `dot`)  
+**Date**: January 6, 2026
+**Project**: dot-organize (package: `dot`)
 **Purpose**: Evaluate and document `uv` for project setup and dependency management
 
 ---

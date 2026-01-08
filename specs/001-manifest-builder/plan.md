@@ -29,7 +29,7 @@ Phase 1: Foundation (M1)
 ├── M1-12  Pre-commit hooks (ruff, mypy)
 ├── M1-07  Diagnostic model (needed by validation)
 ├── M1-06  Settings model
-├── M1-05  Concept model  
+├── M1-05  Concept model
 ├── M1-04  Hook model + HookRole enum
 ├── M1-03  Frame model (imports Hook)
 ├── M1-02  Manifest model (imports all above)
@@ -102,8 +102,8 @@ Phase 6: Release (M6)
 
 ## Technical Context
 
-**Language/Version**: Python 3.10+  
-**Package Manager**: `uv` — fast Python package and project manager  
+**Language/Version**: Python 3.10+
+**Package Manager**: `uv` — fast Python package and project manager
 **Primary Dependencies**:
 - `pydantic` (v2) — schema validation, immutable models
 - `typer` — CLI framework (thin I/O layer)
@@ -115,12 +115,12 @@ Phase 6: Release (M6)
 - `ruff` — linting and formatting
 - `mypy` — static type checking
 
-**Storage**: File-based (YAML manifests)  
-**Testing**: pytest with hypothesis for property-based tests  
-**Target Platform**: Linux, macOS, Windows (CLI)  
-**Project Type**: Single Python package with CLI entry point (managed by uv)  
-**Performance Goals**: Validate 1000-line manifest in <1 second  
-**Constraints**: No external services, no database, pure functions for core logic  
+**Storage**: File-based (YAML manifests)
+**Testing**: pytest with hypothesis for property-based tests
+**Target Platform**: Linux, macOS, Windows (CLI)
+**Project Type**: Single Python package with CLI entry point (managed by uv)
+**Performance Goals**: Validate 1000-line manifest in <1 second
+**Constraints**: No external services, no database, pure functions for core logic
 **Scale/Scope**: Manifests with ≤100-150 business concepts (Dunbar guidance)
 
 ### Key uv Commands

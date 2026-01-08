@@ -63,7 +63,7 @@ You can add a callback to the sub-app for shared options or documentation:
 def examples_callback():
     """
     Help text for the 'examples' command group.
-    
+
     This docstring appears in: myapp examples --help
     """
     pass
@@ -89,14 +89,14 @@ err_console = Console(stderr=True)
 def my_command():
     # Rich markup in strings
     console.print("[bold green]Success![/bold green]")
-    
+
     # Rich objects (Tables, Panels, etc.)
     table = Table(title="Results")
     table.add_column("Name")
     table.add_column("Status")
     table.add_row("Item 1", "[green]OK[/green]")
     console.print(table)
-    
+
     # Error output to stderr
     err_console.print("[bold red]Error:[/bold red] Something went wrong")
 ```
@@ -145,7 +145,7 @@ err_console = Console(stderr=True)
 def configure_console(no_color: bool) -> None:
     """Configure Rich consoles based on --no-color flag."""
     global console, err_console
-    
+
     if no_color:
         # color_system=None disables ALL ANSI codes
         console = Console(color_system=None, force_terminal=False)
@@ -217,11 +217,11 @@ def validate(file_path: Path):
     if not file_path.exists():
         console.print("[red]File not found[/red]")
         raise typer.Exit(code=ExitCode.USAGE_ERROR)
-    
+
     if not is_valid(file_path):
         console.print("[red]Validation failed[/red]")
         raise typer.Exit(code=ExitCode.VALIDATION_ERROR)
-    
+
     console.print("[green]Valid![/green]")
     raise typer.Exit(code=ExitCode.SUCCESS)
 ```
@@ -271,7 +271,7 @@ def validate(
             f"[bold red]Error:[/bold red] File not found: {file_path}"
         )
         raise typer.Exit(code=2)  # Usage error
-    
+
     # Continue with validation...
 ```
 

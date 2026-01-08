@@ -37,7 +37,7 @@ def temp_cwd(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 def valid_seed(temp_cwd: Path) -> Path:
     """Create a valid seed config file."""
     seed_path = temp_cwd / "seed.yaml"
-    seed_content = {
+    seed_content: dict[str, list[dict[str, object]]] = {
         "frames": [
             {
                 "name": "frame.customers",
@@ -62,7 +62,7 @@ def valid_seed(temp_cwd: Path) -> Path:
 def invalid_seed(temp_cwd: Path) -> Path:
     """Create an invalid seed config file."""
     seed_path = temp_cwd / "invalid_seed.yaml"
-    seed_content = {
+    seed_content: dict[str, list[object]] = {
         "frames": [],  # Empty frames = invalid
     }
     seed_path.write_text(yaml.dump(seed_content))
@@ -73,7 +73,7 @@ def invalid_seed(temp_cwd: Path) -> Path:
 def seed_missing_source(temp_cwd: Path) -> Path:
     """Create a seed with missing source."""
     seed_path = temp_cwd / "missing_source.yaml"
-    seed_content = {
+    seed_content: dict[str, list[dict[str, object]]] = {
         "frames": [
             {
                 "name": "frame.customers",

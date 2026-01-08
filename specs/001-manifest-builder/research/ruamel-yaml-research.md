@@ -1,7 +1,7 @@
 # ruamel.yaml Research for Deterministic YAML Serialization
 
-**Date**: 2026-01-06  
-**Status**: ✅ Complete  
+**Date**: 2026-01-06
+**Status**: ✅ Complete
 **Purpose**: Research ruamel.yaml for reading/writing HOOK manifest YAML files with deterministic key ordering and good error handling.
 
 ## Executive Summary
@@ -153,7 +153,7 @@ ruamel.yaml preserves key insertion order. For deterministic output, we:
 ```python
 KEY_ORDERS = {
     'manifest': [
-        'manifest_version', 'schema_version', 'metadata', 
+        'manifest_version', 'schema_version', 'metadata',
         'settings', 'frames', 'concepts'
     ],
     'metadata': ['name', 'description', 'created_at', 'updated_at'],
@@ -174,16 +174,16 @@ def to_commented_map(data: dict, type_hint: str | None = None) -> CommentedMap:
     """Convert dict to CommentedMap with ordered keys based on type."""
     cm = CommentedMap()
     key_order = KEY_ORDERS.get(type_hint, list(data.keys()))
-    
+
     # Order: specified keys first, then any remaining
     ordered_keys = [k for k in key_order if k in data]
     ordered_keys += [k for k in data if k not in ordered_keys]
-    
+
     for key in ordered_keys:
         value = data[key]
         # Determine child type hint
         child_hint = key if key in KEY_ORDERS else None
-        
+
         if isinstance(value, dict):
             cm[key] = to_commented_map(value, child_hint)
         elif isinstance(value, list):
@@ -198,7 +198,7 @@ def to_commented_map(data: dict, type_hint: str | None = None) -> CommentedMap:
             cm[key] = cs
         else:
             cm[key] = value
-    
+
     return cm
 ```
 
@@ -302,7 +302,7 @@ from ruamel.yaml.constructor import DuplicateKeyError
 def parse_yaml_with_errors(content: str, source_name: str = "<string>") -> dict:
     """Parse YAML with detailed error reporting."""
     yaml = create_yaml()
-    
+
     try:
         return yaml.load(StringIO(content))
     except DuplicateKeyError as e:
@@ -346,7 +346,7 @@ class ManifestParseError(Exception):
     column: int | None = None
     problem: str | None = None
     context: str | None = None
-    
+
     def __str__(self) -> str:
         parts = [self.message]
         if self.line:
@@ -383,10 +383,10 @@ from pathlib import Path
 
 class ManifestSerializer:
     """Serialize/deserialize manifests with ordered YAML output."""
-    
+
     def __init__(self):
         self.yaml = self._create_yaml()
-    
+
     def _create_yaml(self) -> YAML:
         yaml = YAML()
         yaml.default_flow_style = False
@@ -394,7 +394,7 @@ class ManifestSerializer:
         yaml.width = 120
         yaml.allow_duplicate_keys = False
         return yaml
-    
+
     def load(self, source: str | Path) -> Manifest:
         """Load and validate manifest from file or string."""
         if isinstance(source, Path):
@@ -403,7 +403,7 @@ class ManifestSerializer:
         else:
             content = source
             source_name = "<string>"
-        
+
         # Parse YAML
         try:
             data = self.yaml.load(StringIO(content))
@@ -414,38 +414,38 @@ class ManifestSerializer:
                 f"{f' at line {line}, column {col}' if line else ''}: "
                 f"{getattr(e, 'problem', str(e))}"
             ) from e
-        
+
         # Validate with Pydantic
         try:
             return Manifest.model_validate(data)
         except ValidationError as e:
             raise ValueError(f"Manifest validation failed: {e}") from e
-    
+
     def dump(self, manifest: Manifest) -> str:
         """Serialize manifest to ordered YAML string."""
         data = manifest.model_dump(mode='json', exclude_none=True)
         cm = self._to_commented_map(data, 'manifest')
-        
+
         stream = StringIO()
         self.yaml.dump(cm, stream)
         return stream.getvalue()
-    
+
     def dump_to_file(self, manifest: Manifest, path: Path) -> None:
         """Write manifest to file."""
         path.write_text(self.dump(manifest))
-    
+
     def _to_commented_map(self, data: dict, type_hint: str | None) -> CommentedMap:
         """Convert dict to ordered CommentedMap."""
         cm = CommentedMap()
         key_order = KEY_ORDERS.get(type_hint, list(data.keys()))
-        
+
         ordered_keys = [k for k in key_order if k in data]
         ordered_keys += [k for k in data if k not in ordered_keys]
-        
+
         for key in ordered_keys:
             value = data[key]
             child_hint = key if key in KEY_ORDERS else None
-            
+
             if isinstance(value, dict):
                 cm[key] = self._to_commented_map(value, child_hint)
             elif isinstance(value, list):
@@ -459,9 +459,9 @@ class ManifestSerializer:
                 cm[key] = cs
             else:
                 cm[key] = value
-        
+
         return cm
-    
+
     def _extract_position(self, e: YAMLError) -> tuple[int | None, int | None]:
         if hasattr(e, 'problem_mark') and e.problem_mark:
             return e.problem_mark.line + 1, e.problem_mark.column + 1
@@ -570,14 +570,14 @@ def to_commented_map(data: dict, type_hint: str | None = None) -> CommentedMap:
     """Convert dict to ordered CommentedMap."""
     cm = CommentedMap()
     key_order = KEY_ORDERS.get(type_hint, list(data.keys()))
-    
+
     ordered_keys = [k for k in key_order if k in data]
     ordered_keys += [k for k in data if k not in ordered_keys]
-    
+
     for key in ordered_keys:
         value = data[key]
         child_hint = key if key in KEY_ORDERS else None
-        
+
         if isinstance(value, dict):
             cm[key] = to_commented_map(value, child_hint)
         elif isinstance(value, list):
@@ -591,7 +591,7 @@ def to_commented_map(data: dict, type_hint: str | None = None) -> CommentedMap:
             cm[key] = cs
         else:
             cm[key] = value
-    
+
     return cm
 
 def model_to_yaml(model: Manifest) -> str:
@@ -606,7 +606,7 @@ def model_to_yaml(model: Manifest) -> str:
 def yaml_to_model(content: str) -> Manifest:
     """Parse YAML and validate as Manifest."""
     yaml = create_yaml()
-    
+
     try:
         data = yaml.load(StringIO(content))
     except YAMLError as e:
@@ -616,7 +616,7 @@ def yaml_to_model(content: str) -> Manifest:
             col = e.problem_mark.column + 1
         location = f" at line {line}, column {col}" if line else ""
         raise ValueError(f"YAML parse error{location}: {e.problem or str(e)}") from e
-    
+
     try:
         return Manifest.model_validate(data)
     except ValidationError as e:
@@ -646,19 +646,19 @@ if __name__ == "__main__":
             Concept(name="customer", description="A customer entity"),
         ]
     )
-    
+
     # Serialize to YAML
     yaml_output = model_to_yaml(manifest)
     print("=== Generated YAML ===")
     print(yaml_output)
-    
+
     # Parse back and validate
     parsed = yaml_to_model(yaml_output)
     print("=== Parsed Manifest ===")
     print(f"Name: {parsed.metadata.name}")
     print(f"Frames: {len(parsed.frames)}")
     print(f"Concepts: {len(parsed.concepts)}")
-    
+
     # Verify round-trip
     yaml_output2 = model_to_yaml(parsed)
     assert yaml_output == yaml_output2, "Round-trip mismatch!"

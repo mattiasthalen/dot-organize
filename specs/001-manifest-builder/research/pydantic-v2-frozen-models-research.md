@@ -1,8 +1,8 @@
 # Pydantic v2 Frozen Models Research
 
-**Date**: 2026-01-06  
-**Pydantic Version**: 2.12.5  
-**Python Version**: 3.12  
+**Date**: 2026-01-06
+**Pydantic Version**: 2.12.5
+**Python Version**: 3.12
 **Purpose**: Research frozen immutable models for HOOK manifest validation tool
 
 ---
@@ -47,7 +47,7 @@ from pydantic import BaseModel
 
 class FrozenModel(BaseModel):
     model_config = {"frozen": True}
-    
+
     name: str
     value: int
 ```
@@ -59,7 +59,7 @@ from pydantic import BaseModel, ConfigDict
 
 class FrozenModel(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     name: str
     value: int
 ```
@@ -101,20 +101,20 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class Entity(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     # Required field with description
     name: str = Field(description="Entity name")
-    
+
     # Optional field (None allowed, with default)
     description: str | None = Field(default=None, description="Optional description")
-    
+
     # Default value (non-None)
     enabled: bool = Field(default=True)
-    
+
     # Numeric constraints
     count: int = Field(ge=0, le=100, description="Count between 0-100")
     priority: float = Field(gt=0.0, lt=1.0, description="Priority 0-1 exclusive")
-    
+
     # String constraints
     code: str = Field(
         min_length=1,
@@ -122,7 +122,7 @@ class Entity(BaseModel):
         pattern=r'^[a-z][a-z0-9_]*$',
         description="Lowercase snake_case identifier"
     )
-    
+
     # List constraints
     tags: list[str] = Field(default_factory=list, min_length=0, max_length=10)
 ```
@@ -144,13 +144,13 @@ from typing import Optional
 
 class Example(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     # Preferred in Python 3.10+ (cleaner syntax)
     field1: str | None = None
-    
+
     # Equivalent (works in Python 3.9+)
     field2: Optional[str] = None
-    
+
     # Optional with Field()
     field3: str | None = Field(default=None, description="Optional with metadata")
 ```
@@ -169,9 +169,9 @@ import re
 
 class Hook(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     name: str
-    
+
     @field_validator('name')
     @classmethod
     def validate_hook_name(cls, v: str) -> str:
@@ -187,10 +187,10 @@ class Hook(BaseModel):
 ```python
 class Settings(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     hook_prefix: str
     weak_hook_prefix: str
-    
+
     @field_validator('hook_prefix', 'weak_hook_prefix')
     @classmethod
     def validate_prefix(cls, v: str) -> str:
@@ -204,9 +204,9 @@ class Settings(BaseModel):
 ```python
 class Example(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     value: int
-    
+
     # mode='before': runs before Pydantic's internal validation
     @field_validator('value', mode='before')
     @classmethod
@@ -214,7 +214,7 @@ class Example(BaseModel):
         if isinstance(v, str):
             return int(v.strip())
         return v
-    
+
     # mode='after' (default): runs after Pydantic's validation
     @field_validator('value', mode='after')
     @classmethod
@@ -237,16 +237,16 @@ from typing import Self
 class Source(BaseModel):
     """Source must have exactly one of 'relation' or 'path'."""
     model_config = ConfigDict(frozen=True)
-    
+
     relation: str | None = Field(default=None, description="Database relation")
     path: str | None = Field(default=None, description="File system path")
-    
+
     @model_validator(mode='after')
     def check_exclusivity(self) -> Self:
         """Ensure exactly one of relation or path is set."""
         has_relation = self.relation is not None
         has_path = self.path is not None
-        
+
         if has_relation and has_path:
             raise ValueError("Source must have exactly one of 'relation' OR 'path', not both")
         if not has_relation and not has_path:
@@ -271,14 +271,14 @@ class Hook(BaseModel):
 class Frame(BaseModel):
     """Frame must have exactly one primary hook."""
     model_config = ConfigDict(frozen=True)
-    
+
     name: str
     hooks: list[Hook]
-    
+
     @model_validator(mode='after')
     def validate_single_primary(self) -> Self:
         primary_hooks = [h for h in self.hooks if h.role == HookRole.PRIMARY]
-        
+
         if len(primary_hooks) == 0:
             raise ValueError("Frame must have exactly one primary hook")
         if len(primary_hooks) > 1:
@@ -293,10 +293,10 @@ class Frame(BaseModel):
 ```python
 class FlexibleInput(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     name: str
     value: int
-    
+
     @model_validator(mode='before')
     @classmethod
     def preprocess(cls, data: dict) -> dict:
@@ -337,7 +337,7 @@ class Severity(str, Enum):
 ```python
 class Hook(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     name: str
     role: HookRole
 
@@ -383,32 +383,32 @@ from datetime import datetime
 
 class Metadata(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     name: str
     created_at: datetime
 
 class Settings(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     hook_prefix: str = "_hk"
     delimiter: str = "__"
 
 class Hook(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     name: str
     role: HookRole
 
 class Frame(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     name: str
     source: Source                              # Nested model
     hooks: list[Hook] = Field(default_factory=list)  # List of models
 
 class Manifest(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     metadata: Metadata                          # Required nested
     settings: Settings = Field(default_factory=Settings)  # Optional with default
     frames: list[Frame] = Field(default_factory=list)
@@ -422,14 +422,14 @@ from pydantic import BaseModel, ConfigDict
 
 class TreeNode(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     value: str
     children: list[TreeNode] = []  # Self-reference works with __future__ import
 
 # Alternative: use string annotation
 class TreeNodeAlt(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     value: str
     children: list["TreeNodeAlt"] = []
 
@@ -448,7 +448,7 @@ from datetime import datetime, timezone
 
 class Metadata(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     name: str
     created_at: datetime
     updated_at: datetime | None = None
@@ -588,7 +588,7 @@ SnakeCase = Annotated[str, Field(pattern=r'^[a-z][a-z0-9_]*$')]
 
 class Config(BaseModel):
     model_config = ConfigDict(frozen=True)
-    
+
     version: SemVer
     name: SnakeCase
     count: PositiveInt
@@ -645,7 +645,7 @@ SnakeCase = Annotated[str, Field(min_length=1, pattern=r'^[a-z][a-z0-9_]*$')]
 class Metadata(BaseModel):
     """Manifest metadata with timestamps."""
     model_config = ConfigDict(frozen=True, extra='forbid')
-    
+
     name: str = Field(min_length=1, max_length=100, description="Manifest name")
     description: str | None = Field(default=None, description="Manifest description")
     created_at: datetime = Field(description="Creation timestamp (ISO 8601)")
@@ -655,11 +655,11 @@ class Metadata(BaseModel):
 class Settings(BaseModel):
     """Manifest settings with sensible defaults."""
     model_config = ConfigDict(frozen=True, extra='forbid')
-    
+
     hook_prefix: str = Field(default="_hk", description="Strong hook prefix")
     weak_hook_prefix: str = Field(default="_wk", description="Weak hook prefix")
     delimiter: str = Field(default="__", description="Hook name delimiter")
-    
+
     @field_validator('hook_prefix', 'weak_hook_prefix')
     @classmethod
     def validate_prefix(cls, v: str) -> str:
@@ -671,16 +671,16 @@ class Settings(BaseModel):
 class Source(BaseModel):
     """Data source - exactly one of relation or path must be set."""
     model_config = ConfigDict(frozen=True, extra='forbid')
-    
+
     relation: str | None = Field(default=None, description="Database relation reference")
     path: str | None = Field(default=None, description="File system path")
-    
+
     @model_validator(mode='after')
     def check_exclusivity(self) -> Self:
         """Ensure exactly one of relation or path is set."""
         has_relation = self.relation is not None
         has_path = self.path is not None
-        
+
         if has_relation and has_path:
             raise ValueError(
                 "Source must have exactly one of 'relation' OR 'path', not both"
@@ -695,7 +695,7 @@ class Source(BaseModel):
 class Hook(BaseModel):
     """Hook definition with naming convention validation."""
     model_config = ConfigDict(frozen=True, extra='forbid')
-    
+
     name: str = Field(description="Hook name following naming convention")
     role: HookRole = Field(description="Hook role (primary/foreign)")
     concept: str | None = Field(default=None, description="Associated concept name")
@@ -703,7 +703,7 @@ class Hook(BaseModel):
     source: str | None = Field(default=None, description="Source reference for foreign hooks")
     tenant: str | None = Field(default=None, description="Tenant identifier")
     expr: str | None = Field(default=None, description="Expression for computed hooks")
-    
+
     @field_validator('name')
     @classmethod
     def validate_hook_name(cls, v: str) -> str:
@@ -719,7 +719,7 @@ class Hook(BaseModel):
 class Concept(BaseModel):
     """Business concept definition."""
     model_config = ConfigDict(frozen=True, extra='forbid')
-    
+
     name: str = Field(min_length=1, description="Concept name")
     description: str | None = Field(default=None, description="Concept description")
     examples: list[str] = Field(default_factory=list, description="Example values")
@@ -729,17 +729,17 @@ class Concept(BaseModel):
 class Frame(BaseModel):
     """Data frame with hooks - must have exactly one primary hook."""
     model_config = ConfigDict(frozen=True, extra='forbid')
-    
+
     name: str = Field(min_length=1, description="Frame name")
     source: Source = Field(description="Data source")
     description: str | None = Field(default=None, description="Frame description")
     hooks: list[Hook] = Field(default_factory=list, description="Frame hooks")
-    
+
     @model_validator(mode='after')
     def validate_single_primary(self) -> Self:
         """Ensure exactly one primary hook exists."""
         primary_hooks = [h for h in self.hooks if h.role == HookRole.PRIMARY]
-        
+
         if len(primary_hooks) == 0:
             raise ValueError("Frame must have exactly one primary hook")
         if len(primary_hooks) > 1:
@@ -752,7 +752,7 @@ class Frame(BaseModel):
 class Diagnostic(BaseModel):
     """Validation diagnostic message."""
     model_config = ConfigDict(frozen=True, extra='forbid')
-    
+
     rule_id: str = Field(description="Diagnostic rule identifier")
     severity: Severity = Field(description="Severity level")
     message: str = Field(description="Human-readable message")
@@ -763,7 +763,7 @@ class Diagnostic(BaseModel):
 class Manifest(BaseModel):
     """Root manifest model containing all configuration."""
     model_config = ConfigDict(frozen=True, extra='forbid')
-    
+
     manifest_version: SemVer = Field(default="1.0.0")
     schema_version: SemVer = Field(default="1.0.0")
     metadata: Metadata = Field(description="Manifest metadata")
@@ -779,7 +779,7 @@ class Manifest(BaseModel):
 if __name__ == "__main__":
     from datetime import timezone
     import json
-    
+
     # Create a complete manifest
     manifest = Manifest(
         metadata=Metadata(
@@ -811,10 +811,10 @@ if __name__ == "__main__":
             Concept(name="order", description="A sales order"),
         ]
     )
-    
+
     # Serialize to JSON
     print(manifest.model_dump_json(indent=2, exclude_none=True))
-    
+
     # Verify immutability
     try:
         manifest.metadata.name = "changed"

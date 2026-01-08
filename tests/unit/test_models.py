@@ -192,10 +192,10 @@ class TestHookModel:
         from dot.models.frame import Hook, HookRole
 
         with pytest.raises(ValidationError):
-            Hook(
+            Hook(  # type: ignore[call-arg]
                 name="_hk__customer",
                 role=HookRole.PRIMARY,
-                # Missing: concept, source, expr
+                # Missing: concept, source, expr - intentionally testing validation
             )
 
     def test_hook_optional_fields_default(self) -> None:
@@ -470,6 +470,7 @@ class TestManifestModel:
         )
         assert manifest.manifest_version == "1.0.0"
         assert manifest.schema_version == "1.0.0"
+        assert manifest.metadata is not None
         assert manifest.metadata.name == "Test"
         assert manifest.settings.hook_prefix == "_hk__"
         assert len(manifest.frames) == 1

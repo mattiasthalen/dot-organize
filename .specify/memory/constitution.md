@@ -2,21 +2,21 @@
   SYNC IMPACT REPORT
   Version change: 1.1.0 → 1.2.0
   Bump rationale: MINOR — new mandatory Spec-First Change Management guidance added
-  
+
   Added Sections:
   - Project-Level Constraints > Spec-First Change Management
-  
+
   Modified Sections:
   - None
-  
+
   Removed Sections:
   - None
-  
+
   Templates requiring updates:
   - .specify/templates/plan-template.md ✅ (no updates required)
   - .specify/templates/spec-template.md ✅ (no updates required)
   - .specify/templates/tasks-template.md ✅ (no updates required)
-  
+
   Follow-up TODOs:
   - None
 -->

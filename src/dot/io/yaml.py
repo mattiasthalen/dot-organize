@@ -80,9 +80,9 @@ def _convert_ordered_dict_to_dict(data: Any) -> Any:
     """
     from collections import OrderedDict
 
-    if isinstance(data, (dict, OrderedDict)):
+    if isinstance(data, dict | OrderedDict):
         return {k: _convert_ordered_dict_to_dict(v) for k, v in data.items()}
-    elif isinstance(data, (list, tuple)):
+    elif isinstance(data, list | tuple):
         return [_convert_ordered_dict_to_dict(item) for item in data]
     return data
 
