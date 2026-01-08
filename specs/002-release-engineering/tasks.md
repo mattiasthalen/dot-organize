@@ -180,21 +180,21 @@
 
 ### Implementation
 
-- [ ] T052 [REFACTOR] Create `scripts/bump.py` with version parsing, bump logic, and tag creation (port from bump.sh)
-- [ ] T053 [REFACTOR] Create `scripts/bootstrap.py` with environment setup logic (port from bootstrap.sh)
-- [ ] T054 [REFACTOR] Update Makefile to call `python scripts/<name>.py` instead of bash scripts
-- [ ] T055 [REFACTOR] Update `.devcontainer/devcontainer.json` to use `python scripts/bootstrap.py`
+- [x] T052 [REFACTOR] Create `scripts/bump.py` with version parsing, bump logic, and tag creation (port from bump.sh)
+- [x] T053 [REFACTOR] Create `scripts/bootstrap.py` with environment setup logic (port from bootstrap.sh)
+- [x] T054 [REFACTOR] Update Makefile to call `python scripts/<name>.py` instead of bash scripts
+- [x] T055 [REFACTOR] Update `.devcontainer/devcontainer.json` to use `python scripts/bootstrap.py`
 
 ### Verification
 
-- [ ] T056 [REFACTOR] Verify `python scripts/bump.py patch` works on Linux/macOS
-- [ ] T057 [REFACTOR] Verify `python scripts/bootstrap.py` works on Linux/macOS
-- [ ] T058 [REFACTOR] Update CONTRIBUTING.md with Python script commands
+- [x] T056 [REFACTOR] Verify `python scripts/bump.py patch` works on Linux/macOS
+- [x] T057 [REFACTOR] Verify `python scripts/bootstrap.py` works on Linux/macOS
+- [x] T058 [REFACTOR] Update CONTRIBUTING.md with Python script commands
 
 ### Cleanup
 
-- [ ] T059 [REFACTOR] Delete `scripts/bump.sh` after migration verified
-- [ ] T060 [REFACTOR] Delete `scripts/bootstrap.sh` after migration verified
+- [x] T059 [REFACTOR] Delete `scripts/bump.sh` after migration verified
+- [x] T060 [REFACTOR] Delete `scripts/bootstrap.sh` after migration verified
 
 **Checkpoint**: All helper commands work cross-platform via `python scripts/<name>.py`
 

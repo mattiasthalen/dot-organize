@@ -24,7 +24,7 @@ help:
 
 # Setup targets
 bootstrap:
-	@./scripts/bootstrap.sh
+	@python scripts/bootstrap.py
 
 install:
 	uv pip install -e .
@@ -41,16 +41,16 @@ test:
 
 # Release targets (FR-004, FR-005, FR-006, FR-007)
 bump-patch:
-	@./scripts/bump.sh patch
+	@python scripts/bump.py patch
 
 bump-minor:
-	@./scripts/bump.sh minor
+	@python scripts/bump.py minor
 
 bump-major:
-	@./scripts/bump.sh major
+	@python scripts/bump.py major
 
 bump-version:
-	@./scripts/bump.sh version $(VERSION)
+	@python scripts/bump.py version $(VERSION)
 
 # Cleanup
 clean:

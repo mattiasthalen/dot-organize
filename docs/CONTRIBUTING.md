@@ -20,7 +20,7 @@ The devcontainer will:
 3. Run the bootstrap script:
 
 ```bash
-./scripts/bootstrap.sh
+python scripts/bootstrap.py
 ```
 
 Or manually:
@@ -30,6 +30,8 @@ uv venv
 uv pip install -e ".[dev,test]"
 pre-commit install
 ```
+
+**Note**: All helper scripts are cross-platform Python (Windows/macOS/Linux).
 
 ### CI Environment Notes
 
