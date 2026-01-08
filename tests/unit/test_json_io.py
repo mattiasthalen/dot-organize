@@ -7,6 +7,7 @@ from pathlib import Path
 from textwrap import dedent
 
 import pytest
+
 from dot.io.json import (
     dump_manifest_json,
     load_manifest_json,

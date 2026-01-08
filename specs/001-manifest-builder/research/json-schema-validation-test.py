@@ -478,11 +478,11 @@ def test_performance():
     fastjsonschema_time = time.perf_counter() - start
 
     print(f"\n7.1 Performance ({iterations} validations):")
-    print(f"    jsonschema:     {jsonschema_time:.3f}s ({iterations/jsonschema_time:.0f} ops/s)")
+    print(f"    jsonschema:     {jsonschema_time:.3f}s ({iterations / jsonschema_time:.0f} ops/s)")
     print(
-        f"    fastjsonschema: {fastjsonschema_time:.3f}s ({iterations/fastjsonschema_time:.0f} ops/s)"
+        f"    fastjsonschema: {fastjsonschema_time:.3f}s ({iterations / fastjsonschema_time:.0f} ops/s)"
     )
-    print(f"    Speedup:        {jsonschema_time/fastjsonschema_time:.1f}x faster")
+    print(f"    Speedup:        {jsonschema_time / fastjsonschema_time:.1f}x faster")
 
 
 def test_best_format_errors():

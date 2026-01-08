@@ -6,8 +6,9 @@ TDD - Write tests FIRST, must FAIL before implementation
 from pathlib import Path
 
 import pytest
-from dot.cli.main import app
 from typer.testing import CliRunner
+
+from dot.cli.main import app
 
 runner = CliRunner()
 

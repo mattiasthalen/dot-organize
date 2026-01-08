@@ -12,27 +12,29 @@ repos:
       - id: check-added-large-files
       - id: check-toml
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.10
-    hooks:
-      # Run the linter
-      - id: ruff
-        args: [--fix]
-      # Run the formatter
-      - id: ruff-format
-
-  # Local hooks using uv for full environment access
+  # All Python tools run via uv for consistent environment
   - repo: local
     hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
+
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types: [python]
+
       - id: mypy
         name: mypy
-        entry: uv run mypy --strict
+        entry: uv run mypy --strict src/ tests/
         language: system
         types: [python]
         # Exclude research scripts - they're exploratory
         exclude: ^specs/.*/research/.*\.py$
         pass_filenames: false
-        args: [src/, tests/]
 
       - id: pytest
         name: pytest
@@ -40,5 +42,3 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
-        # Only run when Python files change
-        stages: [pre-commit]
