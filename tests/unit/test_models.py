@@ -470,6 +470,7 @@ class TestManifestModel:
         )
         assert manifest.manifest_version == "1.0.0"
         assert manifest.schema_version == "1.0.0"
+        assert manifest.metadata is not None
         assert manifest.metadata.name == "Test"
         assert manifest.settings.hook_prefix == "_hk__"
         assert len(manifest.frames) == 1

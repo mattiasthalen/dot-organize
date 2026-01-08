@@ -5,6 +5,7 @@ JSON Schema Validation Research Script
 Testing jsonschema and fastjsonschema libraries for HOOK manifest validation.
 """
 
+import contextlib
 import json
 from pathlib import Path
 
@@ -472,10 +473,8 @@ def test_performance():
     validate_fast = fastjsonschema.compile(schema)
     start = time.perf_counter()
     for _ in range(iterations):
-        try:
+        with contextlib.suppress(Exception):
             validate_fast(valid_manifest)
-        except:
-            pass
     fastjsonschema_time = time.perf_counter() - start
 
     print(f"\n7.1 Performance ({iterations} validations):")

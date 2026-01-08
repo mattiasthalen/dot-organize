@@ -18,24 +18,21 @@ repos:
       # Run the linter
       - id: ruff
         args: [--fix]
-        exclude: ^specs/.*/research/.*\.py$
       # Run the formatter
       - id: ruff-format
-        exclude: ^specs/.*/research/.*\.py$
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.10.0
     hooks:
       - id: mypy
         args: [--strict]
-        # Exclude research scripts and tests from strict mypy checks
-        exclude: |
-          (?x)^(
-            specs/.*/research/.*\.py$|
-            tests/.*\.py$
-          )$
+        # Only check src/ - tests require the package installed which pre-commit can't do
+        # Tests are checked by CI with full environment
+        files: ^src/
         additional_dependencies:
           - pydantic>=2.0.0
           - typer>=0.9.0
           - types-PyYAML
           - ruamel.yaml>=0.18.0
+          - questionary>=2.0.0
+          - typing-extensions>=4.15.0
