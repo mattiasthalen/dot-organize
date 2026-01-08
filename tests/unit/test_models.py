@@ -192,10 +192,10 @@ class TestHookModel:
         from dot.models.frame import Hook, HookRole
 
         with pytest.raises(ValidationError):
-            Hook(
+            Hook(  # type: ignore[call-arg]
                 name="_hk__customer",
                 role=HookRole.PRIMARY,
-                # Missing: concept, source, expr
+                # Missing: concept, source, expr - intentionally testing validation
             )
 
     def test_hook_optional_fields_default(self) -> None:

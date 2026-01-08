@@ -21,18 +21,24 @@ repos:
       # Run the formatter
       - id: ruff-format
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.10.0
+  # Local hooks using uv for full environment access
+  - repo: local
     hooks:
       - id: mypy
-        args: [--strict]
-        # Only check src/ - tests require the package installed which pre-commit can't do
-        # Tests are checked by CI with full environment
-        files: ^src/
-        additional_dependencies:
-          - pydantic>=2.0.0
-          - typer>=0.9.0
-          - types-PyYAML
-          - ruamel.yaml>=0.18.0
-          - questionary>=2.0.0
-          - typing-extensions>=4.15.0
+        name: mypy
+        entry: uv run mypy --strict
+        language: system
+        types: [python]
+        # Exclude research scripts - they're exploratory
+        exclude: ^specs/.*/research/.*\.py$
+        pass_filenames: false
+        args: [src/, tests/]
+
+      - id: pytest
+        name: pytest
+        entry: uv run pytest -x -q
+        language: system
+        types: [python]
+        pass_filenames: false
+        # Only run when Python files change
+        stages: [pre-commit]
