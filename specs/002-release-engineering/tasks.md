@@ -310,12 +310,12 @@ Phase 1 (Setup) ─► Phase 2 (Foundational) ─► Phase 3 (US3) ─► Phase 
 
 **Purpose**: Ensure quality tools (ruff, mypy, pylance) check only production code, excluding exploratory research scripts
 
-- [ ] T061 [US4] Configure pyproject.toml: ruff `exclude` pattern for _version.py and research/
-- [ ] T062 [US4] Configure pyproject.toml: mypy `exclude` pattern for research/ (paths passed via CLI)
-- [ ] T063 [US4] Configure pyproject.toml: pyright `include` for src/, tests/, scripts/
-- [ ] T064 [US4] Update CI workflow: mypy checks src/, tests/, scripts/ (explicit paths)
-- [ ] T065 [US4] Update pre-commit: mypy checks src/, tests/, scripts/ (explicit paths)
-- [ ] T066 [US4] Verify pre-commit passes with new scope: `pre-commit run --all-files`
+- [X] T061 [US4] Configure pyproject.toml: ruff `exclude` pattern for _version.py and research/
+- [X] T062 [US4] Configure pyproject.toml: mypy `exclude` pattern for research/ (paths passed via CLI)
+- [X] T063 [US4] Configure pyproject.toml: pyright `include` for src/, tests/, scripts/
+- [X] T064 [US4] Update CI workflow: mypy checks src/, tests/, scripts/ (explicit paths)
+- [X] T065 [US4] Update pre-commit: mypy checks src/, tests/, scripts/ (explicit paths)
+- [X] T066 [US4] Verify pre-commit passes with new scope: `pre-commit run --all-files`
 
 ---
 

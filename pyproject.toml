@@ -106,6 +106,9 @@ exclude = [
 ]
 disallow_incomplete_defs = true
 
+[tool.pyright]
+include = ["src", "tests", "scripts"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
