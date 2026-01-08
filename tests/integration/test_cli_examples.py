@@ -281,6 +281,6 @@ class TestExamplesGoldenValidation:
             manifest_path.write_text(show_result.output)
 
             validate_result = runner.invoke(app, ["validate", str(manifest_path)])
-            assert (
-                validate_result.exit_code == 0
-            ), f"Example '{example_name}' failed validation:\n{validate_result.output}"
+            assert validate_result.exit_code == 0, (
+                f"Example '{example_name}' failed validation:\n{validate_result.output}"
+            )

@@ -179,9 +179,9 @@ class TestNFR003MemoryUnder100MB:
 
             # Memory increase should be reasonable (well under 100MB)
             # Note: This is a rough check since Python GC makes exact measurement hard
-            assert (
-                memory_increase < 100
-            ), f"Memory increased by {memory_increase:.1f}MB, expected <100MB"
+            assert memory_increase < 100, (
+                f"Memory increased by {memory_increase:.1f}MB, expected <100MB"
+            )
 
         finally:
             # Cleanup
