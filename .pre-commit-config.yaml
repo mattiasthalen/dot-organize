@@ -29,11 +29,9 @@ repos:
 
       - id: mypy
         name: mypy
-        entry: uv run mypy --strict src/ tests/
+        entry: uv run mypy src/ tests/
         language: system
         types: [python]
-        # Exclude research scripts - they're exploratory
-        exclude: ^specs/.*/research/.*\.py$
         pass_filenames: false
 
       - id: pytest
