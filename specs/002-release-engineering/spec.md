@@ -17,6 +17,10 @@
 - Q: What format should annotated tag messages use? → A: Simple release prefix: `Release vX.Y.Z`
 - Q: What is the default starting version when no SemVer tags exist? → A: `v0.0.0` (first bump creates `v0.0.1`)
 
+### Session 2026-01-08
+
+- Q: What is the scope of code quality checks (ruff, mypy, pylance)? → A: Quality checks MUST run on production code directories only: `src/`, `tests/`, and `scripts/`. Research/exploratory scripts in `specs/**/research/` are explicitly excluded from type-checking and linting to allow rapid prototyping without strict compliance requirements.
+
 ---
 
 ## Overview
