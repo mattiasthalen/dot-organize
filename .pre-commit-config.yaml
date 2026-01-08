@@ -2,13 +2,6 @@
 # See https://pre-commit.com for more information
 # Run: pre-commit install to set up the git hooks
 
-# Exclude research/exploratory scripts and test files from strict checks
-exclude: |
-  (?x)^(
-    specs/.*/research/.*\.py$|
-    tests/.*\.py$
-  )$
-
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
@@ -25,14 +18,22 @@ repos:
       # Run the linter
       - id: ruff
         args: [--fix]
+        exclude: ^specs/.*/research/.*\.py$
       # Run the formatter
       - id: ruff-format
+        exclude: ^specs/.*/research/.*\.py$
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.10.0
     hooks:
       - id: mypy
         args: [--strict]
+        # Exclude research scripts and tests from strict mypy checks
+        exclude: |
+          (?x)^(
+            specs/.*/research/.*\.py$|
+            tests/.*\.py$
+          )$
         additional_dependencies:
           - pydantic>=2.0.0
           - typer>=0.9.0

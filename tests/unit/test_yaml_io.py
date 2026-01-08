@@ -7,7 +7,6 @@ from pathlib import Path
 from textwrap import dedent
 
 import pytest
-
 from dot.io.yaml import (
     ParseError,
     load_manifest_yaml,

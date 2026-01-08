@@ -19,9 +19,8 @@ from unittest.mock import patch
 
 import pytest
 import yaml
-from typer.testing import CliRunner
-
 from dot.cli.main import app
+from typer.testing import CliRunner
 
 runner = CliRunner()
 
