@@ -212,6 +212,6 @@ As a contributor working outside the devcontainer, I can follow documented steps
 
 1. ~~What is the exact dev-version format for non-tagged commits?~~ → **Resolved**: PEP 440 local version `MAJOR.MINOR.PATCH.devN+gCOMMIT`
 2. ~~How/where is the resolved version surfaced?~~ → **Resolved**: Both CLI (`dot --version`) and package metadata (`dot.__version__`)
-3. What is the exact bootstrap mechanism and where does it live? (scripts, make targets, etc.)
-4. Which quality checks are enforced via pre-commit hooks?
+3. ~~What is the exact bootstrap mechanism and where does it live?~~ → **Resolved**: Python scripts in `scripts/` (`bootstrap.py`, `bump.py`) with Makefile convenience wrapper
+4. ~~Which quality checks are enforced via pre-commit hooks?~~ → **Resolved**: ruff (check + format), mypy, pytest; scope limited to `src/`, `tests/`, `scripts/`
 5. ~~Should CI/CD release automation be included in this feature or deferred to a follow-on feature?~~ → **Resolved**: Deferred to follow-on feature

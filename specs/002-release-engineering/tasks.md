@@ -289,6 +289,9 @@ Phase 1 (Setup) ─► Phase 2 (Foundational) ─► Phase 3 (US3) ─► Phase 
 | FR-024 (bootstrap docs) | T041 | US5 |
 | FR-025 (pre-commit docs) | T042 | US5 |
 | Edge: CI environment | T043 | US5 |
+| NFR-001 (Python scripts) | T052, T053 | Cross-Platform |
+| NFR-002 (direct execution) | T056, T057 | Cross-Platform |
+| NFR-003 (Makefile optional) | T054 | Cross-Platform |
 
 ---
 

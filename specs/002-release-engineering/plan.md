@@ -200,13 +200,15 @@ rm -f src/dot/_version.py
 **Research Reference**: [research.md §2 - Bump Helper Implementation](research.md#2-bump-helper-implementation)
 **Depends on**: Phase 1 complete (version resolution must work for verification)
 
+**Note**: Originally planned as bash scripts, but migrated to Python for cross-platform compatibility (NFR-001). See Phase 9 tasks (T052-T060) for final implementation.
+
 #### Task Sequence
 
 | # | Task | File | Action |
 |---|------|------|--------|
 | 2.1 | Create scripts directory | `scripts/` | Create dir |
-| 2.2 | Create bump script | `scripts/bump.sh` | Create |
-| 2.3 | Make script executable | `scripts/bump.sh` | chmod +x |
+| 2.2 | Create bump script | `scripts/bump.py` | Create |
+| 2.3 | *(N/A - Python scripts don't need chmod)* | — | — |
 | 2.4 | Create Makefile | `Makefile` | Create |
 | 2.5 | Verify bump commands | Terminal | Test |
 
