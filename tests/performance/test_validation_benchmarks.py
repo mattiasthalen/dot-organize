@@ -17,6 +17,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 import pytest
+
 from dot.core.validation import validate_manifest
 from dot.io.yaml import dump_manifest_yaml, load_manifest_yaml
 from dot.models.frame import Frame, Hook, HookRole, Source
