@@ -22,12 +22,11 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"GitHub.copilot-chat",
-				"GitHub.copilot",
+				"eamodio.gitlens",
 				"mhutchie.git-graph",
 				"ms-python.python",
 				"ms-python.vscode-pylance",
-				"eamodio.gitlens"
+				"openai.chatgpt"
 			]
 		}
 	},
