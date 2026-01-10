@@ -197,3 +197,4 @@ cython_debug/
 .codex/**
 !.codex/config.toml
 !.codex/prompts
+!.codex/prompts/*
